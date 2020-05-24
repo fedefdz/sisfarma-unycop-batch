@@ -59,6 +59,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     .ToIntegerOrDefault();
 
             var ventas = _farmacia.Ventas.GetAllByIdGreaterOrEqual(ventaIdConfiguracion, fechaInicial);
+            var batchPuntosPendientes = new List<PuntosPendientes>();
             foreach (var venta in ventas)
             {
                 Task.Delay(300).Wait();
@@ -94,12 +95,14 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 }
 
                 var puntosPendientes = GenerarPuntosPendientes(venta);
-                foreach (var puntoPendiente in puntosPendientes)
-                {
-                    _sisfarma.PuntosPendientes.Sincronizar(puntoPendiente, calcularPuntos: true);
+                batchPuntosPendientes.AddRange(puntosPendientes);                
+            }
 
-                    _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_VENTA_MES_ID, $"{venta.Id}");
-                }
+            if (batchPuntosPendientes.Any())
+            {
+                _sisfarma.PuntosPendientes.Sincronizar(batchPuntosPendientes, calcularPuntos: true);
+                //_sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_VENTA_MES_ID, $"{ventas.Last().Id}");
+                
             }
 
             _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_VENTA_MES_ID, "0");

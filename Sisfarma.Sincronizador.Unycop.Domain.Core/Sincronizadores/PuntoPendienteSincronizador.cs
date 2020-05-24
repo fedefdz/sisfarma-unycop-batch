@@ -26,7 +26,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         private bool _debeCopiarClientes;
         private string _copiarClientes;
         private ICollection<int> _aniosProcesados;
+        private Venta _ultimaVentaCargada;
         private readonly string FILE_LOG;
+        
 
         public PuntoPendienteSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
             : base(farmacia, fisiotes)
@@ -56,6 +58,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
+            if (_ultimaVentaCargada != null && TimeSpan.FromMinutes(1) > DateTime.Now - _ultimaVentaCargada.FechaHora)
+                return;
+
             var anioProcesando = _aniosProcesados.Any() ? _aniosProcesados.Last() : $"{_ultimaVenta}".Substring(0, 4).ToIntegerOrDefault();
             
             var ventaId = int.Parse($"{_ultimaVenta}".Substring(4));
@@ -72,7 +77,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 return;
             }
 
-            
+            var batchPuntosPendientes = new List<PuntosPendientes>();
             foreach (var venta in ventas)
             {                
                 Task.Delay(300).Wait();
@@ -112,16 +117,16 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 }                                
 
                 var puntosPendientes = GenerarPuntosPendientes(venta);
-                foreach (var puntoPendiente in puntosPendientes)
-                {
-                    //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Sincronizando {puntoPendiente.VentaId} | {puntoPendiente.LineaNumero}", FILE_LOG);
-                    _sisfarma.PuntosPendientes.Sincronizar(puntoPendiente);
-                    //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " +  $"Sincronizada {puntoPendiente.VentaId} | {puntoPendiente.LineaNumero}", FILE_LOG);
-                }
-
-                _ultimaVenta = $"{venta.FechaHora.Year}{venta.Id}".ToIntegerOrDefault(); // 201969560
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Actualizada ultima venta {_ultimaVenta}", FILE_LOG);
+                batchPuntosPendientes.AddRange(puntosPendientes);                
             }
+
+            //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Sincronizando {puntoPendiente.VentaId} | {puntoPendiente.LineaNumero}", FILE_LOG);
+            _sisfarma.PuntosPendientes.Sincronizar(batchPuntosPendientes);
+            //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " +  $"Sincronizada {puntoPendiente.VentaId} | {puntoPendiente.LineaNumero}", FILE_LOG);
+
+            _ultimaVenta = $"{ventas.Last().FechaHora.Year}{ventas.Last().Id}".ToIntegerOrDefault(); // 201969560
+            _ultimaVentaCargada = ventas.Last();
+            //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Actualizada ultima venta {_ultimaVenta}", FILE_LOG);
 
             // <= 1 porque las ventas se recuperan con >= ventaID
             // si año procesando es el actual no realizar cambios
@@ -129,6 +134,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             {
                 _aniosProcesados.Add(anioProcesando + 1);
                 _ultimaVenta = $"{anioProcesando + 1 }{0}".ToIntegerOrDefault();
+                _ultimaVentaCargada = null;
                 //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Actualizada ultima venta cambio de año {_ultimaVenta}", FILE_LOG);
             }                                        
         }

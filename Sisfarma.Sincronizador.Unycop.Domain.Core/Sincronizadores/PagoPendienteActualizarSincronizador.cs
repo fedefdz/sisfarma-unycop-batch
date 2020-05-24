@@ -91,6 +91,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     return;
                 }
 
+                var batchPuntosPendientes = new List<PuntosPendientes>();
                 foreach (var venta in ventas)
                 {
                     Task.Delay(5).Wait();
@@ -120,12 +121,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
 
                     var puntosPendientes = GenerarPuntosPendientes(venta);
-                    foreach (var puntoPendiente in puntosPendientes)
-                    {                     
-                        _sisfarma.PuntosPendientes.Sincronizar(puntoPendiente);
-                        _ultimaVenta = puntoPendiente.VentaId;
-                    }                    
-                }                                
+                    batchPuntosPendientes.AddRange(puntosPendientes);                                        
+                }
+
+                _sisfarma.PuntosPendientes.Sincronizar(batchPuntosPendientes);
+                _ultimaVenta = batchPuntosPendientes.Last().VentaId;
             }            
         }
 
