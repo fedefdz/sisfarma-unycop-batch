@@ -6,6 +6,7 @@ using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
@@ -71,9 +72,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             throw new NotImplementedException();
         }
 
-        public void Sincronizar(Medicamento mm, bool controlado = false)
+        public void Sincronizar(IEnumerable<Medicamento> mms, bool controlado = false)
         {
-            var medicamento = new[] { new
+            var bulk = mms.Select(mm => new
                 {
                     actualizadoPS = 1,
                     cod_barras = mm.cod_barras.Strip(),
@@ -103,11 +104,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                     fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
                     fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
                     baja = mm.baja.ToInteger()
-                }};
+                }).ToArray();
 
             _restClient.
                 Resource(_config.Medicamentos.Insert)
-                .SendPost(new { bulk = medicamento, controlado = controlado });
+                .SendPost(new { bulk = bulk, controlado = controlado });
         }
 
         public void Update(Medicamento mm, bool withSqlExtra = false)

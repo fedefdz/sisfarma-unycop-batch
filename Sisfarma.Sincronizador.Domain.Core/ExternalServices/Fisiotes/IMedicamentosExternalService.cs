@@ -19,6 +19,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
 
     public interface IMedicamentosExternalServiceNew
     {
-        void Sincronizar(Medicamento medicamento, bool controlado = false);
+        void Sincronizar(IEnumerable<Medicamento> medicamentos, bool controlado = false);
     }
 }

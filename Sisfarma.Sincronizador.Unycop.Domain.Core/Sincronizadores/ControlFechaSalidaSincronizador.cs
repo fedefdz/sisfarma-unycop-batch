@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
@@ -40,16 +42,22 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var repository = _farmacia.Farmacos as FarmacoRespository;
             var farmacos = repository.GetAllByFechaUltimaSalidaGreaterOrEqualAsDTO(_ultimoFechaActualizacionStockSincronizado);
 
+            if (!farmacos.Any())
+                return;
+
+            var medicamentos = new List<Medicamento>();
             foreach (var farmaco in farmacos)
             {
                 Task.Delay(5).Wait();
 
                 _cancellationToken.ThrowIfCancellationRequested();
                 var medicamento = GenerarMedicamento(repository.GenerarFarmaco(farmaco));
-                _sisfarma.Medicamentos.Sincronizar(medicamento, controlado: true);
-
-                _ultimoFechaActualizacionStockSincronizado = medicamento.fechaUltimaVenta ?? DateTime.Now;
+                medicamentos.Add(medicamento);                
             }
+
+            _sisfarma.Medicamentos.Sincronizar(medicamentos, controlado: true);
+
+            _ultimoFechaActualizacionStockSincronizado = medicamentos.Last().fechaUltimaVenta ?? DateTime.Now;
         }
 
         public Medicamento GenerarMedicamento(Farmaco farmaco)
