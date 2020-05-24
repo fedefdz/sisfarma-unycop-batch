@@ -60,6 +60,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             k => new RecepcionCompositeKey { Anio = k.Key.Year, Albaran = k.Key.Value },
                             v => v.ToList());
 
+            var batchLineasPedidos = new List<LineaPedido>();
+            var batchPedidos = new List<SF.Pedido>();
+
             foreach (var group in groups)
             {
                 Task.Delay(5).Wait();
@@ -163,7 +166,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                         };
 
                         detalle.Add(recepcionDetalle);
-                        _sisfarma.Pedidos.Sincronizar(GenerarLineaDePedido(recepcionDetalle));
+                        batchLineasPedidos.Add(GenerarLineaDePedido(recepcionDetalle));
                     }                    
                 }
 
@@ -171,7 +174,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 {
                     recepcion.Lineas = detalle.Count();                    
                     var pedido = GenerarPedido(recepcion);
-                    _sisfarma.Pedidos.Sincronizar(pedido);                    
+                    batchPedidos.Add(pedido);                    
 
                     _lastPedido = pedido;
                 }
@@ -182,7 +185,10 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     
                     _lastPedido = pedido;
                 }
-            }            
+            }           
+            
+            if (batchLineasPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchLineasPedidos);
+            if (batchPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchPedidos);
         }
 
         internal class RecepcionCompositeKey
