@@ -194,11 +194,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                     puntos = puntos
                 });
         }
-
-        public void Sincronizar(IEnumerable<PuntosPendientes> pp)
-        {
-            
-        }
+      
 
         public void Update(long venta)
         {
