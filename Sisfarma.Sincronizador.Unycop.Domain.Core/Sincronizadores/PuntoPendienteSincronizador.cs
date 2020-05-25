@@ -258,14 +258,16 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         private void InsertOrUpdateCliente(FAR.Cliente cliente)
         {                        
             var debeCargarPuntos = _puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(_puntosDeSisfarma);
+            cliente.DebeCargarPuntos = debeCargarPuntos;
 
             if (_perteneceFarmazul)
             {
                 var tipo = ConfiguracionPredefinida[Configuracion.FIELD_TIPO_BEBLUE];
                 var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}", tipo);
-                _sisfarma.Clientes.Sincronizar(cliente, beBlue, debeCargarPuntos);                
+                cliente.BeBlue = beBlue;                
             }
-            else _sisfarma.Clientes.Sincronizar(cliente, debeCargarPuntos);            
+            
+            _sisfarma.Clientes.Sincronizar(new List<FAR.Cliente>() { cliente });            
         }
 
         public MedicamentoP GenerarMedicamentoP(Farmaco farmaco)

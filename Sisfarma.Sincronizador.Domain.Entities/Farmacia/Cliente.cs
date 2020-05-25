@@ -41,6 +41,10 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
 
         public string NombreCompleto { get; set; }
 
+        public bool? BeBlue { get; set; } = null;
+
+        public bool DebeCargarPuntos { get; set; }
+
         public bool HasTarjeta() => !string.IsNullOrWhiteSpace(Tarjeta);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
@@ -37,7 +38,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 var repository = _farmacia.Clientes as ClientesRepository;
                 List<DTO.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado);
 
+                if (!localClientes.Any())
+                    return;
+
                 //var hueco = -1L;
+                var batchClientes = new List<Cliente>();
                 foreach (var cliente in localClientes)
                 {
                     Task.Delay(5).Wait();
@@ -45,7 +50,17 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
                     //if (hueco == -1) hueco = cliente.Id;
 
-                    InsertOrUpdateCliente(repository.GenerateCliente(cliente));
+                    var clienteSisfarma = repository.GenerateCliente(cliente);
+                    clienteSisfarma.DebeCargarPuntos = _debeCargarPuntos;
+                    if (_perteneceFarmazul)
+                    {
+                        var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
+                        var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}", tipo);
+                        clienteSisfarma.BeBlue = beBlue;
+                    }
+
+                    batchClientes.Add(clienteSisfarma);
+                    
 
                     /*if (cliente.Id != hueco)
                     {
@@ -70,21 +85,10 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     }
                     hueco++;*/
                 }
+
+                _sisfarma.Clientes.Sincronizar(batchClientes);
+                _ultimoClienteSincronizado = batchClientes.Last().Id;
             }
-        }
-
-
-        private void InsertOrUpdateCliente(Cliente cliente)
-        {            
-            if (_perteneceFarmazul)
-            {
-                var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
-                var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}", tipo);
-                _sisfarma.Clientes.Sincronizar(cliente, beBlue, _debeCargarPuntos);
-            }
-            else _sisfarma.Clientes.Sincronizar(cliente, _debeCargarPuntos);
-
-            _ultimoClienteSincronizado = cliente.Id;
-        }            
+        }                    
     }
 }
