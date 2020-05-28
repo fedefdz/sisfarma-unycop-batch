@@ -125,10 +125,11 @@ namespace Sisfarma.RestClient.WebClient
             try
             {
                 _request.Method = method;
-
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + _request.ToRestClientRequest(_restClient.BaseAddress).ToString(), FILE_LOG);
+                var req = _request.ToRestClientRequest(_restClient.BaseAddress);
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + req.ToString(), FILE_LOG);
                 HttpResponseMessage response = _restClient.SendAsync(_request).Result;
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + response.ToRestClientRequest().ToString(), FILE_LOG);
+                var resp = response.ToRestClientRequest();
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + resp.ToString(), FILE_LOG);
 
                 if (response.IsSuccessStatusCode)
                     return Deserialize<T>(response);
@@ -139,7 +140,7 @@ namespace Sisfarma.RestClient.WebClient
                 //    return Deserialize<T>(response);
                 //}
 
-                throw RestClientFactory.CreateFailedException(_restClient, response);
+                throw RestClientFactory.CreateFailedException(_restClient, req, resp, response);
             }
             catch (HttpRequestException ex)
             {
@@ -156,10 +157,11 @@ namespace Sisfarma.RestClient.WebClient
             try
             {
                 _request.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + _request.ToRestClientRequest(_restClient.BaseAddress).ToString(), FILE_LOG);
+                var req = _request.ToRestClientRequest(_restClient.BaseAddress);
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + req.ToString(), FILE_LOG);                
                 var response = _restClient.SendAsync(_request).Result;
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + response.ToRestClientRequest().ToString(), FILE_LOG);
+                var resp = response.ToRestClientRequest();
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + resp.ToString(), FILE_LOG);
 
                 //var errorMessage = response.Content.ReadAsStringAsync().Result;
 
@@ -169,7 +171,7 @@ namespace Sisfarma.RestClient.WebClient
                 //}
 
                 if (!response.IsSuccessStatusCode)
-                    throw RestClientFactory.CreateFailedException(_restClient, response);
+                    throw RestClientFactory.CreateFailedException(_restClient, req, resp, response);
             }
             catch (HttpRequestException ex)
             {
@@ -186,10 +188,11 @@ namespace Sisfarma.RestClient.WebClient
             try
             {
                 _request.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + _request.ToRestClientRequest(_restClient.BaseAddress).ToString(), FILE_LOG);
+                var req = _request.ToRestClientRequest(_restClient.BaseAddress);
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + req.ToString(), FILE_LOG);
                 var response = _restClient.SendAsync(_request).Result;
-                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + response.ToRestClientRequest().ToString(), FILE_LOG);
+                var resp = response.ToRestClientRequest();
+                //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + resp.ToString(), FILE_LOG);
 
                 if (response.IsSuccessStatusCode)
                     return Deserialize<T>(response);
@@ -200,7 +203,7 @@ namespace Sisfarma.RestClient.WebClient
                 //    return Deserialize<T>(response);
                 //}
 
-                throw RestClientFactory.CreateFailedException(_restClient, response);
+                throw RestClientFactory.CreateFailedException(_restClient, req, resp, response);
             }
             catch (HttpRequestException ex)
             {
