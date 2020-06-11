@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>true</IsWebBootstrapper>
-    <PublishUrl>ftp://ftp.sistemasfarmaceuticos.es/</PublishUrl>
+    <PublishUrl>ftp://ftp.farmacias.top/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -22,14 +22,14 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://sistemasfarmaceuticos.es/sincrounycopaws/</InstallUrl>
+    <InstallUrl>http://farmacias.top/sincrounycoplotes/</InstallUrl>
     <ProductName>Sincronizador.Unycop</ProductName>
     <PublisherName>Sisfarma.es</PublisherName>
     <SuiteName>Sisfarma</SuiteName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>45.0.1.%2a</ApplicationVersion>
+    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationVersion>48.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -57,10 +57,10 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>7A80D98935DF301ED152124C882CDBE71BCCA045</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>882CECB55C36A29B104FFF26B19F67216AC1D2E7</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Sisfarma.Sincronizador.Unycop_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>Sisfarma.Sincronizador.Unycop_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -70,6 +70,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\sync.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -111,7 +120,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
     <None Include="Resources\sync.ico" />
+    <None Include="Sisfarma.Sincronizador.Unycop_1_TemporaryKey.pfx" />
     <None Include="Sisfarma.Sincronizador.Unycop_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

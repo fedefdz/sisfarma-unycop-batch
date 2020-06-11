@@ -138,6 +138,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             return new
             {
                 dni = cliente.Id.ToString(),
+                nombre_tra = "",
                 dni_tra = "0",                
                 tarjeta = cliente.Tarjeta,
                 dniCliente = cliente.NumeroIdentificacion,
@@ -161,6 +162,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             return new
             {
                 dni = cliente.Id.ToString(),
+                nombre_tra = "",
                 dni_tra = "0",
                 tarjeta = cliente.Tarjeta,
                 dniCliente = cliente.NumeroIdentificacion,
@@ -185,6 +187,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             return new
             {
                 dni = cliente.Id.ToString(),
+                nombre_tra = "",
                 dni_tra = "0",
                 tarjeta = cliente.Tarjeta,
                 dniCliente = cliente.NumeroIdentificacion,
@@ -207,6 +210,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             return new
             {
                 dni = cliente.Id.ToString(),
+                nombre_tra = "",
                 dni_tra = "0",
                 tarjeta = cliente.Tarjeta,
                 dniCliente = cliente.NumeroIdentificacion,

@@ -36,8 +36,8 @@ namespace Sisfarma.Sincronizador.Unycop
 
             Initialize();
 
-            SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", $"{ApplicationDeployment.CurrentDeployment.CurrentVersion}");
-            //SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", "4.0");
+          //  SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", $"{ApplicationDeployment.CurrentDeployment.CurrentVersion}");
+            SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", "4.0");
 
             SincronizadorTaskManager.TaskSincronizadores
             .AddSincronizador(new Domain.Core.Sincronizadores.PuntoPendienteSincronizador(
@@ -118,10 +118,10 @@ namespace Sisfarma.Sincronizador.Unycop
                     farmacia: FarmaciaFactory.Create(),
                     fisiotes: SisfarmaFactory.Create()),
                     delay: SincronizadorTaskManager.DelayProveedores)
-            .AddSincronizador(new Domain.Core.Sincronizadores.ProveedorHistorialSincronizador(
-                    farmacia: FarmaciaFactory.Create(),
-                    fisiotes: SisfarmaFactory.Create()),
-                    delay: SincronizadorTaskManager.DelayProveedoresHistorico)
+            //.AddSincronizador(new Domain.Core.Sincronizadores.ProveedorHistorialSincronizador(
+            //        farmacia: FarmaciaFactory.Create(),
+            //        fisiotes: SisfarmaFactory.Create()),
+            //        delay: SincronizadorTaskManager.DelayProveedoresHistorico)
             .AddSincronizador(new Domain.Core.Sincronizadores.VentaMensualActualizacionSincronizador(
                     farmacia: FarmaciaFactory.Create(),
                     fisiotes: SisfarmaFactory.Create(),
@@ -155,8 +155,8 @@ namespace Sisfarma.Sincronizador.Unycop
         private static ContextMenuStrip GetSincronizadorMenuStrip()
         {
             var cms = new ContextMenuStrip();
-            cms.Items.Add($"Salir {ApplicationDeployment.CurrentDeployment.CurrentVersion}", null, (sender, @event) => Application.Exit());
-            //cms.Items.Add($"Salir", null, (sender, @event) => Application.Exit());
+           // cms.Items.Add($"Salir {ApplicationDeployment.CurrentDeployment.CurrentVersion}", null, (sender, @event) => Application.Exit());
+            cms.Items.Add($"Salir", null, (sender, @event) => Application.Exit());
             return cms;
         }
 
