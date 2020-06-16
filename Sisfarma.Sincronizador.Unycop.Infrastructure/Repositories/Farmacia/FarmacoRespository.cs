@@ -62,7 +62,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetOneOrDefaultById(id);
-            }                        
+            }  
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public IEnumerable<Farmaco> GetAllByFechaUltimaEntradaGreaterOrEqual(DateTime fecha)
