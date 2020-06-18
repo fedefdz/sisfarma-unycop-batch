@@ -11,7 +11,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Data
     {
         public const string MessageUnderlyngProviderFailed = "The underlying provider failed on Open";
         public FarmaciaContext(string server, string database, string username, string password)
-            : base($@"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = {database};Jet OLEDB:Database Password = {password};")
+            : base($@"Provider = Microsoft.ACE.OLEDB.12.0; Data Source = {database};Jet OLEDB:Database Password = {password}; OLE DB Services = -1;")
         {
             System.Data.Entity.Database.SetInitializer<FarmaciaContext>(null);
         }
