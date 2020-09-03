@@ -16,13 +16,13 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             // _isEmpty se carga en PreSincronizacion()
-            if (!_isEmpty && _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
-            {
-                _sisfarma.Sinonimos.Empty();
-                _isEmpty = _sisfarma.Sinonimos.IsEmpty();
-            }
+            //if (!_isEmpty && _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
+            //{
+            //    _sisfarma.Sinonimos.Empty();
+            //    _isEmpty = _sisfarma.Sinonimos.IsEmpty();
+            //}
 
-            if (_isEmpty)
+            if (true)
             {
                 var sinonimos = _farmacia.Sinonimos.GetAll();
 

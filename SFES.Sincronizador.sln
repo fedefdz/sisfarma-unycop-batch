@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.RestClient", "Sisfarma.RestClient\Sisfarma.RestClient.csproj", "{496093B9-667B-4041-8581-462771FC68FC}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.Sincronizador.Unycop.Domain.Core", "Sisfarma.Sincronizador.Unycop.Domain.Core\Sisfarma.Sincronizador.Unycop.Domain.Core.csproj", "{3D6C7586-ECDE-4051-8DC0-BD512BC653BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.Sincronizador.Unycop.IoC", "Sisfarma.Sincronizador.Unycop.IoC\Sisfarma.Sincronizador.Unycop.IoC.csproj", "{2D532790-603F-41AF-B830-66AEE06DD4BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sisfarma.Client.Unycop", "Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj", "{E9163B7E-A8FF-49F5-822C-E360F7D64958}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -175,6 +177,18 @@ Global
 		{2D532790-603F-41AF-B830-66AEE06DD4BF}.Release|x64.Build.0 = Release|Any CPU
 		{2D532790-603F-41AF-B830-66AEE06DD4BF}.Release|x86.ActiveCfg = Release|Any CPU
 		{2D532790-603F-41AF-B830-66AEE06DD4BF}.Release|x86.Build.0 = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|x64.Build.0 = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Debug|x86.Build.0 = Debug|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|x64.ActiveCfg = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|x64.Build.0 = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|x86.ActiveCfg = Release|Any CPU
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -191,6 +205,7 @@ Global
 		{D21CF482-E9C4-437C-A311-D459730F96D1} = {3E0F63DB-6306-49AB-B5BD-A9D81A0DCAA1}
 		{3D6C7586-ECDE-4051-8DC0-BD512BC653BC} = {3E0F63DB-6306-49AB-B5BD-A9D81A0DCAA1}
 		{2D532790-603F-41AF-B830-66AEE06DD4BF} = {3E0F63DB-6306-49AB-B5BD-A9D81A0DCAA1}
+		{E9163B7E-A8FF-49F5-822C-E360F7D64958} = {3E0F63DB-6306-49AB-B5BD-A9D81A0DCAA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C014F770-27D9-498A-AD31-1E54338ED808}

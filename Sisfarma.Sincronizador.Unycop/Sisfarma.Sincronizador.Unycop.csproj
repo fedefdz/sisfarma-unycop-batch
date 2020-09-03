@@ -131,6 +131,10 @@
     <Reference Include="JetEntityFrameworkProvider, Version=6.0.0.0, Culture=neutral, PublicKeyToken=756cf6beb8fe7b41, processorArchitecture=x86">
       <HintPath>..\packages\JetEntityFrameworkProvider.6.1.4\lib\JetEntityFrameworkProvider.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\build\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -176,6 +180,10 @@
     <ProjectReference Include="..\Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj">
       <Project>{92CBB2CC-844F-4B52-9208-87B322BB6DBA}</Project>
       <Name>Sisfarma.ClickOnce</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj">
+      <Project>{e9163b7e-a8ff-49f5-822c-e360f7d64958}</Project>
+      <Name>Sisfarma.Client.Unycop</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
