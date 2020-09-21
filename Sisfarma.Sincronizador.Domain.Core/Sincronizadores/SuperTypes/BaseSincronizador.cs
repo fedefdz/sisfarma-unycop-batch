@@ -4,8 +4,6 @@ using Sisfarma.Sincronizador.Core.Helpers;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using System;
-using System.Configuration;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,40 +11,39 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
 {
     public abstract class BaseSincronizador : Sincronizador, ISincronizadorAsync
     {
-        protected ISisfarmaService _sisfarma;        
+        protected ISisfarmaService _sisfarma;
 
         public BaseSincronizador(ISisfarmaService sisfarma)
             => _sisfarma = sisfarma ?? throw new ArgumentNullException(nameof(sisfarma));
 
         public override async Task SincronizarAsync(CancellationToken cancellationToken = default(CancellationToken), int delayLoop = 200)
-        {                                                
-            _cancellationToken = cancellationToken;            
+        {
+            _cancellationToken = cancellationToken;
             LoadConfiguration();
-            
-            PreSincronizacion();
 
+            PreSincronizacion();
 
             while (true)
             {
                 try
                 {
                     _cancellationToken.ThrowIfCancellationRequested();
-                    
+
                     Process();
                 }
                 catch (OperationCanceledException ex)
-                {                                       
+                {
                     throw ex;
                 }
                 catch (RestClientException ex)
                 {
                     var error = ex.ToLogErrorMessage();
-                    LogError(error);                    
+                    LogError(error);
                 }
                 catch (Exception ex)
                 {
                     var error = ex.ToLogErrorMessage();
-                    LogError(error);                    
+                    LogError(error);
                 }
                 finally
                 {
@@ -82,6 +79,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
                 // nothing
                 // El sincro se detiene si lanzamos una excepción en este punto.
             }
-        }        
+        }
     }
 }

@@ -132,6 +132,10 @@
     <Compile Include="Repositories\TicketRepository.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj">
+      <Project>{e9163b7e-a8ff-49f5-822c-e360f7d64958}</Project>
+      <Name>Sisfarma.Client.Unycop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>

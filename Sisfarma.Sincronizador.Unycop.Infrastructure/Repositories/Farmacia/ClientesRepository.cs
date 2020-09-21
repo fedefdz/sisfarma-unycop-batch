@@ -1,8 +1,8 @@
-﻿using Sisfarma.Sincronizador.Core.Config;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-using Sisfarma.Sincronizador.Farmatic.Models;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -17,7 +18,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     {
         private readonly IVentasPremiumRepository _ventasPremium;
 
-        private readonly bool _premium;        
+        private readonly bool _premium;
+
+        private readonly Client.Unycop.UnycopClient _unycopClient;
 
         public ClientesRepository(LocalConfig config, bool premium)
             : base(config) => _premium = premium;
@@ -27,12 +30,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             _premium = FarmaciaContext.EsPremiun;
             _ventasPremium = null;
         }
-            
 
         public ClientesRepository(IVentasPremiumRepository ventasPremium)
         {
             _premium = FarmaciaContext.EsPremiun;
             _ventasPremium = ventasPremium ?? throw new ArgumentNullException(nameof(ventasPremium));
+            _unycopClient = new UnycopClient();
         }
 
         public List<Cliente> GetGreatThanId(long id)
@@ -54,25 +57,34 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetGreatThanId(id);
-            }            
+            }
         }
-
 
         public List<DTO.Cliente> GetGreatThanIdAsDTO(long id)
         {
             try
             {
-                using (var db = FarmaciaContext.Clientes())
-                {
-                    var sql = $@"SELECT c.ID_Cliente as Id, c.Nombre, c.Direccion, c.Localidad, c.Cod_Postal as CodigoPostal, c.Fecha_Alta as FechaAlta, c.Fecha_Baja as Baja, c.Sexo, c.ControlLOPD as LOPD, c.DNI_CIF as DNICIF, c.Telefono, c.Fecha_Nac as FechaNacimiento, c.Movil, c.Correo, c.Clave as Tarjeta,  iif(c.Puntos IS NULL, 0, c.Puntos) as Puntos, ec.nombre AS EstadoCivil FROM clientes c LEFT JOIN estadoCivil ec ON ec.id = c.estadoCivil WHERE Id_cliente > {id} ORDER BY Id_cliente";
-                    return db.Database.SqlQuery<DTO.Cliente>(sql)
-                        .ToList();
-                }
+                var filtro = $"(IdCliente,>=,{id})";
+                var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
+
+                //using (var db = FarmaciaContext.Clientes())
+                //{
+                //    var sql = $@"SELECT c.ID_Cliente as Id, c.Nombre, c.Direccion, c.Localidad, c.Cod_Postal as CodigoPostal, c.Fecha_Alta as FechaAlta, c.Fecha_Baja as Baja, c.Sexo, c.ControlLOPD as LOPD, c.DNI_CIF as DNICIF, c.Telefono, c.Fecha_Nac as FechaNacimiento, c.Movil, c.Correo, c.Clave as Tarjeta,  iif(c.Puntos IS NULL, 0, c.Puntos) as Puntos, ec.nombre AS EstadoCivil FROM clientes c LEFT JOIN estadoCivil ec ON ec.id = c.estadoCivil WHERE Id_cliente > {id} ORDER BY Id_cliente";
+                //    return db.Database.SqlQuery<DTO.Cliente>(sql)
+                //        .ToList();
+                //}
+
+                return clients.Select(x => DTO.Cliente.CreateFrom(x)).ToList();
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetGreatThanIdAsDTO(id);
             }
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetGreatThanIdAsDTO(id);
-            }            
+            }
         }
 
         public T GetAuxiliarById<T>(string cliente) where T : ClienteAux
@@ -90,7 +102,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAuxiliarById<T>(cliente);
-            }            
+            }
         }
 
         public decimal GetTotalPuntosById(string idCliente)
@@ -108,7 +120,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetTotalPuntosById(idCliente);
-            }            
+            }
         }
 
         public bool HasSexoField()
@@ -146,7 +158,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             {
                 return HasSexoField();
             }
-            
         }
 
         public Cliente GetOneOrDefaultById(long id)
@@ -172,7 +183,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetOneOrDefaultById(id);
-            }            
+            }
         }
 
         private long GetPuntosPremiumByCliente(Cliente cliente)
@@ -183,7 +194,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     ?? _ventasPremium.GetOneOrDefaultByClienteId(cliente.Id);
 
             return venta != null
-                ? venta.PuntosIniciales + venta.PuntosVentas - venta.PuntosACanjear 
+                ? venta.PuntosIniciales + venta.PuntosVentas - venta.PuntosACanjear
                 : 0;
         }
 
@@ -205,13 +216,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     if (!tipo.HasValue)
                         return false;
 
-                return tipo.Value == 2 || (!string.IsNullOrEmpty(tipoBeBlue) && tipoBeBlue.ToLower() == tipo.ToString());
+                    return tipo.Value == 2 || (!string.IsNullOrEmpty(tipoBeBlue) && tipoBeBlue.ToLower() == tipo.ToString());
                 }
             }
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return EsBeBlue(cliente, tipoBeBlue);
-            }            
+            }
         }
 
         public Cliente GenerateCliente(DTO.Cliente dto)
@@ -223,12 +234,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Email = dto.Correo,
                 Tarjeta = dto.Tarjeta,
                 EstadoCivil = dto.EstadoCivil,
-                FechaNacimiento = dto.FechaNacimiento > 0 ? (DateTime?) $"{dto.FechaNacimiento}".ToDateTimeOrDefault("yyyyMMdd") : null,
+                FechaNacimiento = dto.FechaNacimiento > 0 ? (DateTime?)$"{dto.FechaNacimiento}".ToDateTimeOrDefault("yyyyMMdd") : null,
                 Telefono = dto.Telefono,
                 Puntos = (long)dto.Puntos,
                 NumeroIdentificacion = dto.DNICIF,
                 LOPD = dto.LOPD,
-                Sexo = dto.Sexo.ToUpper() ==  "H" ? "HOMBRE" : dto.Sexo.ToUpper() == "M" ? "MUJER" : dto.Sexo,
+                Sexo = dto.Sexo.ToUpper() == "H" ? "HOMBRE" : dto.Sexo.ToUpper() == "M" ? "MUJER" : dto.Sexo,
                 Baja = dto.Baja != 0,
                 FechaAlta = $"{dto.FechaAlta}".ToDateTimeOrDefault("yyyyMMdd"),
                 Direccion = dto.Direccion,

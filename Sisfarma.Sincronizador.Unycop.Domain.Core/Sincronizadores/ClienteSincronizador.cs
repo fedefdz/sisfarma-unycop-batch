@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
@@ -12,7 +11,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
     public class ClienteSincronizador : CORE.ClienteSincronizador
     {
-        public ClienteSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public ClienteSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
@@ -60,7 +59,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     }
 
                     batchClientes.Add(clienteSisfarma);
-                    
 
                     /*if (cliente.Id != hueco)
                     {
@@ -89,6 +87,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 _sisfarma.Clientes.Sincronizar(batchClientes);
                 _ultimoClienteSincronizado = batchClientes.Last().Id;
             }
-        }                    
+        }
     }
 }

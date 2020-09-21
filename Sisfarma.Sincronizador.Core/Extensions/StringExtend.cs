@@ -11,7 +11,7 @@ namespace Sisfarma.Sincronizador.Core.Extensions
         public static string Strip(this string word) => word != null
                 ? StripExtended(Regex.Replace(word.Trim(), @"[',\-\\]", string.Empty))
                 : string.Empty;
-        
+
         public static int ToIntegerOrDefault(this string @this, int @default = 0)
         {
             if (string.IsNullOrWhiteSpace(@this))
@@ -35,22 +35,25 @@ namespace Sisfarma.Sincronizador.Core.Extensions
         }
 
         public static DateTime ToDateTimeOrDefault(this string @this, string format)
+            => @this.ToDateTimeOrDefault(format, CultureInfo.InvariantCulture);
+
+        public static DateTime ToDateTimeOrDefault(this string @this, string format, CultureInfo culture)
         {
             if (string.IsNullOrWhiteSpace(@this))
                 return default(DateTime);
 
-            if (DateTime.TryParseExact(@this, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fecha))            
+            if (DateTime.TryParseExact(@this, format, culture, DateTimeStyles.None, out var fecha))
                 return fecha;
 
             return default(DateTime);
-        }               
+        }
 
-        static string StripExtended(string arg)
+        private static string StripExtended(string arg)
         {
             StringBuilder buffer = new StringBuilder(arg.Length);
             foreach (char ch in arg)
             {
-                UInt16 num = Convert.ToUInt16(ch);                
+                UInt16 num = Convert.ToUInt16(ch);
                 if ((num >= 32u) && (num <= 237u)) buffer.Append(ch);
             }
             return buffer.ToString().Replace("%", " % ");

@@ -12,10 +12,8 @@ using System.Configuration;
 using System.Deployment.Application;
 using System.IO;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Sisfarma.Client.Unycop;
 
 namespace Sisfarma.Sincronizador.Unycop
 {
@@ -37,7 +35,7 @@ namespace Sisfarma.Sincronizador.Unycop
 
             Initialize();
 
-          //  SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", $"{ApplicationDeployment.CurrentDeployment.CurrentVersion}");
+            //  SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", $"{ApplicationDeployment.CurrentDeployment.CurrentVersion}");
             SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", "4.0");
 
             SincronizadorTaskManager.TaskSincronizadores
@@ -45,11 +43,11 @@ namespace Sisfarma.Sincronizador.Unycop
                 //    farmacia: FarmaciaFactory.Create(),
                 //    fisiotes: SisfarmaFactory.Create()),
                 //    delay: SincronizadorTaskManager.DelayPuntosPendiente)
-                //.AddSincronizador(new Domain.Core.Sincronizadores.ClienteSincronizador(
-                //        farmacia: FarmaciaFactory.Create(),
-                //        fisiotes: SisfarmaFactory.Create())
-                //            .SetHorarioVaciemientos("1500", "2300"),
-                //        delay: SincronizadorTaskManager.DelayClientes)
+                .AddSincronizador(new Domain.Core.Sincronizadores.ClienteSincronizador(
+                        farmacia: FarmaciaFactory.Create(),
+                        fisiotes: SisfarmaFactory.Create())
+                            .SetHorarioVaciemientos("1500", "2300"),
+                        delay: SincronizadorTaskManager.DelayClientes)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.HuecoSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
@@ -94,11 +92,12 @@ namespace Sisfarma.Sincronizador.Unycop
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayListas)
-                .AddSincronizador(new Domain.Core.Sincronizadores.SinonimoSincronizador(
-                            farmacia: FarmaciaFactory.Create(),
-                            fisiotes: SisfarmaFactory.Create())
-                        .SetHorarioVaciamientos("1000", "1230", "1730", "1930"),
-                    delay: SincronizadorTaskManager.DelaySinomimos)
+                // TODO preguntar como encontrar sinónimos con el client de unycop
+                //.AddSincronizador(new Domain.Core.Sincronizadores.SinonimoSincronizador(
+                //            farmacia: FarmaciaFactory.Create(),
+                //            fisiotes: SisfarmaFactory.Create())
+                //        .SetHorarioVaciamientos("1000", "1230", "1730", "1930"),
+                //    delay: SincronizadorTaskManager.DelaySinomimos)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.PuntoPendienteActualizacionSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
@@ -126,9 +125,14 @@ namespace Sisfarma.Sincronizador.Unycop
 
                 ;
 
-            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
-                .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
-                    .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
+            //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
+            //    .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
+            //        .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
+            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.ClienteSincronizador(
+                        farmacia: FarmaciaFactory.Create(),
+                        fisiotes: SisfarmaFactory.Create())
+                            .SetHorarioVaciemientos("1500", "2300")
+                            .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: SincronizadorTaskManager.DelayClientes));
             //Task.Factory.StartNew(() => new PowerSwitchProgramado(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
             //Task.Factory.StartNew(() => new PowerSwitchManual(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
             //Task.Factory.StartNew(() => new UpdateVersionSincronizador().SincronizarAsync(new CancellationToken(), delayLoop: 20000));
@@ -153,24 +157,13 @@ namespace Sisfarma.Sincronizador.Unycop
         private static ContextMenuStrip GetSincronizadorMenuStrip()
         {
             var cms = new ContextMenuStrip();
-           // cms.Items.Add($"Salir {ApplicationDeployment.CurrentDeployment.CurrentVersion}", null, (sender, @event) => Application.Exit());
+            // cms.Items.Add($"Salir {ApplicationDeployment.CurrentDeployment.CurrentVersion}", null, (sender, @event) => Application.Exit());
             cms.Items.Add($"Salir", null, (sender, @event) => Application.Exit());
             return cms;
         }
 
         private static void Initialize()
         {
-            try
-            {
-                var client = new UnycopClient();
-                client.ExtractArticulos();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
             try
             {
                 var dir = ConfigurationManager.AppSettings["Directory.Setup"];

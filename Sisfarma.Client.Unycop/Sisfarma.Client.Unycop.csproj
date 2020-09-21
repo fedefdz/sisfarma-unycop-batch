@@ -33,10 +33,12 @@
   <ItemGroup>
     <Reference Include="DotNetZip">
       <HintPath>..\packages\build\DotNetZip.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\build\Newtonsoft.Json.dll</HintPath>
+      <Aliases>legacy</Aliases>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,8 +53,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FicheroContent.cs" />
+    <Compile Include="Model\Cliente.cs" />
+    <Compile Include="RequestCodes.cs" />
+    <Compile Include="FicheroResultInfo.cs" />
+    <Compile Include="ResponseCodes.cs" />
     <Compile Include="UnycopClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnycopException.cs" />
+    <Compile Include="UnycopRequest.cs" />
+    <Compile Include="UnycopResponse.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
