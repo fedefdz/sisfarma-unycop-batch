@@ -27,15 +27,28 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                using (var db = FarmaciaContext.Default())
-                {
-                    var sql = @"select Nombre from familias";
-                    return db.Database.SqlQuery<Familia>(sql)
-                        .ToList();
-                }
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, null));
+
+                var filtered = articulos
+                    .Where(x => !string.IsNullOrEmpty(x.NombreFamilia));
+
+                var familias = filtered.GroupBy(k => k.NombreFamilia, g => new { Categoria = g.NombreCategoria, SubCategoria = g.NombreSubCategoria })
+                    .Select(g =>
+                    {
+                        var categorias = g
+                            .Where(x => !string.IsNullOrEmpty(x.Categoria))
+                                .GroupBy(key => key.Categoria, value => value.SubCategoria)
+                                .Select(x => new Categoria { Nombre = x.Key, Subcategorias = x.Where(sub => !string.IsNullOrEmpty(sub)) })
+                                .ToArray();
+
+                        return new Familia { Nombre = g.Key, Categorias = categorias };
+                    }).ToArray();
+
+                return familias;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAll();
             }
         }

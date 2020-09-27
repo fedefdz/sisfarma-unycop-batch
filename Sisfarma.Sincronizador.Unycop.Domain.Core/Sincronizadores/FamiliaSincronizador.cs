@@ -11,7 +11,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
     {
         private readonly int _batchSize;
 
-        public FamiliaSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public FamiliaSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
             _batchSize = 1000;
@@ -20,33 +20,30 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             var batchFamillias = new List<Familia>();
-            var familias = _farmacia.Familias.GetAll();            
+            var familias = _farmacia.Familias.GetAll();
             foreach (var familia in familias)
             {
                 Task.Delay(5);
                 _cancellationToken.ThrowIfCancellationRequested();
 
-                batchFamillias.Add(GenerarFamilia(familia.Nombre, "Familia"));                
+                batchFamillias.Add(GenerarFamilia(familia.Nombre, "Familia"));
+
+                foreach (var categoria in familia.Categorias)
+                {
+                    Task.Delay(5);
+                    _cancellationToken.ThrowIfCancellationRequested();
+
+                    batchFamillias.Add(GenerarFamilia(categoria.Nombre, "Categoria"));
+
+                    foreach (var subcategoria in categoria.Subcategorias)
+                    {
+                        Task.Delay(5);
+                        _cancellationToken.ThrowIfCancellationRequested();
+
+                        batchFamillias.Add(GenerarFamilia(subcategoria, "Categoria"));
+                    }
+                }
             }
-
-            var categorias = _farmacia.Categorias.GetAll();
-            foreach (var categoria in categorias)
-            {
-                Task.Delay(5);
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                batchFamillias.Add(GenerarFamilia(categoria.Nombre, "Categoria"));
-            }
-
-            var subcategorias = _farmacia.Subcategorias.GetAll();
-            foreach (var subcategoria in subcategorias)
-            {
-                Task.Delay(5);
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                batchFamillias.Add(GenerarFamilia(subcategoria.Nombre, "Categoria"));
-            }
-
 
             if (!batchFamillias.Any())
                 return;
