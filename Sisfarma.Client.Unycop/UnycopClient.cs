@@ -15,10 +15,10 @@ namespace Sisfarma.Client.Unycop
         {
             //var path = @"C:\Unycopwin\Datos\Ficheros";
 
-            for (int i = 1; i < 9; i++)
+            for (int i = 3; i < 4; i++)
             {
                 var llamada = $"{i}".PadLeft(2, '0');
-                var entrada = new { IdProducto = "43", IdLlamada = llamada, Filtros = "(FechaVenta,>=,01/01/19 12:00:00)" };
+                var entrada = new { IdProducto = "43", IdLlamada = llamada };
                 var client = new UnycopDataExtractor.UDataExtractor();
                 var json = JsonConvert.SerializeObject(entrada);
                 var response = client.ExtractData(json);

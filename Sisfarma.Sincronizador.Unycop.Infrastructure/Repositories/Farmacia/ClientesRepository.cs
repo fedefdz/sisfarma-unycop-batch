@@ -20,7 +20,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
         private readonly bool _premium;
 
-        private readonly Client.Unycop.UnycopClient _unycopClient;
+        private readonly UnycopClient _unycopClient;
 
         public ClientesRepository(LocalConfig config, bool premium)
             : base(config) => _premium = premium;
@@ -67,22 +67,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 var filtro = $"(IdCliente,>=,{id})";
                 var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
 
-                //using (var db = FarmaciaContext.Clientes())
-                //{
-                //    var sql = $@"SELECT c.ID_Cliente as Id, c.Nombre, c.Direccion, c.Localidad, c.Cod_Postal as CodigoPostal, c.Fecha_Alta as FechaAlta, c.Fecha_Baja as Baja, c.Sexo, c.ControlLOPD as LOPD, c.DNI_CIF as DNICIF, c.Telefono, c.Fecha_Nac as FechaNacimiento, c.Movil, c.Correo, c.Clave as Tarjeta,  iif(c.Puntos IS NULL, 0, c.Puntos) as Puntos, ec.nombre AS EstadoCivil FROM clientes c LEFT JOIN estadoCivil ec ON ec.id = c.estadoCivil WHERE Id_cliente > {id} ORDER BY Id_cliente";
-                //    return db.Database.SqlQuery<DTO.Cliente>(sql)
-                //        .ToList();
-                //}
-
                 return clients.Select(x => DTO.Cliente.CreateFrom(x)).ToList();
             }
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetGreatThanIdAsDTO(id);
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
                 return GetGreatThanIdAsDTO(id);
             }
         }
