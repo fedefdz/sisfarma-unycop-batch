@@ -12,25 +12,25 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     public class PedidosRepository : FarmaciaRepository, IPedidosRepository
     {
         private readonly IProveedorRepository _proveedorRepository;
-        private readonly IFarmacoRepository _farmacoRepository;        
+        private readonly IFarmacoRepository _farmacoRepository;
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IFamiliaRepository _familiaRepository;
         private readonly ILaboratorioRepository _laboratorioRepository;
 
         private readonly decimal _factorCentecimal = 0.01m;
-        
+
         public PedidosRepository(LocalConfig config) : base(config)
         { }
 
         public PedidosRepository(
-            IProveedorRepository proveedorRepository, 
-            IFarmacoRepository farmacoRepository,             
-            ICategoriaRepository categoriaRepository, 
-            IFamiliaRepository familiaRepository, 
+            IProveedorRepository proveedorRepository,
+            IFarmacoRepository farmacoRepository,
+            ICategoriaRepository categoriaRepository,
+            IFamiliaRepository familiaRepository,
             ILaboratorioRepository laboratorioRepository)
         {
             _proveedorRepository = proveedorRepository ?? throw new ArgumentNullException(nameof(proveedorRepository));
-            _farmacoRepository = farmacoRepository ?? throw new ArgumentNullException(nameof(farmacoRepository));            
+            _farmacoRepository = farmacoRepository ?? throw new ArgumentNullException(nameof(farmacoRepository));
             _categoriaRepository = categoriaRepository ?? throw new ArgumentNullException(nameof(categoriaRepository));
             _familiaRepository = familiaRepository ?? throw new ArgumentNullException(nameof(familiaRepository));
             _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
@@ -56,15 +56,16 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByFechaGreaterOrEqual(fecha);
-            }            
+            }
         }
-        
+
         internal class PedidoCompositeKey
         {
             internal short Id { get; set; }
+
             internal int Proveedor { get; set; }
         }
-        
+
         public IEnumerable<Pedido> GetAllByIdGreaterOrEqual(long pedido)
         {
             try
@@ -85,7 +86,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByIdGreaterOrEqual(pedido);
-            }            
+            }
         }
 
         private IEnumerable<Pedido> GenerarPedidos(IEnumerable<IGrouping<PedidoCompositeKey, DTO.Pedido>> groups)
@@ -109,8 +110,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     if (farmaco != null)
                     {
                         var pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                            ? (decimal)farmaco.PrecioUnicoEntrada.Value * _factorCentecimal
-                            : ((decimal?)farmaco.PrecioMedio ?? 0m) * _factorCentecimal;
+                            ? (decimal)farmaco.PrecioUnicoEntrada.Value
+                            : ((decimal?)farmaco.PrecioMedio ?? 0m);
 
                         //var proveedor = _proveedorRepository.GetOneOrDefaultByCodigoNacional(farmaco.Id);
                         var proveedor = _proveedorRepository.GetOneOrDefaultById(item.Proveedor);
@@ -125,8 +126,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                                 farmaco.SubcategoriaId.Value)
                             : null;
 
-                        var familia = _familiaRepository.GetOneOrDefaultById(farmaco.Familia);
-                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.Laboratorio);
+                        var familia = _familiaRepository.GetOneOrDefaultById(farmaco.FamiliaId);
+                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio);
 
                         pedidoDetalle.Farmaco = new Farmaco
                         {
@@ -139,7 +140,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                             Familia = familia,
                             Laboratorio = laboratorio,
                             Denominacion = farmaco.Denominacion,
-                            Precio = farmaco.PVP * _factorCentecimal,
+                            Precio = farmaco.PVP,
                             Stock = farmaco.ExistenciasAux ?? 0
                         };
 
@@ -147,9 +148,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
                         pedidos.Add(new Pedido { Id = group.Key.Id, Fecha = fecha }.AddRangeDetalle(detalle));
                     }
-                }                
+                }
             }
             return pedidos;
-        }        
+        }
     }
 }

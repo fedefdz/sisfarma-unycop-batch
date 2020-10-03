@@ -133,7 +133,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetOneOrDefaultById(id);
-            }            
+            }
         }
 
         public List<Venta> GetAllByIdGreaterOrEqual(int year, long value)
@@ -164,7 +164,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByIdGreaterOrEqual(year, value);
-            }            
+            }
         }
 
         private Venta GenerarVentaEncabezado(DTO.Venta venta)
@@ -190,15 +190,15 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     using (var db = FarmaciaContext.VentasByYear(fecha.Year))
                     {
                         var year = fecha.Year;
-                    	var fechaInicial = fecha.Date.ToString("MM-dd-yyyy HH:mm:ss");
+                        var fechaInicial = fecha.Date.ToString("MM-dd-yyyy HH:mm:ss");
 
-                    	var sql = $@"SELECT ID_VENTA as Id, Fecha, NPuesto as Puesto, Cliente, Vendedor, Descuento, Pago, Tipo, Importe FROM ventas WHERE id_venta >= @id AND year(fecha) = @year AND fecha >= #{fechaInicial}# ORDER BY id_venta ASC";
+                        var sql = $@"SELECT ID_VENTA as Id, Fecha, NPuesto as Puesto, Cliente, Vendedor, Descuento, Pago, Tipo, Importe FROM ventas WHERE id_venta >= @id AND year(fecha) = @year AND fecha >= #{fechaInicial}# ORDER BY id_venta ASC";
 
-	                    return db.Database.SqlQuery<DTO.Venta>(sql,
-	                        new OleDbParameter("id", (int)id),
-	                        new OleDbParameter("year", year))
-	                        .Select(GenerarVentaEncabezado)
-	                            .ToList();
+                        return db.Database.SqlQuery<DTO.Venta>(sql,
+                            new OleDbParameter("id", (int)id),
+                            new OleDbParameter("year", year))
+                            .Select(GenerarVentaEncabezado)
+                                .ToList();
                     }
                 }
                 catch (FarmaciaContextException)
@@ -209,7 +209,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByIdGreaterOrEqual(id, fecha);
-            }            
+            }
         }
 
         public List<VentaDetalle> GetDetalleDeVentaByVentaId(long venta)
@@ -235,12 +235,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                             new OleDbParameter("venta", ventaInteger))
                             .ToList();
 
-                    //if (!lineas.Any())
-                    //    Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle venta {year} {venta} NO tiene detalle.", FILE_LOG);
-                    //else
-                    //{
-                    //    Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle venta {year} {venta} SI tiene detalle. | Total = {lineas.Count}", FILE_LOG);
-                    //}
+                        //if (!lineas.Any())
+                        //    Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle venta {year} {venta} NO tiene detalle.", FILE_LOG);
+                        //else
+                        //{
+                        //    Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle venta {year} {venta} SI tiene detalle. | Total = {lineas.Count}", FILE_LOG);
+                        //}
 
                         var linea = 0;
                         var detalle = new List<VentaDetalle>();
@@ -260,8 +260,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                             if (farmaco != null)
                             {
                                 var pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                                    ? (decimal)farmaco.PrecioUnicoEntrada.Value * _factorCentecimal
-                                    : ((decimal?)farmaco.PrecioMedio ?? 0m) * _factorCentecimal;
+                                    ? (decimal)farmaco.PrecioUnicoEntrada.Value
+                                    : ((decimal?)farmaco.PrecioMedio ?? 0m);
 
                                 var codigoBarra = _barraRepository.GetOneByFarmacoId(farmaco.Id);
                                 var proveedor = _proveedorRepository.GetOneOrDefaultByCodigoNacional(farmaco.Id);
@@ -276,9 +276,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                                         farmaco.SubcategoriaId.Value)
                                     : null;
 
-                                var familia = _familiaRepository.GetOneOrDefaultById(farmaco.Familia);
-                                var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.Laboratorio)
-                                    ?? new Laboratorio { Codigo = farmaco.Laboratorio };
+                                var familia = _familiaRepository.GetOneOrDefaultById(farmaco.FamiliaId);
+                                var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio)
+                                    ?? new Laboratorio { Codigo = farmaco.CodigoLaboratorio };
 
                                 var iva = default(decimal);
                                 switch (farmaco.IVA)
@@ -308,7 +308,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                                     FechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue && farmaco.FechaUltimaSalida.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
                                     Ubicacion = farmaco.Ubicacion ?? string.Empty,
                                     Web = farmaco.BolsaPlastico,
-                                    Precio = farmaco.PVP * _factorCentecimal,
+                                    Precio = farmaco.PVP,
                                     Iva = iva,
                                     Stock = farmaco.ExistenciasAux ?? 0,
                                     StockMinimo = farmaco.Stock ?? 0,
@@ -321,7 +321,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                             detalle.Add(ventaDetalle);
                         }
 
-                    //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle generado venta {year} {venta} | total = {detalle.Count}", FILE_LOG);
+                        //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + $"Detalle generado venta {year} {venta} | total = {detalle.Count}", FILE_LOG);
 
                         return detalle;
                     }
@@ -334,7 +334,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetDetalleDeVentaByVentaId(year, venta);
-            }            
+            }
         }
 
         public Ticket GetOneOrDefaultTicketByVentaId(long id)
@@ -357,7 +357,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetOneOrDefaultTicketByVentaId(id);
-            }            
+            }
         }
     }
 }

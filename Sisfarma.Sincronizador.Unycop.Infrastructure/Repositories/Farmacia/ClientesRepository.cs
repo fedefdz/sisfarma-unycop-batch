@@ -190,6 +190,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         public bool Exists(int id)
             => GetOneOrDefaultById(id) != null;
 
+        // TODO al terminar unycop API no debe llamarse nunca más eset method
         public bool EsBeBlue(string cliente, string tipoBeBlue = "2")
         {
             try
@@ -237,10 +238,28 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 NombreCompleto = dto.Nombre,
             };
 
-            if (_premium)
-                cliente.Puntos += GetPuntosPremiumByCliente(cliente);
+            // TODO ya hace falta porque la api nos brinda los puntos
+            //if (_premium)
+            //    cliente.Puntos += GetPuntosPremiumByCliente(cliente);
 
             return cliente;
+        }
+
+        // TODO chango for array input
+        public List<DTO.Cliente> GetAllBetweenIDs(long min, long max)
+        {
+            try
+            {
+                var filtro = $"(IdCliente,>=,{min})&(IdCliente,<=,{max})";
+                var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
+
+                return clients.Select(x => DTO.Cliente.CreateFrom(x)).ToList();
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetAllBetweenIDs(min, max);
+            }
         }
     }
 }

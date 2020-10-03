@@ -4,15 +4,16 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using System;
+using System.Collections.Generic;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
     public class EncargosExternalService : FisiotesExternalService, IEncargosExternalService
-    {     
+    {
         public EncargosExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         {
-         }
+        }
 
         public Encargo LastOrDefault()
         {
@@ -52,7 +53,7 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
             var encargo = new
             {
                 idEncargo = idEncargo,
-                fechaRecepcion = fechaRecepcion.ToIsoString()                
+                fechaRecepcion = fechaRecepcion.ToIsoString()
             };
 
             _restClient
@@ -78,11 +79,10 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
                     bulk = new[] { encargo }
                 });
         }
-                
-                
+
         public void Insert(Encargo ee)
         {
-            var encargo =  new
+            var encargo = new
             {
                 idEncargo = ee.idEncargo,
                 cod_nacional = ee.cod_nacional,
@@ -110,7 +110,7 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
                 });
         }
 
-        public void Sincronizar(Encargo encargo)
+        public void Sincronizar(IEnumerable<Encargo> encargos)
         {
             throw new NotImplementedException();
         }

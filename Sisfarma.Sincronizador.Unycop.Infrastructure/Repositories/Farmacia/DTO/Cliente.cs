@@ -41,6 +41,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
 
         public string Nombre { get; set; }
 
+        public int? IdPerfil { get; set; }
+
+        public string Perfil { get; set; }
+
         public static Cliente CreateFrom(UNYCOP.Cliente clienteUnycop)
         {
             var calendar = (Calendar)CultureInfo.CurrentCulture.Calendar.Clone();
@@ -71,7 +75,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
                 Puntos = Convert.ToDouble(clienteUnycop.PuntosFidelidad),
                 Sexo = clienteUnycop.Genero.ToUpper(),
                 Tarjeta = clienteUnycop.Clave,
-                Telefono = clienteUnycop.Telefono
+                Telefono = clienteUnycop.Telefono,
+                IdPerfil = clienteUnycop.idPerfil,
+                Perfil = clienteUnycop.Perfil
             };
         }
     }

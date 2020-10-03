@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
@@ -11,11 +13,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
     public class EncargoSincronizador : DC.EncargoSincronizador
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
-        protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";        
+        protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
+        private readonly int _batchSize = 1000;
 
         private string _clasificacion;
 
-        public EncargoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public EncargoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
@@ -36,29 +39,58 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         {
             //_ultimo se carga en PreSincronizacion()
             var idEncargo = _ultimo?.idEncargo ?? 1;
+            var sw = new Stopwatch();
+            sw.Start();
+            var encargos = _farmacia.Encargos.GetAllByIdGreaterOrEqual(_anioInicio, idEncargo).ToArray();
 
-            var encargos = _farmacia.Encargos.GetAllByIdGreaterOrEqual(_anioInicio, idEncargo);
-            foreach (var encargo in encargos)
+            Console.WriteLine($"Encargos recuperados en {sw.ElapsedMilliseconds}ms");
+            sw.Restart();
+            //foreach (var encargo in encargos)
+            //{
+            //    Task.Delay(5);
+
+            //    _cancellationToken.ThrowIfCancellationRequested();
+            //    _sisfarma.Encargos.Sincronizar(GenerarEncargo(encargo));
+
+            //    if (_ultimo == null)
+            //        _ultimo = new Encargo();
+
+            //    _ultimo.idEncargo = encargo.Id;
+            //}
+            //Console.WriteLine($"Encargos sincronizados en ms {sw.ElapsedMilliseconds}");
+
+            for (int i = 0; i < encargos.Count(); i += _batchSize)
             {
-                Task.Delay(5);
+                Task.Delay(1);
+                _cancellationToken.ThrowIfCancellationRequested();
 
-                _cancellationToken.ThrowIfCancellationRequested();                
-                _sisfarma.Encargos.Sincronizar(GenerarEncargo(encargo));
+                sw.Restart();
+                var items = encargos
+                    .Skip(i)
+                    .Take(_batchSize)
+                        .Select(encargo => GenerarEncargo(encargo)).ToList();
 
+                Console.WriteLine($"Encargos lote {i + 1} preparado en {sw.ElapsedMilliseconds}ms");
+
+                sw.Restart();
+                _sisfarma.Encargos.Sincronizar(items);
+
+                Console.WriteLine($"Lote {i + 1} sincronizado en {sw.ElapsedMilliseconds}ms");
                 if (_ultimo == null)
                     _ultimo = new Encargo();
 
-                _ultimo.idEncargo = encargo.Id;
+                if (items.Any())
+                    _ultimo.idEncargo = (long)items.Last().idEncargo;
             }
         }
 
         private Encargo GenerarEncargo(FAR.Encargo encargo)
         {
             var familia = encargo.Farmaco.Familia?.Nombre ?? FAMILIA_DEFAULT;
-            
+
             return new Encargo
             {
-                idEncargo = encargo.Id,                
+                idEncargo = encargo.Id,
                 cod_nacional = encargo.Farmaco.Codigo,
                 nombre = encargo.Farmaco.Denominacion,
                 familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
@@ -83,7 +115,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 observaciones = encargo.Observaciones,
                 categoria = encargo.Farmaco.Categoria?.Nombre ?? string.Empty,
                 subcategoria = encargo.Farmaco.Subcategoria?.Nombre ?? string.Empty
-            };            
-        }                
+            };
+        }
     }
 }

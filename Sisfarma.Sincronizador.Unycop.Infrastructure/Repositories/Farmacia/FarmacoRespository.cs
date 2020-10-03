@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Core.Config;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
@@ -6,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Linq;
-
+using System.Threading;
 using DC = Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
@@ -19,24 +20,27 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     public class FarmacoRespository : FarmaciaRepository, IFarmacoRepository, DC.IFarmacosRepository
     {
         private readonly ICategoriaRepository _categoriaRepository;
-        private readonly ICodigoBarraRepository _barraRepository;        
+        private readonly ICodigoBarraRepository _barraRepository;
         private readonly DC.IFamiliaRepository _familiaRepository;
         private readonly DC.ILaboratorioRepository _laboratorioRepository;
         private readonly DC.IProveedorRepository _proveedorRepository;
 
-        private readonly decimal _factorCentecimal = 0.01m;
+        private readonly UnycopClient _unycopClient;
 
-        public FarmacoRespository(LocalConfig config) 
+        public FarmacoRespository(LocalConfig config)
             : base(config)
         { }
 
-        public FarmacoRespository() { }
+        public FarmacoRespository()
+        {
+            _unycopClient = new UnycopClient();
+        }
 
         public FarmacoRespository(
-            ICategoriaRepository categoriaRepository, 
-            ICodigoBarraRepository barraRepository, 
-            DC.IFamiliaRepository familiaRepository, 
-            DC.ILaboratorioRepository laboratorioRepository, 
+            ICategoriaRepository categoriaRepository,
+            ICodigoBarraRepository barraRepository,
+            DC.IFamiliaRepository familiaRepository,
+            DC.ILaboratorioRepository laboratorioRepository,
             DC.IProveedorRepository proveedorRepository)
         {
             _categoriaRepository = categoriaRepository ?? throw new ArgumentNullException(nameof(categoriaRepository));
@@ -44,7 +48,27 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             _familiaRepository = familiaRepository ?? throw new ArgumentNullException(nameof(familiaRepository));
             _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
             _proveedorRepository = proveedorRepository ?? throw new ArgumentNullException(nameof(proveedorRepository));
-        }      
+
+            _unycopClient = new UnycopClient();
+        }
+
+        // TODO hay que poner un filtro
+        public IEnumerable<DTO.Farmaco> GetAll()
+        {
+            try
+            {
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, null));
+
+                var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
+
+                return farmacos;
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetAll();
+            }
+        }
 
         public DTO.Farmaco GetOneOrDefaultById(long id)
         {
@@ -62,7 +86,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetOneOrDefaultById(id);
-            }  
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -87,7 +111,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByFechaUltimaEntradaGreaterOrEqual(fecha);
-            }            
+            }
         }
 
         public IEnumerable<DTO.Farmaco> GetAllByFechaUltimaEntradaGreaterOrEqualAsDTO(DateTime fecha)
@@ -105,7 +129,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByFechaUltimaEntradaGreaterOrEqualAsDTO(fecha);
-            }                        
+            }
         }
 
         public IEnumerable<Farmaco> GetAllByFechaUltimaSalidaGreaterOrEqual(DateTime fecha)
@@ -126,7 +150,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByFechaUltimaSalidaGreaterOrEqual(fecha);
-            }            
+            }
         }
 
         public IEnumerable<DTO.Farmaco> GetAllByFechaUltimaSalidaGreaterOrEqualAsDTO(DateTime fecha)
@@ -144,7 +168,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByFechaUltimaSalidaGreaterOrEqualAsDTO(fecha);
-            }            
+            }
         }
 
         public IEnumerable<Farmaco> GetAllWithoutStockByIdGreaterOrEqual(string codigo)
@@ -165,7 +189,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllWithoutStockByIdGreaterOrEqual(codigo);
-            }            
+            }
         }
 
         public IEnumerable<DTO.Farmaco> GetAllWithoutStockByIdGreaterOrEqualAsDTO(string codigo)
@@ -183,7 +207,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllWithoutStockByIdGreaterOrEqualAsDTO(codigo);
-            }                        
+            }
         }
 
         public IEnumerable<Farmaco> GetWithStockByIdGreaterOrEqual(string codigo)
@@ -204,7 +228,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetWithStockByIdGreaterOrEqual(codigo);
-            }            
+            }
         }
 
         public IEnumerable<DTO.Farmaco> GetWithStockByIdGreaterOrEqualAsDTO(string codigo)
@@ -222,7 +246,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetWithStockByIdGreaterOrEqualAsDTO(codigo);
-            }            
+            }
         }
 
         public bool AnyGraterThatDoesnHaveStock(string codigo)
@@ -242,7 +266,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return AnyGraterThatDoesnHaveStock(codigo);
-            }            
+            }
         }
 
         public bool AnyGreaterThatHasStock(string codigo)
@@ -262,12 +286,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return AnyGreaterThatHasStock(codigo);
-            }            
+            }
         }
 
         public Farmaco GenerarFarmaco(DTO.Farmaco farmaco)
         {
-            var familia = _familiaRepository.GetOneOrDefaultById(farmaco.Familia);
+            var familia = _familiaRepository.GetOneOrDefaultById(farmaco.FamiliaId);
             var categoria = farmaco.CategoriaId.HasValue
                             ? _categoriaRepository.GetOneOrDefaultById(farmaco.CategoriaId.Value)
                             : null;
@@ -282,11 +306,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
             var proveedor = _proveedorRepository.GetOneOrDefaultByCodigoNacional(farmaco.Id);
 
-            var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.Laboratorio);
+            var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio);
 
             var pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                            ? (decimal)farmaco.PrecioUnicoEntrada.Value * _factorCentecimal
-                            : ((decimal?)farmaco.PrecioMedio ?? 0m) * _factorCentecimal;
+                            ? (decimal)farmaco.PrecioUnicoEntrada.Value
+                            : ((decimal?)farmaco.PrecioMedio ?? 0m);
 
             var iva = default(decimal);
             switch (farmaco.IVA)
@@ -314,7 +338,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 FechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue && farmaco.FechaUltimaSalida.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
                 Ubicacion = farmaco.Ubicacion ?? string.Empty,
                 Web = farmaco.BolsaPlastico,
-                Precio = farmaco.PVP * _factorCentecimal,
+                Precio = farmaco.PVP,
                 PrecioCoste = pcoste,
                 Iva = iva,
                 Stock = farmaco.ExistenciasAux ?? 0,

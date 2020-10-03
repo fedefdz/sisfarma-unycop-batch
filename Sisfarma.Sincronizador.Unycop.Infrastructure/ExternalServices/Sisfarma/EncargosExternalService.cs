@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
 using Sisfarma.Sincronizador.Core.Extensions;
@@ -10,7 +12,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
     public class EncargosExternalService : FisiotesExternalService, IEncargosExternalService
     {
-        public EncargosExternalService(IRestClient restClient, FisiotesConfig config) 
+        public EncargosExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         { }
 
@@ -43,40 +45,41 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             }
         }
 
-        public void Sincronizar(Encargo ee)
+        public void Sincronizar(IEnumerable<Encargo> ees)
         {
-            var encargo = new
-            {
-                idEncargo = ee.idEncargo,
-                cod_nacional = ee.cod_nacional,
-                nombre = ee.nombre,
-                familia = ee.familia.Strip(),
-                superFamilia = ee.superFamilia.Strip(),
-                cod_laboratorio = ee.cod_laboratorio.Strip(),
-                laboratorio = ee.laboratorio.Strip(),
-                proveedor = ee.proveedor.Strip(),
-                pvp = ee.pvp,
-                puc = ee.puc,
-                dni = ee.dni,
-                fecha = ee.fecha.ToIsoString(),
-                trabajador = ee.trabajador,
-                unidades = ee.unidades,
-                fechaEntrega = ee.fechaEntrega.HasValue ? ee.fechaEntrega.Value.ToIsoString() : DateTime.MinValue.ToIsoString(),
-                observaciones = ee.observaciones.Strip(),                                
-                superFamiliaAux = ee.superFamiliaAux.Strip(),
-                familiaAux = ee.familiaAux.Strip(),
-                cambioClasificacion = ee.cambioClasificacion.ToInteger(),
-                categoria = ee.categoria.Strip(),
-                subcategoria = ee.subcategoria.Strip()
-            };
+            var encargos = ees.Select(ee =>
+                new
+                {
+                    idEncargo = ee.idEncargo,
+                    cod_nacional = ee.cod_nacional,
+                    nombre = ee.nombre,
+                    familia = ee.familia.Strip(),
+                    superFamilia = ee.superFamilia.Strip(),
+                    cod_laboratorio = ee.cod_laboratorio.Strip(),
+                    laboratorio = ee.laboratorio.Strip(),
+                    proveedor = ee.proveedor.Strip(),
+                    pvp = ee.pvp,
+                    puc = ee.puc,
+                    dni = ee.dni,
+                    fecha = ee.fecha.ToIsoString(),
+                    trabajador = ee.trabajador,
+                    unidades = ee.unidades,
+                    fechaEntrega = ee.fechaEntrega.HasValue ? ee.fechaEntrega.Value.ToIsoString() : DateTime.MinValue.ToIsoString(),
+                    observaciones = ee.observaciones.Strip(),
+                    superFamiliaAux = ee.superFamiliaAux.Strip(),
+                    familiaAux = ee.familiaAux.Strip(),
+                    cambioClasificacion = ee.cambioClasificacion.ToInteger(),
+                    categoria = ee.categoria.Strip(),
+                    subcategoria = ee.subcategoria.Strip()
+                });
 
             _restClient
                 .Resource(_config.Encargos.Insert)
                 .SendPost(new
                 {
-                    bulk = new[] { encargo }
+                    bulk = encargos
                 });
-        }    
+        }
 
         public void UpdateFechaDeEntrega(DateTime fechaEntrega, long idEncargo)
         {

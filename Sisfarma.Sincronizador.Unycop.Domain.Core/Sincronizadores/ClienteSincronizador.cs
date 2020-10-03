@@ -54,7 +54,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     if (_perteneceFarmazul)
                     {
                         var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
-                        var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}", tipo);
+                        var beBlue = cliente.IdPerfil.HasValue && (cliente.IdPerfil == 2 || cliente.IdPerfil.ToString() == tipo);
                         clienteSisfarma.BeBlue = beBlue;
                     }
 

@@ -10,8 +10,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using DC = Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using DE = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
+
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
     public interface IRecepcionRespository
@@ -32,13 +34,15 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         public RecepcionRespository(LocalConfig config) : base(config)
         { }
 
-        public RecepcionRespository() { }
+        public RecepcionRespository()
+        {
+        }
 
         public RecepcionRespository(
-            IProveedorRepository proveedorRepository, 
-            IFarmacoRepository farmacoRepository, 
-            ICategoriaRepository categoriaRepository, 
-            IFamiliaRepository familiaRepository, 
+            IProveedorRepository proveedorRepository,
+            IFarmacoRepository farmacoRepository,
+            ICategoriaRepository categoriaRepository,
+            IFamiliaRepository familiaRepository,
             ILaboratorioRepository laboratorioRepository)
         {
             _proveedorRepository = proveedorRepository ?? throw new ArgumentNullException(nameof(proveedorRepository));
@@ -64,7 +68,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetCodigoProveedorActualOrDefaultByFarmaco(farmaco);
-            }                        
+            }
         }
 
         public IEnumerable<DE.Recepcion> GetAllByYear(int year)
@@ -77,10 +81,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     using (var db = FarmaciaContext.RecepcionByYear(year))
                     {
                         var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion 
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM 
+                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
                                     (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL        
+                                        WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
                                         GROUP BY AlbaranID, ID_Fecha
                                         ORDER BY ID_Fecha ASC) AS alb)
                                 AND YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
@@ -104,7 +108,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByYear(year);
-            }                        
+            }
         }
 
         public IEnumerable<DTO.Recepcion> GetAllByYearAsDTO(int year)
@@ -116,10 +120,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     using (var db = FarmaciaContext.RecepcionByYear(year))
                     {
                         var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion 
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM 
+                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
                                     (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL        
+                                        WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
                                         GROUP BY AlbaranID, ID_Fecha
                                         ORDER BY ID_Fecha ASC) AS alb)
                                 AND YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
@@ -137,7 +141,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByYearAsDTO(year);
-            }            
+            }
         }
 
         public IEnumerable<DE.Recepcion> GetAllByDate(DateTime fecha)
@@ -150,10 +154,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     using (var db = FarmaciaContext.RecepcionByYear(fecha.Year))
                     {
                         var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion 
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM 
+                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
                                     (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL        
+                                        WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
                                         GROUP BY AlbaranID, ID_Fecha
                                         ORDER BY ID_Fecha ASC) AS alb)
                                 AND #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
@@ -176,8 +180,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByDate(fecha);
-            }            
-            
+            }
         }
 
         public IEnumerable<DTO.Recepcion> GetAllByDateAsDTO(DateTime fecha)
@@ -189,10 +192,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     using (var db = FarmaciaContext.RecepcionByYear(fecha.Year))
                     {
                         var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion 
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM 
+                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
                                     (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL        
+                                        WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
                                         GROUP BY AlbaranID, ID_Fecha
                                         ORDER BY ID_Fecha ASC) AS alb)
                                 AND #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
@@ -209,13 +212,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByDateAsDTO(fecha);
-            }            
-
+            }
         }
 
         internal class RecepcionCompositeKey
         {
             internal int Anio { get; set; }
+
             internal int Albaran { get; set; }
         }
 
@@ -232,24 +235,24 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 {
                     var recepcionDetalle = new RecepcionDetalle()
                     {
-                        Linea = ++linea,                        
+                        Linea = ++linea,
                         RecepcionId = int.Parse($"{group.Key.Anio}{group.Key.Albaran}"),
                         Cantidad = item.Recibido - item.Devuelto,
-                        CantidadBonificada = item.Bonificado                        
+                        CantidadBonificada = item.Bonificado
                     };
 
                     var farmaco = _farmacoRepository.GetOneOrDefaultById(item.Farmaco);
                     if (farmaco != null)
                     {
-                        var pcoste = 0m;                        
+                        var pcoste = 0m;
                         if (item.PVAlbaran > 0)
                             pcoste = item.PVAlbaran * _factorCentecimal;
                         else if (item.PC > 0)
                             pcoste = item.PC * _factorCentecimal;
                         else
                             pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                                ? (decimal)farmaco.PrecioUnicoEntrada.Value * _factorCentecimal
-                                : ((decimal?)farmaco.PrecioMedio ?? 0m) * _factorCentecimal;
+                                ? (decimal)farmaco.PrecioUnicoEntrada.Value
+                                : ((decimal?)farmaco.PrecioMedio ?? 0m);
 
                         var proveedor = _proveedorRepository.GetOneOrDefaultByCodigoNacional(farmaco.Id)
                                 ?? _proveedorRepository.GetOneOrDefaultById(farmaco.Id);
@@ -264,8 +267,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                                 farmaco.SubcategoriaId.Value)
                             : null;
 
-                        var familia = _familiaRepository.GetOneOrDefaultById(farmaco.Familia);
-                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.Laboratorio);
+                        var familia = _familiaRepository.GetOneOrDefaultById(farmaco.FamiliaId);
+                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio);
 
                         recepcionDetalle.Farmaco = new DE.Farmaco
                         {
@@ -328,7 +331,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllHistoricosByFecha(fecha);
-            }            
+            }
         }
     }
 }

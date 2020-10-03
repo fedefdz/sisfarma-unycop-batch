@@ -15,7 +15,7 @@ namespace Sisfarma.Client.Unycop
         {
             //var path = @"C:\Unycopwin\Datos\Ficheros";
 
-            for (int i = 3; i < 4; i++)
+            for (int i = 1; i < 8; i++)
             {
                 var llamada = $"{i}".PadLeft(2, '0');
                 var entrada = new { IdProducto = "43", IdLlamada = llamada };

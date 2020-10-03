@@ -10,6 +10,7 @@ using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
+
 using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using SF = Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
@@ -28,7 +29,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         private readonly ILaboratorioRepository _laboratorioRepository;
         private readonly ICodigoBarraRepository _barraRepository;
 
-        public PedidoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public PedidoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
             _categoriaRepository = new CategoriaRepository();
@@ -51,7 +52,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             if (!recepciones.Any())
             {
                 _anioInicio++;
-                _lastPedido = null;                               
+                _lastPedido = null;
                 return;
             }
 
@@ -79,16 +80,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 var recepcion = new FAR.Recepcion
                 {
                     Id = identity,
-                    Fecha = fecha.Value,                  
+                    Fecha = fecha.Value,
                     ImportePVP = group.Value.Sum(x => x.PVP * x.Recibido * _factorCentecimal),
                     ImportePUC = group.Value.Sum(x => x.PCTotal * _factorCentecimal),
                     Proveedor = proveedorPedido
                 };
 
-
                 var detalle = new List<RecepcionDetalle>();
                 foreach (var item in group.Value)
-                {                    
+                {
                     var farmaco = (_farmacia.Farmacos as FarmacoRespository).GetOneOrDefaultById(item.Farmaco);
                     if (farmaco != null)
                     {
@@ -108,8 +108,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             pcoste = item.PC * _factorCentecimal;
                         else
                             pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                                ? (decimal)farmaco.PrecioUnicoEntrada.Value * _factorCentecimal
-                                : ((decimal?)farmaco.PrecioMedio ?? 0m) * _factorCentecimal;
+                                ? (decimal)farmaco.PrecioUnicoEntrada.Value
+                                : ((decimal?)farmaco.PrecioMedio ?? 0m);
 
                         var proveedor = _farmacia.Proveedores.GetOneOrDefaultByCodigoNacional(farmaco.Id)
                                 ?? _farmacia.Proveedores.GetOneOrDefaultById(farmaco.Id);
@@ -124,8 +124,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                                 farmaco.SubcategoriaId.Value)
                             : null;
 
-                        var familia = _farmacia.Familias.GetOneOrDefaultById(farmaco.Familia);
-                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.Laboratorio);
+                        var familia = _farmacia.Familias.GetOneOrDefaultById(farmaco.FamiliaId);
+                        var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio);
 
                         var codigoBarra = _barraRepository.GetOneByFarmacoId(farmaco.Id);
 
@@ -167,14 +167,14 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
                         detalle.Add(recepcionDetalle);
                         batchLineasPedidos.Add(GenerarLineaDePedido(recepcionDetalle));
-                    }                    
+                    }
                 }
 
                 if (detalle.Any())
                 {
-                    recepcion.Lineas = detalle.Count();                    
+                    recepcion.Lineas = detalle.Count();
                     var pedido = GenerarPedido(recepcion);
-                    batchPedidos.Add(pedido);                    
+                    batchPedidos.Add(pedido);
 
                     _lastPedido = pedido;
                 }
@@ -182,11 +182,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 {
                     recepcion.Lineas = 0;
                     var pedido = GenerarPedido(recepcion);
-                    
+
                     _lastPedido = pedido;
                 }
-            }           
-            
+            }
+
             if (batchLineasPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchLineasPedidos);
             if (batchPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchPedidos);
         }
@@ -194,11 +194,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         internal class RecepcionCompositeKey
         {
             internal int Anio { get; set; }
+
             internal int Albaran { get; set; }
         }
 
         private LineaPedido GenerarLineaDePedido(FAR.RecepcionDetalle detalle)
-        {            
+        {
             return new LineaPedido
             {
                 idPedido = detalle.RecepcionId,
@@ -211,8 +212,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 subcategoria = detalle.Farmaco.Subcategoria?.Nombre ?? string.Empty,
                 cantidad = detalle.Cantidad,
                 cantidadBonificada = detalle.CantidadBonificada,
-                pvp = (float) (detalle.Farmaco?.Precio ?? 0),
-                puc = (float) (detalle.Farmaco?.PrecioCoste ?? 0),
+                pvp = (float)(detalle.Farmaco?.Precio ?? 0),
+                puc = (float)(detalle.Farmaco?.PrecioCoste ?? 0),
                 cod_laboratorio = detalle.Farmaco?.Laboratorio?.Codigo ?? "0",
                 laboratorio = detalle.Farmaco?.Laboratorio?.Nombre ?? LABORATORIO_DEFAULT,
                 proveedor = detalle.Farmaco?.Proveedor?.Nombre ?? string.Empty,
@@ -221,14 +222,14 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         }
 
         private SF.Pedido GenerarPedido(FAR.Recepcion recepcion)
-        {            
+        {
             return new SF.Pedido
             {
                 idPedido = recepcion.Id,
                 fechaPedido = recepcion.Fecha,
                 hora = DateTime.Now,
                 numLineas = recepcion.Lineas,
-                importePvp = (float) recepcion.ImportePVP,
+                importePvp = (float)recepcion.ImportePVP,
                 importePuc = (float)recepcion.ImportePUC,
                 idProveedor = recepcion.Proveedor?.Id.ToString() ?? "0",
                 proveedor = recepcion.Proveedor?.Nombre ?? string.Empty,
