@@ -48,7 +48,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnycopDataExtractor">
+    <Reference Include="UnycopDataExtractor, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\build\UnycopDataExtractor.dll</HintPath>
     </Reference>
   </ItemGroup>

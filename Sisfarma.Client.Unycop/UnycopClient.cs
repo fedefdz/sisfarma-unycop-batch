@@ -18,10 +18,22 @@ namespace Sisfarma.Client.Unycop
             for (int i = 1; i < 8; i++)
             {
                 var llamada = $"{i}".PadLeft(2, '0');
-                var entrada = new { IdProducto = "43", IdLlamada = llamada };
+                string filtros = null;
+                if (i == 3)
+                    filtros = "(IdArticulo,=,31|52)";
+                var entrada = new { IdProducto = "43", IdLlamada = llamada, Filtros = filtros };
                 var client = new UnycopDataExtractor.UDataExtractor();
                 var json = JsonConvert.SerializeObject(entrada);
-                var response = client.ExtractData(json);
+                string response;
+                try
+                {
+                    response = client.ExtractData(json);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+
                 var unycopResponse = JsonConvert.DeserializeObject<UnycopResponse>(response);
 
                 var zipFileInfo = unycopResponse.Ficheros[0];
