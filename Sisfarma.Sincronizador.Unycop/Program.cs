@@ -126,9 +126,15 @@ namespace Sisfarma.Sincronizador.Unycop
 
                 ;
 
-            //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
-            //    .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
-            //        .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
+            // TODO: Clientes SUCCESS
+            // TODO: Categoria SUCCESS
+            // TODO: Familia SUCCESS
+            // TODO: Encargos SUCCESS
+            // TODO: Sinonimos IN-PROGRESS
+
+            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
+                .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
+                    .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
             //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.EncargoSincronizador(
             //            farmacia: FarmaciaFactory.Create(),
             //            fisiotes: SisfarmaFactory.Create())
@@ -164,7 +170,7 @@ namespace Sisfarma.Sincronizador.Unycop
 
         private static void Initialize()
         {
-            new UnycopClient().ExtractArticulos();
+            //new UnycopClient().ExtractArticulos();
             try
             {
                 var dir = ConfigurationManager.AppSettings["Directory.Setup"];

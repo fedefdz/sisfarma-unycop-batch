@@ -6,5 +6,7 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
     public interface ISinonimosRepository
     {
         IEnumerable<Sinonimo> GetAll();
+
+        IEnumerable<Sinonimo> BetweenArticulos(int from, int to);
     }
 }

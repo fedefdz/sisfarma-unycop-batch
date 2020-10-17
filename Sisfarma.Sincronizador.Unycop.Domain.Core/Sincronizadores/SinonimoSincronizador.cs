@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
@@ -9,43 +10,71 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
     public class SinonimoSincronizador : DC.SinonimoSincronizador
     {
-        public SinonimoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public SinonimoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
         public override void Process()
         {
             // _isEmpty se carga en PreSincronizacion()
-            //if (!_isEmpty && _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
-            //{
-            //    _sisfarma.Sinonimos.Empty();
-            //    _isEmpty = _sisfarma.Sinonimos.IsEmpty();
-            //}
-
-            if (true)
+            if (!_isEmpty && _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm"))))
             {
-                var sinonimos = _farmacia.Sinonimos.GetAll();
+                _sisfarma.Sinonimos.Empty();
+                _isEmpty = _sisfarma.Sinonimos.IsEmpty();
+            }
 
-                for (int i = 0; i < sinonimos.Count(); i += _batchSize)
+            if (_isEmpty)
+            {
+                // TODO como consume mucho tiempo pedimos por range
+                var range = 1000;
+                var from = 0;
+                var to = range;
+
+                var siguiente = true;
+                while (siguiente)
                 {
-                    Task.Delay(1);
+                    var codigosBarras = _farmacia.Sinonimos.BetweenArticulos(from, to);
+                    if (!codigosBarras.Any())
+                    {
+                        siguiente = false;
+                        continue;
+                    }
 
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    var sinonimos = codigosBarras.Select(x => new Sinonimo
+                    {
+                        cod_barras = x.CodigoBarra,
+                        cod_nacional = x.CodigoNacional
+                    }).ToList();
+                    _sisfarma.Sinonimos.Sincronizar(sinonimos);
 
-                    var items = sinonimos
-                        .Skip(i)
-                        .Take(_batchSize)
-                            .Select(x => new Sinonimo
-                            {
-                                cod_barras = x.CodigoBarra,
-                                cod_nacional = x.CodigoNacional
-                            }).ToList();
-
-                    _sisfarma.Sinonimos.Sincronizar(items);
                     // 1er lote pregunta
                     if (_isEmpty)
                         _isEmpty = _sisfarma.Sinonimos.IsEmpty();
+
+                    from = to; to += range;
                 }
+
+                //var sinonimos = _farmacia.Sinonimos.GetAll();
+                //for (int i = 0; i < sinonimos.Count(); i += _batchSize)
+                //{
+                //    Task.Delay(1);
+
+                //    _cancellationToken.ThrowIfCancellationRequested();
+
+                //    var items = sinonimos
+                //        .Skip(i)
+                //        .Take(_batchSize)
+                //            .Select(x => new Sinonimo
+                //            {
+                //                cod_barras = x.CodigoBarra,
+                //                cod_nacional = x.CodigoNacional
+                //            }).ToList();
+
+                //    _sisfarma.Sinonimos.Sincronizar(items);
+                //    // 1er lote pregunta
+                //    if (_isEmpty)
+                //        _isEmpty = _sisfarma.Sinonimos.IsEmpty();
+                //}
             }
         }
     }
