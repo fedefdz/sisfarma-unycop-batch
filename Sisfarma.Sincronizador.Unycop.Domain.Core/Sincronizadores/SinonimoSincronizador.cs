@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
@@ -25,56 +24,27 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
             if (_isEmpty)
             {
-                // TODO como consume mucho tiempo pedimos por range
-                var range = 1000;
-                var from = 0;
-                var to = range;
-
-                var siguiente = true;
-                while (siguiente)
+                var sinonimos = _farmacia.Sinonimos.GetAll();
+                for (int i = 0; i < sinonimos.Count(); i += _batchSize)
                 {
-                    var codigosBarras = _farmacia.Sinonimos.BetweenArticulos(from, to);
-                    if (!codigosBarras.Any())
-                    {
-                        siguiente = false;
-                        continue;
-                    }
+                    Task.Delay(1);
 
-                    var sinonimos = codigosBarras.Select(x => new Sinonimo
-                    {
-                        cod_barras = x.CodigoBarra,
-                        cod_nacional = x.CodigoNacional
-                    }).ToList();
-                    _sisfarma.Sinonimos.Sincronizar(sinonimos);
+                    _cancellationToken.ThrowIfCancellationRequested();
 
+                    var items = sinonimos
+                        .Skip(i)
+                        .Take(_batchSize)
+                            .Select(x => new Sinonimo
+                            {
+                                cod_barras = x.CodigoBarra,
+                                cod_nacional = x.CodigoNacional
+                            }).ToList();
+
+                    _sisfarma.Sinonimos.Sincronizar(items);
                     // 1er lote pregunta
                     if (_isEmpty)
                         _isEmpty = _sisfarma.Sinonimos.IsEmpty();
-
-                    from = to; to += range;
                 }
-
-                //var sinonimos = _farmacia.Sinonimos.GetAll();
-                //for (int i = 0; i < sinonimos.Count(); i += _batchSize)
-                //{
-                //    Task.Delay(1);
-
-                //    _cancellationToken.ThrowIfCancellationRequested();
-
-                //    var items = sinonimos
-                //        .Skip(i)
-                //        .Take(_batchSize)
-                //            .Select(x => new Sinonimo
-                //            {
-                //                cod_barras = x.CodigoBarra,
-                //                cod_nacional = x.CodigoNacional
-                //            }).ToList();
-
-                //    _sisfarma.Sinonimos.Sincronizar(items);
-                //    // 1er lote pregunta
-                //    if (_isEmpty)
-                //        _isEmpty = _sisfarma.Sinonimos.IsEmpty();
-                //}
             }
         }
     }
