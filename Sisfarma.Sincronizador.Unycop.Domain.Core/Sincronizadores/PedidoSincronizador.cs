@@ -18,6 +18,7 @@ using SF = Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
 using System.Security.Cryptography.X509Certificates;
+using System.Diagnostics;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -50,10 +51,13 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             var repository = _farmacia.Recepciones as RecepcionRespository;
-            var albaranes = (_lastPedido == null || _lastPedido.fechaPedido?.Year == DateTime.Now.Year)
-                ? repository.GetAllByYearAsDTO(_anioInicio)
-                : repository.GetAllByDateAsDTO(_lastPedido.fechaPedido ?? DateTime.MinValue);
 
+            var sw = new Stopwatch();
+            sw.Start();
+            var albaranes = (_lastPedido == null || _lastPedido.fechaPedido?.Year == DateTime.Now.Year)
+                ? repository.GetAllByYearAsDTO(2020).ToList()
+                : repository.GetAllByDateAsDTO(_lastPedido.fechaPedido ?? DateTime.MinValue).ToList();
+            Console.WriteLine($"alabaranes recuperados en {sw.ElapsedMilliseconds}ms");
             if (!albaranes.Any())
             {
                 _anioInicio++;
@@ -61,11 +65,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 return;
             }
 
-            //var set = albaranes.SelectMany(x => x.lineasItem).Select(x => int.Parse(x.CNArticulo)).Distinct();
-            //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetAll();
+            var set = albaranes.SelectMany(x => x.lineasItem).Select(x => int.Parse(x.CNArticulo)).Distinct();
+            Console.WriteLine($"cant articulos {set.Count()}");
+            sw.Restart();
+            var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToList();
+            Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
+            //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetAll().ToList();
             var batchLineasPedidos = new List<LineaPedido>();
             var batchPedidos = new List<SF.Pedido>();
-
+            sw.Restart();
             foreach (var albaran in albaranes)
             {
                 Task.Delay(5).Wait();
@@ -94,8 +102,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 };
 
                 var detalle = new List<RecepcionDetalle>();
-                var set = albaran.lineasItem.Select(x => int.Parse(x.CNArticulo)).Distinct();
-                var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set);
+                //var set = albaran.lineasItem.Select(x => int.Parse(x.CNArticulo)).Distinct();
+                //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set);
                 foreach (var item in albaran.lineasItem)
                 {
                     var cna = int.Parse(item.CNArticulo);
@@ -193,9 +201,24 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     _lastPedido = pedido;
                 }
             }
-
-            if (batchLineasPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchLineasPedidos);
-            if (batchPedidos.Any()) _sisfarma.Pedidos.Sincronizar(batchPedidos);
+            Console.WriteLine($"pedidos listos {batchLineasPedidos.Count}|{batchPedidos.Count} para enviar en  en {sw.ElapsedMilliseconds}ms");
+            var batchSize = 1000;
+            if (batchLineasPedidos.Any()) for (int i = 0; i < batchLineasPedidos.Count(); i += batchSize)
+                {
+                    Task.Delay(1); _cancellationToken.ThrowIfCancellationRequested();
+                    var items = batchLineasPedidos.Skip(i).Take(batchSize).ToArray();
+                    sw.Restart();
+                    _sisfarma.Pedidos.Sincronizar(items);
+                    Console.WriteLine($"lineas {i} sync en {sw.ElapsedMilliseconds}ms");
+                }
+            if (batchPedidos.Any()) for (int i = 0; i < batchPedidos.Count(); i += batchSize)
+                {
+                    Task.Delay(1); _cancellationToken.ThrowIfCancellationRequested();
+                    var items = batchPedidos.Skip(i).Take(batchSize).ToArray();
+                    sw.Restart();
+                    _sisfarma.Pedidos.Sincronizar(items);
+                    Console.WriteLine($"pedidos {i} sync en {sw.ElapsedMilliseconds}ms");
+                }
         }
 
         internal class RecepcionCompositeKey

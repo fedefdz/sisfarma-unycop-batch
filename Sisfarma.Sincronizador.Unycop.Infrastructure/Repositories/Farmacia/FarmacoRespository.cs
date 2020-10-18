@@ -6,6 +6,7 @@ using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using DC = Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
@@ -58,10 +59,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             try
             {
                 var filtro = $"(IdArticulo,=,{string.Join("|", set)})";
-                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, null));
-
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                sw.Start();
                 var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
-
+                Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
                 return farmacos;
             }
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
