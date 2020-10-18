@@ -11,7 +11,7 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
     public class ProveedoresExternalService : FisiotesExternalService, IProveedoresExternalService
     {
-        public ProveedoresExternalService(IRestClient restClient, FisiotesConfig config) 
+        public ProveedoresExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         { }
 
@@ -27,18 +27,18 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
         {
             public DateTime? fecha { get; set; }
         }
-        
-        public void Sincronizar(Proveedor pp)
+
+        public void Sincronizar(IEnumerable<Proveedor> pps)
         {
-            var proveedor = new
+            var proveedores = pps.Select(pp => new
             {
                 idProveedor = pp.idProveedor,
                 nombre = pp.nombre.Strip()
-            };
+            }).ToArray();
 
             _restClient
                 .Resource(_config.Proveedores.Insert)
-                .SendPost(new { bulk = new[] { proveedor } });
+                .SendPost(new { bulk = proveedores });
         }
 
         public void Update(Proveedor pp)
@@ -80,7 +80,7 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
                 fecha = item.fecha.ToIsoString(),
                 puc = item.puc
             });
-                            
+
             _restClient
                 .Resource(_config.Proveedores.InsertHistorico)
                 .SendPost(new { bulk = historicos });

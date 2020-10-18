@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,15 +18,20 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var proveedores = _farmacia.Proveedores.GetAll();
-            foreach (var proveedor in proveedores)
-            {
-                Task.Delay(1);
+            Task.Delay(1);
+            _cancellationToken.ThrowIfCancellationRequested();
+            var sw = new Stopwatch();
+            sw.Start();
+            var proveedores = _farmacia.Proveedores.GetAll().ToList();
+            Console.WriteLine($"Proveedores recuperados en {sw.ElapsedMilliseconds}ms");
 
-                _cancellationToken.ThrowIfCancellationRequested();
-                
-                _sisfarma.Proveedores.Sincronizar(new Proveedor { idProveedor = proveedor.Id.ToString(), nombre = proveedor.Nombre });                
-            }
+            sw.Restart();
+            var pps = proveedores.Select(p => new Proveedor { idProveedor = p.Id.ToString(), nombre = p.Nombre }).ToArray();
+            Console.WriteLine($"Proveedores listos para sync en {sw.ElapsedMilliseconds}ms");
+
+            sw.Restart();
+            _sisfarma.Proveedores.Sincronizar(pps);
+            Console.WriteLine($"Proveedores sync en {sw.ElapsedMilliseconds}ms");
         }
     }
 }

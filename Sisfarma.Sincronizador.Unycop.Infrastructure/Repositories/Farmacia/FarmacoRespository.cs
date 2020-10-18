@@ -63,7 +63,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 sw.Start();
                 var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
                 Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
-                sw.Start();
+                sw.Restart();
                 var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
                 Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
                 return farmacos;
