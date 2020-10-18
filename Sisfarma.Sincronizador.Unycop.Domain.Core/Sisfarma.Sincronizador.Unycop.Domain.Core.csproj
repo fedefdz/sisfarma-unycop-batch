@@ -102,6 +102,10 @@
     <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj">
+      <Project>{E9163B7E-A8FF-49F5-822C-E360F7D64958}</Project>
+      <Name>Sisfarma.Client.Unycop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>

@@ -1,5 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Core.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
@@ -55,6 +56,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
         /// </summary>
         public int? FechaCaducidad { get; set; }
 
+        public IEnumerable<string> CodigoBarras { get; set; }
+
+        public int ProveedorId { get; set; }
+
+        public string NombreProveedor { get; set; }
+
         public static Farmaco CreateFrom(UNYCOP.Articulo articuloUnycop)
         {
             // TODO ver tipo BolaPlastico art 555555
@@ -95,7 +102,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
                 FechaCaducidad = fechaCaducidad,
                 FechaBaja = 0, // TODO: no hay info de fecha de baja
                 // TODO cambiar doble mapeo
-                ExistenciasAux = articuloUnycop.Stock  /*null, // TODO: no hay información de existencia, podría ser Mínimo*/
+                ExistenciasAux = articuloUnycop.Stock,  /*null, // TODO: no hay información de existencia, podría ser Mínimo*/
+                CodigoBarras = string.IsNullOrEmpty(articuloUnycop.CodigoBarrasArticulo) ? new string[0] : articuloUnycop.CodigoBarrasArticulo.Split(','),
+                ProveedorId = articuloUnycop.IdProveedor,
+                NombreProveedor = articuloUnycop.NombreProveedor
             };
         }
     }

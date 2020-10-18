@@ -92,8 +92,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 if (!encargos.Any())
                     return new Encargo[0];
 
-                var e = encargos.FirstOrDefault(x => x.IdEncargo == 43306);
-
                 var clientesIDs = encargos.Select(x => x.IdCliente).Distinct().OrderBy(x => x).ToArray();
 
                 var clienteRepository = _clientesRepository as ClientesRepository;
@@ -144,9 +142,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     ? farmaco.PrecioUnicoEntrada.Value
                     : (farmaco.PrecioMedio ?? 0m);
 
-                // TODO no tenemos info de proveedor, dejamos null para test
-                //ENTITY.Farmacia.Proveedor proveedor = _proveedorRepository.GetOneOrDefaultById(encargo.Proveedor);
-                ENTITY.Farmacia.Proveedor proveedor = null;
+                ENTITY.Farmacia.Proveedor proveedor = new ENTITY.Farmacia.Proveedor
+                {
+                    Id = farmaco.ProveedorId,
+                    Nombre = farmaco.NombreProveedor
+                };
 
                 Categoria categoria = farmaco.CategoriaId.HasValue
                     ? new Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }

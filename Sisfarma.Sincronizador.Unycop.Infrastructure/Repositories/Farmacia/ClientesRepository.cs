@@ -238,10 +238,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 NombreCompleto = dto.Nombre,
             };
 
-            // TODO ya hace falta porque la api nos brinda los puntos
-            //if (_premium)
-            //    cliente.Puntos += GetPuntosPremiumByCliente(cliente);
-
             return cliente;
         }
 

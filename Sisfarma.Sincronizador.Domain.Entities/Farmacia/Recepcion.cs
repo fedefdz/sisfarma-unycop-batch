@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
-{    
+{
     public partial class Recepcion
     {
         public int Id { get; set; }
@@ -25,8 +24,6 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
         public short? Mes { get; set; }
 
         public Proveedor Proveedor { get; set; }
-
-
 
         public ICollection<RecepcionDetalle> Detalle { get; set; }
 

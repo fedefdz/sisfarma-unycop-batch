@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Core.Config;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,11 +33,14 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
         private readonly decimal _factorCentecimal = 0.01m;
 
+        private readonly UnycopClient _unycopClient;
+
         public RecepcionRespository(LocalConfig config) : base(config)
         { }
 
         public RecepcionRespository()
         {
+            _unycopClient = new UnycopClient();
         }
 
         public RecepcionRespository(
@@ -50,6 +55,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             _categoriaRepository = categoriaRepository ?? throw new ArgumentNullException(nameof(categoriaRepository));
             _familiaRepository = familiaRepository ?? throw new ArgumentNullException(nameof(familiaRepository));
             _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
+            _unycopClient = new UnycopClient();
         }
 
         public long? GetCodigoProveedorActualOrDefaultByFarmaco(long farmaco)
@@ -111,37 +117,58 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
-        public IEnumerable<DTO.Recepcion> GetAllByYearAsDTO(int year)
+        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByYearAsDTO(int year)
         {
             try
             {
-                try
-                {
-                    using (var db = FarmaciaContext.RecepcionByYear(year))
-                    {
-                        var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
-                                    (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
-                                        GROUP BY AlbaranID, ID_Fecha
-                                        ORDER BY ID_Fecha ASC) AS alb)
-                                AND YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
-                            ORDER BY ID_Fecha ASC";
-                        return db.Database.SqlQuery<DTO.Recepcion>(sql,
-                            new OleDbParameter("year", year))
-                                .ToList();
-                    }
-                }
-                catch (FarmaciaContextException)
-                {
-                    return Enumerable.Empty<DTO.Recepcion>();
-                }
+                var calendar = (Calendar)CultureInfo.CurrentCulture.Calendar.Clone();
+                calendar.TwoDigitYearMax = DateTime.Now.Year;
+
+                var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                culture.DateTimeFormat.Calendar = calendar;
+
+                var incioAnio = new DateTime(year, 1, 1).ToString(UnycopFormat.FechaCompleta, culture);
+                var finAnio = new DateTime(year, 12, 31, 23, 59, 59).ToString(UnycopFormat.FechaCompleta, culture);
+
+                var filtro = $"(FechaRecepcion,>=,{incioAnio})&(FechaRecepcion,<=,{finAnio})";
+
+                var alabaranes = _unycopClient.Send<Client.Unycop.Model.Albaran>(new UnycopRequest(RequestCodes.Compras, filtro));
+                return alabaranes;
             }
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByYearAsDTO(year);
             }
+
+            //try
+            //{
+            //    try
+            //    {
+            //        using (var db = FarmaciaContext.RecepcionByYear(year))
+            //        {
+            //            var sql = $@"
+            //            SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+            //                WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
+            //                        (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
+            //                            WHERE YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
+            //                            GROUP BY AlbaranID, ID_Fecha
+            //                            ORDER BY ID_Fecha ASC) AS alb)
+            //                    AND YEAR(ID_Fecha) >= @year AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
+            //                ORDER BY ID_Fecha ASC";
+            //            return db.Database.SqlQuery<DTO.Recepcion>(sql,
+            //                new OleDbParameter("year", year))
+            //                    .ToList();
+            //        }
+            //    }
+            //    catch (FarmaciaContextException)
+            //    {
+            //        return Enumerable.Empty<DTO.Recepcion>();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllByYearAsDTO(year);
+            //}
         }
 
         public IEnumerable<DE.Recepcion> GetAllByDate(DateTime fecha)
@@ -183,36 +210,55 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
-        public IEnumerable<DTO.Recepcion> GetAllByDateAsDTO(DateTime fecha)
+        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByDateAsDTO(DateTime fecha)
         {
             try
             {
-                try
-                {
-                    using (var db = FarmaciaContext.RecepcionByYear(fecha.Year))
-                    {
-                        var sql = $@"
-                        SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
-                            WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
-                                    (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
-                                        WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
-                                        GROUP BY AlbaranID, ID_Fecha
-                                        ORDER BY ID_Fecha ASC) AS alb)
-                                AND #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
-                            ORDER BY ID_Fecha ASC";
-                        return db.Database.SqlQuery<DTO.Recepcion>(sql)
-                            .ToList();
-                    }
-                }
-                catch (FarmaciaContextException)
-                {
-                    return Enumerable.Empty<DTO.Recepcion>();
-                }
+                var calendar = (Calendar)CultureInfo.CurrentCulture.Calendar.Clone();
+                calendar.TwoDigitYearMax = DateTime.Now.Year;
+
+                var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                culture.DateTimeFormat.Calendar = calendar;
+
+                var feachaRecepcion = fecha.ToString(UnycopFormat.FechaCompleta, culture);
+
+                var filtro = $"(FechaRecepcion,>,{feachaRecepcion})";
+
+                var alabaranes = _unycopClient.Send<Client.Unycop.Model.Albaran>(new UnycopRequest(RequestCodes.Compras, filtro));
+                return alabaranes;
             }
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByDateAsDTO(fecha);
             }
+            //try
+            //{
+            //    try
+            //    {
+            //        using (var db = FarmaciaContext.RecepcionByYear(fecha.Year))
+            //        {
+            //            var sql = $@"
+            //            SELECT ID_Fecha as Fecha, AlbaranID as Albaran, Proveedor, ID_Farmaco as Farmaco, PVP, PC, PVAlb as PVAlbaran, PCTotal, Recibido, Bonificado, Devuelto FROM Recepcion
+            //                WHERE AlbaranID IN (SELECT alb.AlbaranID FROM
+            //                        (SELECT TOP 999 AlbaranID, ID_Fecha FROM Recepcion
+            //                            WHERE ID_Fecha > #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
+            //                            GROUP BY AlbaranID, ID_Fecha
+            //                            ORDER BY ID_Fecha ASC) AS alb)
+            //                    AND #{fecha.ToString("MM-dd-yyyy HH:mm:ss")}# AND (recibido <> 0 OR devuelto <> 0 OR bonificado <> 0) AND ID_Fecha IS NOT NULL AND AlbaranID IS NOT NULL
+            //                ORDER BY ID_Fecha ASC";
+            //            return db.Database.SqlQuery<DTO.Recepcion>(sql)
+            //                .ToList();
+            //        }
+            //    }
+            //    catch (FarmaciaContextException)
+            //    {
+            //        return Enumerable.Empty<DTO.Recepcion>();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllByDateAsDTO(fecha);
+            //}
         }
 
         internal class RecepcionCompositeKey

@@ -53,6 +53,24 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         }
 
         // TODO hay que poner un filtro
+        public IEnumerable<DTO.Farmaco> GetBySetId(IEnumerable<int> set)
+        {
+            try
+            {
+                var filtro = $"(IdArticulo,=,{string.Join("|", set)})";
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, null));
+
+                var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
+
+                return farmacos;
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetAll();
+            }
+        }
+
         public IEnumerable<DTO.Farmaco> GetAll()
         {
             try
@@ -74,23 +92,38 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                var idInteger = (int)id;
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco = @id";
-                    return db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("id", id))
-                        .FirstOrDefault();
-                }
+                var filtro = $"(IdArticulo,=,{id})";
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                if (!articulos.Any())
+                    return null;
+
+                return DTO.Farmaco.CreateFrom(articulos.First());
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetOneOrDefaultById(id);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            //try
+            //{
+            //    var idInteger = (int)id;
+            //    using (var db = FarmaciaContext.Farmacos())
+            //    {
+            //        var sql = @"select ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco = @id";
+            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
+            //            new OleDbParameter("id", id))
+            //            .FirstOrDefault();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetOneOrDefaultById(id);
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
         }
 
         public IEnumerable<Farmaco> GetAllByFechaUltimaEntradaGreaterOrEqual(DateTime fecha)

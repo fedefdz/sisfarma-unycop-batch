@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FicheroContent.cs" />
+    <Compile Include="Model\Alabaran.cs" />
     <Compile Include="Model\Articulo.cs" />
     <Compile Include="Model\Cliente.cs" />
     <Compile Include="Model\Encargo.cs" />

@@ -6,9 +6,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Ionic.Zip;
+using System.Net;
+using System.Globalization;
 
 namespace Sisfarma.Client.Unycop
 {
+    public static class UnycopFormat
+    {
+        public static readonly string FechaCompleta = "dd/MM/yy HH:mm:ss";
+        public static readonly string FechaCompletaDataBase = "d/M/yyyy HH:mm:ss";
+
+        public static CultureInfo GetCultureTwoDigitYear()
+        {
+            var calendar = (Calendar)CultureInfo.CurrentCulture.Calendar.Clone();
+            calendar.TwoDigitYearMax = DateTime.Now.Year;
+
+            var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            culture.DateTimeFormat.Calendar = calendar;
+            return culture;
+        }
+    }
+
     public class UnycopClient
     {
         public void ExtractArticulos()
@@ -19,9 +37,9 @@ namespace Sisfarma.Client.Unycop
             {
                 var llamada = $"{i}".PadLeft(2, '0');
                 string filtros = null;
-                if (i == 3)
-                    filtros = "(CodigoBarrasArticulo,<>,'')";
-                var entrada = new { IdProducto = "43", IdLlamada = llamada, Filtros = filtros };
+                //if (i == 3)
+                filtros = "(FechaRecepcion,>=,01/01/20)&(FechaRecepcion,<=,02/01/20 23:59:59)";
+                var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Compras, Filtros = filtros };
                 var client = new UnycopDataExtractor.UDataExtractor();
                 var json = JsonConvert.SerializeObject(entrada);
                 string response;

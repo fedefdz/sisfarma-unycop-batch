@@ -1,4 +1,5 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Services;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
@@ -73,7 +74,7 @@ namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
                         recepcionRespository: new RecepcionRespository()),
 
                 vendedores: new VendedoresRepository()
-            );                        
+            );
         }
     }
 }

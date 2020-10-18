@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
 {
@@ -16,13 +12,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
 
         public int Farmaco { get; set; }
 
-        public int PVP { get; set; }
+        public decimal PVP { get; set; }
 
-        public int PC { get; set; }
+        public decimal PC { get; set; }
 
-        public int PVAlbaran { get; set; }
+        public decimal PVAlbaran { get; set; }
 
-        public int PCTotal { get; set; }
+        public decimal PCTotal { get; set; }
 
         public int Recibido { get; set; }
 

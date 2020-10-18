@@ -53,5 +53,11 @@
         public string NombreLaboratorio { get; set; }
 
         public string CodigoBarrasArticulo { get; set; }
+
+        public int IdProveedor { get; set; }
+
+        public string NombreProveedor { get; set; }
+
+        public int CodProveedor { get; set; }
     }
 }
