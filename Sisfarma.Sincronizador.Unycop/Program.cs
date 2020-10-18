@@ -135,10 +135,10 @@ namespace Sisfarma.Sincronizador.Unycop
             //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
             //    .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
             //        .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
-            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.PedidoSincronizador(
+            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.EncargoSincronizador(
                         farmacia: FarmaciaFactory.Create(),
                         fisiotes: SisfarmaFactory.Create())
-                            .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: SincronizadorTaskManager.DelayPedidos));
+                            .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: SincronizadorTaskManager.DelayEncargos));
             //Task.Factory.StartNew(() => new PowerSwitchProgramado(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
             //Task.Factory.StartNew(() => new PowerSwitchManual(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
             //Task.Factory.StartNew(() => new UpdateVersionSincronizador().SincronizarAsync(new CancellationToken(), delayLoop: 20000));

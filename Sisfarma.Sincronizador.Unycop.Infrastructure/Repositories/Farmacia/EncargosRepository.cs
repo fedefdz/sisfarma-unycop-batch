@@ -14,6 +14,7 @@ using System.Threading;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
 using System.Text;
+using Sisfarma.Sincronizador.Core.Extensions;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -99,7 +100,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     .Select(clienteRepository.GenerateCliente).ToArray();
 
                 var farmacoRepository = _farmacoRepository as FarmacoRespository;
-                var famacosSource = farmacoRepository.GetAll().ToArray();
+                var set = encargos.Select(x => x.CNArticulo.ToIntegerOrDefault()).Distinct();
+                var famacosSource = farmacoRepository.GetBySetId(set).ToArray();
 
                 return encargos.Select(x => GenerarEncargo(DTO.Encargo.CreateFrom(x), clientesSource, famacosSource));
 
