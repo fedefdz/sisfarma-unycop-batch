@@ -19,7 +19,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         private string _clasificacion;
 
-        public ControlStockSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public ControlStockSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
@@ -39,7 +39,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             var repository = _farmacia.Farmacos as FarmacoRespository;
-            var farmacos = repository.GetWithStockByIdGreaterOrEqualAsDTO(_ultimoMedicamentoSincronizado);
+            var farmacos = repository.GetWithStockByIdGreaterOrEqualAsDTO(_ultimoMedicamentoSincronizado).ToList();
 
             if (!farmacos.Any())
             {
@@ -52,10 +52,10 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             foreach (var farmaco in farmacos)
             {
                 Task.Delay(5).Wait();
-                _cancellationToken.ThrowIfCancellationRequested();                
+                _cancellationToken.ThrowIfCancellationRequested();
 
                 var medicamento = GenerarMedicamento(repository.GenerarFarmaco(farmaco));
-                medicamentos.Add(medicamento);                
+                medicamentos.Add(medicamento);
             }
 
             _sisfarma.Medicamentos.Sincronizar(medicamentos);
@@ -82,7 +82,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 nombre = farmaco.Denominacion,
                 familia = familia,
                 precio = (float)farmaco.Precio,
-                descripcion = farmaco.Denominacion,                
+                descripcion = farmaco.Denominacion,
                 laboratorio = farmaco.Laboratorio?.Codigo ?? "0",
                 nombre_laboratorio = farmaco.Laboratorio?.Nombre ?? LABORATORIO_DEFAULT,
                 proveedor = farmaco.Proveedor?.Nombre ?? string.Empty,

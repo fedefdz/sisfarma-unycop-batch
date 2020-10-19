@@ -1,5 +1,7 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Services;
+﻿using Sisfarma.Sincronizador.Core.Extensions;
+using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using System.Linq;
 using System.Threading.Tasks;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
@@ -8,7 +10,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
     public class ProductoBorradoActualizacionSincronizador : DC.ProductoBorradoActualizacionSincronizador
     {
-        public ProductoBorradoActualizacionSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public ProductoBorradoActualizacionSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
@@ -35,13 +37,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             }
             else
             {
+                var set = medicamentos.Select(x => x.cod_nacional.ToIntegerOrDefault()).Distinct();
+                var farmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToArray();
                 foreach (var med in medicamentos)
                 {
                     Task.Delay(5).Wait();
 
                     _cancellationToken.ThrowIfCancellationRequested();
 
-                    if (!_farmacia.Farmacos.Exists(med.cod_nacional))
+                    if (!farmacos.Any(x => x.Id == med.cod_nacional.ToIntegerOrDefault()))
                         _sisfarma.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
 
                     _ultimoMedicamentoSincronizado = med.cod_nacional;

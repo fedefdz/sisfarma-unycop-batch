@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using DC = Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
+using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -71,7 +72,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetAll();
+                return GetBySetId(set);
             }
         }
 
@@ -272,18 +273,35 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
-                    return db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .ToList();
-                }
+                var filtro = $"(IdArticulo,>=,{codigo})&(Stock,>,0)";
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                sw.Restart();
+                var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
+                Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
+                return farmacos;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetWithStockByIdGreaterOrEqualAsDTO(codigo);
             }
+            //try
+            //{
+            //    using (var db = FarmaciaContext.Farmacos())
+            //    {
+            //        var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
+            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
+            //            new OleDbParameter("codigo", int.Parse(codigo)))
+            //            .ToList();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetWithStockByIdGreaterOrEqualAsDTO(codigo);
+            //}
         }
 
         public bool AnyGraterThatDoesnHaveStock(string codigo)
@@ -310,46 +328,63 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
-                    var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .FirstOrDefault();
-
-                    return rs != null;
-                }
+                var filtro = $"(IdArticulo,>,{codigo})&(Stock,>,0)";
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                return articulos.Any();
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return AnyGreaterThatHasStock(codigo);
             }
+            //try
+            //{
+            //    using (var db = FarmaciaContext.Farmacos())
+            //    {
+            //        var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
+            //        var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
+            //            new OleDbParameter("codigo", int.Parse(codigo)))
+            //            .FirstOrDefault();
+
+            //        return rs != null;
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return AnyGreaterThatHasStock(codigo);
+            //}
         }
 
         public Farmaco GenerarFarmaco(DTO.Farmaco farmaco)
         {
-            var familia = _familiaRepository.GetOneOrDefaultById(farmaco.FamiliaId);
-            var categoria = farmaco.CategoriaId.HasValue
-                            ? _categoriaRepository.GetOneOrDefaultById(farmaco.CategoriaId.Value)
-                            : null;
+            Familia familia = new Familia { Id = farmaco.FamiliaId, Nombre = farmaco.NombreFamilia };
+            Categoria categoria = farmaco.CategoriaId.HasValue
+                    ? new Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }
+                    : null;
+            Subcategoria subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
+                    ? new Subcategoria { Id = farmaco.SubcategoriaId.Value, Nombre = farmaco.NombreSubcategoria }
+                    : null;
 
-            var subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
-                ? _categoriaRepository.GetSubcategoriaOneOrDefaultByKey(
-                    farmaco.CategoriaId.Value,
-                    farmaco.SubcategoriaId.Value)
-                : null;
+            var codigoBarra = farmaco.CodigoBarras.Any() ? farmaco.CodigoBarras.First() : string.Empty;
 
-            var codigoBarra = _barraRepository.GetOneByFarmacoId(farmaco.Id);
+            ENTITY.Farmacia.Proveedor proveedor = new ENTITY.Farmacia.Proveedor
+            {
+                Id = farmaco.ProveedorId,
+                Nombre = farmaco.NombreProveedor
+            };
 
-            var proveedor = _proveedorRepository.GetOneOrDefaultByCodigoNacional(farmaco.Id);
-
-            var laboratorio = _laboratorioRepository.GetOneOrDefaultByCodigo(farmaco.CodigoLaboratorio);
+            ENTITY.Farmacia.Laboratorio laboratorio = !string.IsNullOrEmpty(farmaco.CodigoLaboratorio)
+                    ? new ENTITY.Farmacia.Laboratorio { Codigo = farmaco.CodigoLaboratorio, Nombre = farmaco.NombreLaboratorio }
+                    : null;
 
             var pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                            ? (decimal)farmaco.PrecioUnicoEntrada.Value
-                            : ((decimal?)farmaco.PrecioMedio ?? 0m);
+                    ? farmaco.PrecioUnicoEntrada.Value
+                    : (farmaco.PrecioMedio ?? 0m);
 
-            var iva = default(decimal);
+            decimal iva;
             switch (farmaco.IVA)
             {
                 case 1: iva = 4; break;
