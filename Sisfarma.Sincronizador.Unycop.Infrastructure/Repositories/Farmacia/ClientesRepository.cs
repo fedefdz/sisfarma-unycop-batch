@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -255,6 +256,30 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAllBetweenIDs(min, max);
+            }
+        }
+
+        public List<DTO.Cliente> GetBySetId(int[] set)
+        {
+            try
+            {
+                var filtro = $"(IdCliente,=,{string.Join("|", set)})";
+                var sw = new Stopwatch();
+                sw.Start();
+
+                var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+
+                sw.Restart();
+                var cls = clients.Select(x => DTO.Cliente.CreateFrom(x)).ToList();
+                Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
+
+                return cls;
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetBySetId(set);
             }
         }
     }

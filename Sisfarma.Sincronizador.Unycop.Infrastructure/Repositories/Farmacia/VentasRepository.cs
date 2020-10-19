@@ -1,4 +1,5 @@
-﻿using Sisfarma.RestClient;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Linq;
+using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -26,6 +28,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         private readonly decimal _factorCentecimal = 0.01m;
 
         private readonly string FILE_LOG;
+
+        private readonly UnycopClient _unycopClient;
 
         public VentasRepository(LocalConfig config,
             IClientesRepository clientesRepository,
@@ -71,6 +75,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
             _vendedoresRepository = vendedoresRepository ?? throw new ArgumentNullException(nameof(vendedoresRepository));
             //FILE_LOG = System.Configuration.ConfigurationManager.AppSettings["Directory.Logs"] + @"Ventas.logs";
+
+            _unycopClient = new UnycopClient();
         }
 
         public Venta GetOneOrDefaultById(long id)
@@ -136,35 +142,52 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
-        public List<Venta> GetAllByIdGreaterOrEqual(int year, long value)
+        public List<UNYCOP.Venta> GetAllByIdGreaterOrEqual(int year, long value)
         {
             try
             {
-                // Access no handlea long
-                var valueInteger = (int)value;
+                var culture = UnycopFormat.GetCultureTwoDigitYear();
 
-                try
-                {
-                    using (var db = FarmaciaContext.VentasByYear(year))
-                    {
-                        var sql = @"SELECT TOP 999 ID_VENTA as Id, Fecha, NPuesto as Puesto, Cliente, Vendedor, Descuento, Pago, Tipo, Importe FROM ventas WHERE year(fecha) >= @year AND ID_VENTA >= @value ORDER BY ID_VENTA ASC";
+                var incioAnio = new DateTime(year, 1, 1).ToString(UnycopFormat.FechaCompleta, culture);
+                var finAnio = new DateTime(year, 12, 31, 23, 59, 59).ToString(UnycopFormat.FechaCompleta, culture);
 
-                        return db.Database.SqlQuery<DTO.Venta>(sql,
-                            new OleDbParameter("year", year),
-                            new OleDbParameter("value", valueInteger))
-                            .Select(GenerarVentaEncabezado)
-                                .ToList();
-                    }
-                }
-                catch (FarmaciaContextException)
-                {
-                    return new List<Venta>();
-                }
+                var filtro = $"(FechaVenta,>=,{incioAnio})&(FechaVenta,<=,{finAnio})&(IdVenta,>=,{value})";
+
+                var ventas = _unycopClient.Send<UNYCOP.Venta>(new UnycopRequest(RequestCodes.Ventas, filtro));
+                return ventas.ToList();
             }
             catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
             {
                 return GetAllByIdGreaterOrEqual(year, value);
             }
+
+            //try
+            //{
+            //    // Access no handlea long
+            //    var valueInteger = (int)value;
+
+            //    try
+            //    {
+            //        using (var db = FarmaciaContext.VentasByYear(year))
+            //        {
+            //            var sql = @"SELECT TOP 999 ID_VENTA as Id, Fecha, NPuesto as Puesto, Cliente, Vendedor, Descuento, Pago, Tipo, Importe FROM ventas WHERE year(fecha) >= @year AND ID_VENTA >= @value ORDER BY ID_VENTA ASC";
+
+            //            return db.Database.SqlQuery<DTO.Venta>(sql,
+            //                new OleDbParameter("year", year),
+            //                new OleDbParameter("value", valueInteger))
+            //                .Select(GenerarVentaEncabezado)
+            //                    .ToList();
+            //        }
+            //    }
+            //    catch (FarmaciaContextException)
+            //    {
+            //        return new List<Venta>();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllByIdGreaterOrEqual(year, value);
+            //}
         }
 
         private Venta GenerarVentaEncabezado(DTO.Venta venta)

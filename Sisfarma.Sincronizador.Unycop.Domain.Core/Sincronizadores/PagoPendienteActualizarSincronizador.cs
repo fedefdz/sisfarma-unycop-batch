@@ -36,7 +36,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         private long _ultimaVenta;
 
-        public PagoPendienteActualizarSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public PagoPendienteActualizarSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
             _ticketRepository = new TicketRepository();
@@ -65,68 +65,65 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 ? valorConfiguracion.ToLongOrDefault()
                 : 20130L;
 
-            _ultimaVenta = venta;            
+            _ultimaVenta = venta;
         }
 
         public override void Process()
         {
-            if (_sisfarma.PuntosPendientes.AnyWithoutPagoGreaterThanVentaId(_ultimaVenta))
-            {
-                var year = int.Parse($"{_ultimaVenta}".Substring(0, 4));
-                var ventaId = int.Parse($"{_ultimaVenta}".Substring(4));
-                
-                _aniosProcesados.Add(year);
+            //if (_sisfarma.PuntosPendientes.AnyWithoutPagoGreaterThanVentaId(_ultimaVenta))
+            //{
+            //    var year = int.Parse($"{_ultimaVenta}".Substring(0, 4));
+            //    var ventaId = int.Parse($"{_ultimaVenta}".Substring(4));
 
-                var ventas = _farmacia.Ventas.GetAllByIdGreaterOrEqual(year, ventaId);
-                
-                                                
-                if(!ventas.Any())
-                {
-                    if (year < DateTime.Now.Year)
-                    {
-                        year++;
-                        _ultimaVenta = $"{year}{0}".ToLongOrDefault();
-                    }
+            //    _aniosProcesados.Add(year);
 
-                    return;
-                }
+            //    var ventas = _farmacia.Ventas.GetAllByIdGreaterOrEqual(year, ventaId);
 
-                var batchPuntosPendientes = new List<PuntosPendientes>();
-                foreach (var venta in ventas)
-                {
-                    Task.Delay(5).Wait();
-                    _cancellationToken.ThrowIfCancellationRequested();
-                    
-                    if (venta.ClienteId > 0)
-                        venta.Cliente = _farmacia.Clientes.GetOneOrDefaultById(venta.ClienteId);
+            //    if(!ventas.Any())
+            //    {
+            //        if (year < DateTime.Now.Year)
+            //        {
+            //            year++;
+            //            _ultimaVenta = $"{year}{0}".ToLongOrDefault();
+            //        }
 
-                    var ticket = _ticketRepository.GetOneOrdefaultByVentaId(venta.Id, venta.FechaHora.Year);
-                    if (ticket != null)
-                    {
-                        venta.Ticket = new Ticket
-                        {
-                            Numero = ticket.Numero,
-                            Serie = ticket.Serie
-                        };
-                    }
+            //        return;
+            //    }
 
-                    venta.VendedorNombre = _farmacia.Vendedores.GetOneOrDefaultById(venta.VendedorId)?.Nombre;
-                    venta.Detalle = _farmacia.Ventas.GetDetalleDeVentaByVentaId($"{venta.FechaHora.Year}{venta.Id}".ToIntegerOrDefault());
+            //    var batchPuntosPendientes = new List<PuntosPendientes>();
+            //    foreach (var venta in ventas)
+            //    {
+            //        Task.Delay(5).Wait();
+            //        _cancellationToken.ThrowIfCancellationRequested();
 
+            //        if (venta.ClienteId > 0)
+            //            venta.Cliente = _farmacia.Clientes.GetOneOrDefaultById(venta.ClienteId);
 
-                    if (venta.HasCliente())
-                    {
-                        InsertOrUpdateCliente(venta.Cliente);
-                    }
+            //        var ticket = _ticketRepository.GetOneOrdefaultByVentaId(venta.Id, venta.FechaHora.Year);
+            //        if (ticket != null)
+            //        {
+            //            venta.Ticket = new Ticket
+            //            {
+            //                Numero = ticket.Numero,
+            //                Serie = ticket.Serie
+            //            };
+            //        }
 
+            //        venta.VendedorNombre = _farmacia.Vendedores.GetOneOrDefaultById(venta.VendedorId)?.Nombre;
+            //        venta.Detalle = _farmacia.Ventas.GetDetalleDeVentaByVentaId($"{venta.FechaHora.Year}{venta.Id}".ToIntegerOrDefault());
 
-                    var puntosPendientes = GenerarPuntosPendientes(venta);
-                    batchPuntosPendientes.AddRange(puntosPendientes);                                        
-                }
+            //        if (venta.HasCliente())
+            //        {
+            //            InsertOrUpdateCliente(venta.Cliente);
+            //        }
 
-                _sisfarma.PuntosPendientes.Sincronizar(batchPuntosPendientes);
-                _ultimaVenta = batchPuntosPendientes.Last().VentaId;
-            }            
+            //        var puntosPendientes = GenerarPuntosPendientes(venta);
+            //        batchPuntosPendientes.AddRange(puntosPendientes);
+            //    }
+
+            //    _sisfarma.PuntosPendientes.Sincronizar(batchPuntosPendientes);
+            //    _ultimaVenta = batchPuntosPendientes.Last().VentaId;
+            //}
         }
 
         private IEnumerable<PuntosPendientes> GenerarPuntosPendientes(Venta venta)
@@ -186,7 +183,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             }
 
             return puntosPendientes;
-        }        
+        }
 
         private void InsertOrUpdateCliente(FAR.Cliente cliente)
         {
@@ -196,9 +193,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             if (_perteneceFarmazul)
             {
                 var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}");
-                cliente.BeBlue = beBlue;                
+                cliente.BeBlue = beBlue;
             }
-            
+
             _sisfarma.Clientes.Sincronizar(new List<FAR.Cliente>() { cliente });
         }
     }
