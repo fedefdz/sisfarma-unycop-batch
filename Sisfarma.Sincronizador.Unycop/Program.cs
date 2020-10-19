@@ -135,11 +135,13 @@ namespace Sisfarma.Sincronizador.Unycop
             // TODO: PuntoPendiente SUCCESS
             // TODO: ProductoBorrado SUCCESS
             // TODO: ControlStock SUCCESS
+            // TODO: ControlSinStock SUCCESS
+            // TODO: ProductoCritico SUCCESS
 
             //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())
             //    .SetHorarioVaciamientos("1000", "1230", "1730", "1930")
             //        .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 1));
-            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.ControlStockSincronizador(
+            Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.ControlSinStockSincronizador(
                         farmacia: FarmaciaFactory.Create(),
                         fisiotes: SisfarmaFactory.Create())
                             .SincronizarAsync(Updater.GetCancellationToken(), delayLoop: SincronizadorTaskManager.DelayControlStock));

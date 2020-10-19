@@ -234,18 +234,36 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND (existencias <= 0 OR existencias IS NULL) ORDER BY ID_Farmaco ASC";
-                    return db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .ToList();
-                }
+                var filtro = $"(IdArticulo,>=,{codigo})&(Stock,<=,0)";
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                sw.Restart();
+                var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
+                Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
+                return farmacos;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAllWithoutStockByIdGreaterOrEqualAsDTO(codigo);
             }
+
+            //try
+            //{
+            //    using (var db = FarmaciaContext.Farmacos())
+            //    {
+            //        var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND (existencias <= 0 OR existencias IS NULL) ORDER BY ID_Farmaco ASC";
+            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
+            //            new OleDbParameter("codigo", int.Parse(codigo)))
+            //            .ToList();
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllWithoutStockByIdGreaterOrEqualAsDTO(codigo);
+            //}
         }
 
         public IEnumerable<Farmaco> GetWithStockByIdGreaterOrEqual(string codigo)
@@ -308,20 +326,34 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias <= 0 ORDER BY ID_Farmaco ASC";
-                    var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .FirstOrDefault();
-
-                    return rs != null;
-                }
+                var filtro = $"(IdArticulo,>,{codigo})&(Stock,<=,0)";
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                return articulos.Any();
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return AnyGraterThatDoesnHaveStock(codigo);
             }
+            //try
+            //{
+            //    using (var db = FarmaciaContext.Farmacos())
+            //    {
+            //        var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias <= 0 ORDER BY ID_Farmaco ASC";
+            //        var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
+            //            new OleDbParameter("codigo", int.Parse(codigo)))
+            //            .FirstOrDefault();
+
+            //        return rs != null;
+            //    }
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return AnyGraterThatDoesnHaveStock(codigo);
+            //}
         }
 
         public bool AnyGreaterThatHasStock(string codigo)

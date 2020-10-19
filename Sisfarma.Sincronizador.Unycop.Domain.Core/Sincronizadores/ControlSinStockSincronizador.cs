@@ -19,7 +19,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         private string _clasificacion;
 
-        public ControlSinStockSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) 
+        public ControlSinStockSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }
 
@@ -39,7 +39,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             var repository = _farmacia.Farmacos as FarmacoRespository;
-            var farmacos = repository.GetAllWithoutStockByIdGreaterOrEqualAsDTO(_ultimoMedicamentoSincronizado);
+            var farmacos = repository.GetAllWithoutStockByIdGreaterOrEqualAsDTO(_ultimoMedicamentoSincronizado).ToList();
 
             if (!farmacos.Any())
             {
@@ -106,5 +106,5 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 baja = farmaco.Baja
             };
         }
-    }    
+    }
 }
