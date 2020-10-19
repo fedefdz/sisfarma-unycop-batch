@@ -59,6 +59,7 @@
     <Compile Include="Model\Articulo.cs" />
     <Compile Include="Model\Cliente.cs" />
     <Compile Include="Model\Encargo.cs" />
+    <Compile Include="Model\Pedido.cs" />
     <Compile Include="Model\Venta.cs" />
     <Compile Include="RequestCodes.cs" />
     <Compile Include="FicheroResultInfo.cs" />

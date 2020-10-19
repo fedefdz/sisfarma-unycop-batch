@@ -1,11 +1,15 @@
-﻿using Sisfarma.Sincronizador.Core.Config;
+﻿using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -18,6 +22,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         private readonly ILaboratorioRepository _laboratorioRepository;
 
         private readonly decimal _factorCentecimal = 0.01m;
+
+        private readonly UnycopClient _unycopClient;
 
         public PedidosRepository(LocalConfig config) : base(config)
         { }
@@ -34,29 +40,48 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             _categoriaRepository = categoriaRepository ?? throw new ArgumentNullException(nameof(categoriaRepository));
             _familiaRepository = familiaRepository ?? throw new ArgumentNullException(nameof(familiaRepository));
             _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
+
+            _unycopClient = new UnycopClient();
         }
 
-        public IEnumerable<Pedido> GetAllByFechaGreaterOrEqual(DateTime fecha)
+        public IEnumerable<UNYCOP.Pedido> GetAllByFechaGreaterOrEqual(DateTime fecha)
         {
             try
             {
-                var rs = Enumerable.Empty<DTO.Pedido>();
-                using (var db = FarmaciaContext.Proveedores())
-                {
-                    var sql = @"SELECT ID_NumPedido as Id, ID_Proveedor as Proveedor, ID_Farmaco as Farmaco, CantInicial, Fecha From recibir WHERE datevalue(Fecha) >= DateValue (@fecha) Order by ID_NumPedido ASC";
-                    rs = db.Database.SqlQuery<DTO.Pedido>(sql,
-                        new OleDbParameter("fecha", fecha))
-                            .Take(10)
-                            .ToList();
-                }
+                var culture = UnycopFormat.GetCultureTwoDigitYear();
+                var fechaFiltro = fecha.ToString(UnycopFormat.FechaCompleta, culture);
+                var filtro = $"(FechaPedido,>=,{fechaFiltro})";
+                var sw = new Stopwatch();
+                sw.Start();
+                var pedidos = _unycopClient.Send<Client.Unycop.Model.Pedido>(new UnycopRequest(RequestCodes.Pedidos, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
 
-                var keys = rs.GroupBy(k => new PedidoCompositeKey { Id = k.Id, Proveedor = k.Proveedor });
-                return GenerarPedidos(keys);
+                return pedidos;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAllByFechaGreaterOrEqual(fecha);
             }
+            //try
+            //{
+            //    var rs = Enumerable.Empty<DTO.Pedido>();
+            //    using (var db = FarmaciaContext.Proveedores())
+            //    {
+            //        var sql = @"SELECT ID_NumPedido as Id, ID_Proveedor as Proveedor, ID_Farmaco as Farmaco, CantInicial, Fecha From recibir WHERE datevalue(Fecha) >= DateValue (@fecha) Order by ID_NumPedido ASC";
+            //        rs = db.Database.SqlQuery<DTO.Pedido>(sql,
+            //            new OleDbParameter("fecha", fecha))
+            //                .Take(10)
+            //                .ToList();
+            //    }
+
+            //    var keys = rs.GroupBy(k => new PedidoCompositeKey { Id = k.Id, Proveedor = k.Proveedor });
+            //    return GenerarPedidos(keys);
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllByFechaGreaterOrEqual(fecha);
+            //}
         }
 
         internal class PedidoCompositeKey
@@ -66,27 +91,42 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             internal int Proveedor { get; set; }
         }
 
-        public IEnumerable<Pedido> GetAllByIdGreaterOrEqual(long pedido)
+        public IEnumerable<UNYCOP.Pedido> GetAllByIdGreaterOrEqual(long pedido)
         {
             try
             {
-                var rs = Enumerable.Empty<DTO.Pedido>();
-                using (var db = FarmaciaContext.Proveedores())
-                {
-                    var sql = @"SELECT ID_NumPedido as Id, ID_Proveedor as Proveedor, ID_Farmaco as Farmaco, CantInicial, Fecha From recibir WHERE ID_NumPedido >= @pedido Order by ID_NumPedido ASC";
-                    rs = db.Database.SqlQuery<DTO.Pedido>(sql,
-                        new OleDbParameter("pedido", (int)pedido))
-                            .Take(10)
-                            .ToList();
-                }
+                var filtro = $"(IdPedido,>=,{pedido})";
+                var sw = new Stopwatch();
+                sw.Start();
+                var pedidos = _unycopClient.Send<Client.Unycop.Model.Pedido>(new UnycopRequest(RequestCodes.Pedidos, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
 
-                var keys = rs.GroupBy(k => new PedidoCompositeKey { Id = k.Id, Proveedor = k.Proveedor });
-                return GenerarPedidos(keys);
+                return pedidos;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAllByIdGreaterOrEqual(pedido);
             }
+            //try
+            //{
+            //    var rs = Enumerable.Empty<DTO.Pedido>();
+            //    using (var db = FarmaciaContext.Proveedores())
+            //    {
+            //        var sql = @"SELECT ID_NumPedido as Id, ID_Proveedor as Proveedor, ID_Farmaco as Farmaco, CantInicial, Fecha From recibir WHERE ID_NumPedido >= @pedido Order by ID_NumPedido ASC";
+            //        rs = db.Database.SqlQuery<DTO.Pedido>(sql,
+            //            new OleDbParameter("pedido", (int)pedido))
+            //                .Take(10)
+            //                .ToList();
+            //    }
+
+            //    var keys = rs.GroupBy(k => new PedidoCompositeKey { Id = k.Id, Proveedor = k.Proveedor });
+            //    return GenerarPedidos(keys);
+            //}
+            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            //{
+            //    return GetAllByIdGreaterOrEqual(pedido);
+            //}
         }
 
         private IEnumerable<Pedido> GenerarPedidos(IEnumerable<IGrouping<PedidoCompositeKey, DTO.Pedido>> groups)

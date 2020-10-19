@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
+using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -16,7 +21,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         private string _clasificacion;
 
-        public ProductoCriticoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) : 
+        public ProductoCriticoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) :
             base(farmacia, fisiotes)
         { }
 
@@ -34,74 +39,91 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         }
 
         public override void Process()
-        {  
+        {
             // _falta se carga en PreSincronizacion
+            var sw = new Stopwatch();
+            sw.Start();
             var pedidos = (_falta == null)
-                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day))
+                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date.AddMonths(-9)).ToList()
                 : _farmacia.Pedidos.GetAllByIdGreaterOrEqual(_falta.idPedido);
+            Console.WriteLine($"pedidos recuperados en {sw.ElapsedMilliseconds}ms");
+            if (!pedidos.Any())
+                return;
+
+            var set = pedidos.SelectMany(x => x.lineasItem).Select(x => x.CNArticulo.ToIntegerOrDefault()).Distinct().ToArray();
+            Console.WriteLine($"cant articulos {set.Count()}");
+            sw.Restart();
+            var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToList();
+            Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
+            var farmacosCriticos = sourceFarmacos.Where(x => x.ExistenciasAux == STOCK_CRITICO || x.ExistenciasAux <= x.Stock).ToArray();
 
             foreach (var pedido in pedidos)
             {
                 Task.Delay(5).Wait();
 
                 _cancellationToken.ThrowIfCancellationRequested();
-                
-                foreach (var linea in pedido.Detalle.Where(f => (f.Farmaco.Stock == STOCK_CRITICO) || (f.Farmaco.Stock <= f.Farmaco.StockMinimo)))
+                var lineasConProductosCriticos = pedido.lineasItem.Where(x => farmacosCriticos.Any(f => f.Id == x.CNArticulo.ToIntegerOrDefault())).ToArray();
+                var currentLinea = 0;
+                foreach (var linea in pedido.lineasItem)
                 {
                     Task.Delay(1).Wait();
+                    currentLinea++;
+
+                    var farmaco = farmacosCriticos.FirstOrDefault(x => x.Id == linea.CNArticulo.ToIntegerOrDefault());
+                    if (farmaco == null)
+                        continue;
 
                     var tipoFalta = "Normal";
-                    if (linea.Farmaco.Stock <= linea.Farmaco.StockMinimo && linea.Farmaco.StockMinimo > 0)
-                    {
+                    if (farmaco.ExistenciasAux <= farmaco.Stock && farmaco.Stock > 0)
                         tipoFalta = "StockMinimo";
-                    }
 
-                    if (!_sisfarma.Faltas.ExistsLineaDePedido(linea.PedidoId, linea.Linea))                                            
-                        _sisfarma.Faltas.Sincronizar(GenerarFaltante(linea), tipoFalta);                    
+                    if (!_sisfarma.Faltas.ExistsLineaDePedido(linea.IdPedido, currentLinea))
+                        _sisfarma.Faltas.Sincronizar(GenerarFaltante(pedido, linea, currentLinea, farmaco), tipoFalta);
                 }
 
                 if (_falta == null)
                     _falta = new Falta();
 
-                _falta.idPedido = pedido.Id;
+                _falta.idPedido = pedido.IdPedido;
             }
         }
 
-        private Falta GenerarFaltante(PedidoDetalle item)
+        private Falta GenerarFaltante(UNYCOP.Pedido pedido, UNYCOP.Pedido.Lineasitem lineaPedido, int currentLinea, Infrastructure.Repositories.Farmacia.DTO.Farmaco farmaco)
         {
-            var familia = item.Farmaco.Familia?.Nombre ?? FAMILIA_DEFAULT;
+            var culture = UnycopFormat.GetCultureTwoDigitYear();
+            var familia = farmaco.NombreFamilia ?? FAMILIA_DEFAULT;
 
-            var fechaPedido = item.Pedido.Fecha;
-            var fechaActual = DateTime.Now;            
+            var fechaPedido = pedido.FechaPedido.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase, culture);
+            var fechaActual = DateTime.Now;
 
             return new Falta
             {
-                idPedido = item.PedidoId,
-                idLinea = item.Linea,
-                cod_nacional = item.Farmaco.Codigo,
-                descripcion = item.Farmaco.Denominacion,
+                idPedido = lineaPedido.IdPedido,
+                idLinea = currentLinea,
+                cod_nacional = farmaco.Id.ToString(),
+                descripcion = farmaco.Denominacion,
                 familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? item.Farmaco.Subcategoria?.Nombre ?? FAMILIA_DEFAULT
+                        ? farmaco.NombreSubcategoria ?? FAMILIA_DEFAULT
                         : familia,
                 superFamilia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? item.Farmaco.Categoria?.Nombre ?? FAMILIA_DEFAULT
+                        ? farmaco.NombreCategoria ?? FAMILIA_DEFAULT
                         : string.Empty,
-                categoria = item.Farmaco.Categoria?.Nombre ?? string.Empty,
-                subcategoria = item.Farmaco.Subcategoria?.Nombre ?? string.Empty,
+                categoria = farmaco.NombreCategoria ?? string.Empty,
+                subcategoria = farmaco.NombreSubcategoria ?? string.Empty,
                 superFamiliaAux = string.Empty,
                 familiaAux = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? familia : string.Empty,
                 cambioClasificacion = _clasificacion == TIPO_CLASIFICACION_CATEGORIA,
-                
-                cantidadPedida = item.CantidadPedida,
+
+                cantidadPedida = lineaPedido.Pedidas,
                 fechaFalta = fechaActual,
-                cod_laboratorio = item.Farmaco.Laboratorio?.Codigo ?? string.Empty,
-                laboratorio = item.Farmaco.Laboratorio?.Nombre ?? LABORATORIO_DEFAULT,
-                proveedor = item.Farmaco.Proveedor?.Nombre ?? string.Empty,
+                cod_laboratorio = farmaco.CodigoLaboratorio ?? string.Empty,
+                laboratorio = farmaco.NombreLaboratorio ?? LABORATORIO_DEFAULT,
+                proveedor = farmaco.NombreProveedor ?? string.Empty,
                 fechaPedido = fechaPedido,
-                pvp = (float) item.Farmaco.Precio,
-                puc = (float) item.Farmaco.PrecioCoste,
+                pvp = (float)farmaco.PVP,
+                puc = (float)(farmaco.PrecioUnicoEntrada ?? 0m),
                 sistema = SISTEMA_UNYCOP
             };
-        }                
+        }
     }
 }
