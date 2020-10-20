@@ -29,39 +29,52 @@ namespace Sisfarma.Client.Unycop
 
     public class UnycopClient
     {
+        private static object _testLock = new object();
+        private static object _ventasLock = new object();
+        private static object _comprasLock = new object();
+        private static object _bolsasLock = new object();
+        private static object _pedidosLock = new object();
+        private static object _encargosLock = new object();
+        private static object _clientesLock = new object();
+
         public void ExtractArticulos()
         {
             //var path = @"C:\Unycopwin\Datos\Ficheros";
 
-            for (int i = 3; i < 8; i++)
+            for (int i = 3; i < 4; i++)
             {
-                var llamada = $"{i}".PadLeft(2, '0');
-                string filtros = null;
-                //if (i == 3)
-                filtros = "(FechaRecepcion,>=,01/01/20)&(FechaRecepcion,<=,02/01/20 23:59:59)";
-                var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Compras, Filtros = filtros };
-                var client = new UnycopDataExtractor.UDataExtractor();
-                var json = JsonConvert.SerializeObject(entrada);
-                string response;
-                try
+                lock (_testLock)
                 {
-                    response = client.ExtractData(json);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                    var llamada = $"{i}".PadLeft(2, '0');
+                    string filtros = null;
+                    //if (i == 3)
+                    //filtros = "(FechaRecepcion,>=,01/01/20)&(FechaRecepcion,<=,02/01/20 23:59:59)";
+                    var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Compras, Filtros = filtros };
+                    var client = new UnycopDataExtractor.UDataExtractor();
+                    var json = JsonConvert.SerializeObject(entrada);
+                    string response;
+                    try
+                    {
+                        Console.WriteLine("Extract data from unycop");
+                        response = client.ExtractData(json);
+                        Console.WriteLine("File created");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
 
-                var unycopResponse = JsonConvert.DeserializeObject<UnycopResponse>(response);
+                    var unycopResponse = JsonConvert.DeserializeObject<UnycopResponse>(response);
 
-                var zipFileInfo = unycopResponse.Ficheros[0];
-                var pathFile = Path.Combine(zipFileInfo.RutaZip);
+                    var zipFileInfo = unycopResponse.Ficheros[0];
+                    var pathFile = Path.Combine(zipFileInfo.RutaZip);
 
-                using (var zip = ZipFile.Read(pathFile))
-                {
-                    zip.Password = unycopResponse.Clave;
-                    var jsonFile = zip.Entries.Single(f => f.FileName == zipFileInfo.Nombre);
-                    jsonFile.Extract(ExtractExistingFileAction.OverwriteSilently);
+                    using (var zip = ZipFile.Read(pathFile))
+                    {
+                        zip.Password = unycopResponse.Clave;
+                        var jsonFile = zip.Entries.Single(f => f.FileName == zipFileInfo.Nombre);
+                        jsonFile.Extract(ExtractExistingFileAction.OverwriteSilently);
+                    }
                 }
             }
         }
@@ -84,6 +97,21 @@ namespace Sisfarma.Client.Unycop
         }
 
         public IEnumerable<T> Send<T>(UnycopRequest request)
+        {
+            switch (request.IdLlamada)
+            {
+                case RequestCodes.Ventas: lock (_ventasLock) { return SendSafe<T>(request); }
+                case RequestCodes.Compras: lock (_comprasLock) { return SendSafe<T>(request); }
+                case RequestCodes.Stock: lock (_ventasLock) { return SendSafe<T>(request); }
+                case RequestCodes.Bolsas: lock (_bolsasLock) { return SendSafe<T>(request); }
+                case RequestCodes.Pedidos: lock (_pedidosLock) { return SendSafe<T>(request); }
+                case RequestCodes.Encargos: lock (_encargosLock) { return SendSafe<T>(request); }
+                case RequestCodes.Clientes: lock (_clientesLock) { return SendSafe<T>(request); }
+            }
+            throw new UnycopFailResponseException("999", "un cast request code");
+        }
+
+        private IEnumerable<T> SendSafe<T>(UnycopRequest request)
         {
             try
             {
@@ -121,11 +149,6 @@ namespace Sisfarma.Client.Unycop
             {
                 throw new UnycopException("Unycop Rest Client produjó un error no controlado", ex);
             }
-        }
-
-        public object Send(UnycopRequest unycopRequest)
-        {
-            throw new NotImplementedException();
         }
 
         public UnycopResponse Call(UnycopRequest request)
