@@ -165,6 +165,17 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                         continue;
                     }
                     var currentLine = 0;
+
+                    var ticketNumero = 0;
+                    var ticketSerie = string.Empty;
+                    if (!string.IsNullOrEmpty(venta.NumeroTiquet) && venta.NumeroTiquet != "-" && venta.NumeroTiquet.Contains("-"))
+                    {
+                        var ticket = venta.NumeroTiquet.Split(new[] { '-' }, 2);
+                        ticketSerie = ticket[0];
+                        int.TryParse(ticket[1], out ticketNumero);
+                    }
+                    else int.TryParse(venta.NumeroTiquet, out ticketNumero);
+
                     foreach (var item in venta.lineasItem)
                     {
                         currentLine++;
@@ -204,7 +215,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             LaboratorioCodigo = farmaco.CodigoLaboratorio ?? string.Empty,
                             Laboratorio = farmaco.NombreLaboratorio ?? LABORATORIO_DEFAULT,
                             Proveedor = farmaco.NombreProveedor ?? string.Empty,
-                            Receta = "NO HAY RECETA PEDIR A UNYCOP", // TODO no hay info de receta,
+                            Receta = item.CodigoTipoAportacion,
                             FechaVenta = fechaVenta,
                             PVP = item.PvpArticulo ?? -1,
                             PUC = farmaco.PrecioUnicoEntrada ?? 0,
@@ -212,8 +223,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             Subcategoria = farmaco.NombreSubcategoria ?? string.Empty,
                             VentaDescuento = currentLine == 1 ? venta.DescuentoVenta : 0,
                             LineaDescuento = item.Descuento ?? -1,
-                            TicketNumero = 0, // TODO hay que deserializar numero de ticket,
-                            Serie = venta.NumeroTiquet ?? string.Empty,
+                            TicketNumero = ticketNumero,
+                            Serie = ticketSerie,
                             Sistema = SISTEMA_UNYCOP,
                             articulo = GenerarMedicamentoP(farmaco)
                         };
