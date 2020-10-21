@@ -178,7 +178,7 @@ namespace Sisfarma.Sincronizador.Unycop
 
         private static void Initialize()
         {
-            //Task.Factory.StartNew(() => new UnycopClient().ExtractArticulos());
+            new UnycopClient().ExtractArticulos();
             //Task.Factory.StartNew(() => new UnycopClient().ExtractArticulos());
             //Task.Factory.StartNew(() => new UnycopClient().ExtractArticulos());
             try

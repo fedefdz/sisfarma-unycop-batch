@@ -44,6 +44,8 @@
 
         public decimal Impuesto { get; set; }
 
+        public string Fecha_Baja { get; set; }
+
         public string UltEntrada { get; set; }
 
         public string UltSalida { get; set; }

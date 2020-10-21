@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
@@ -100,9 +99,9 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO
                 CodigoLaboratorio = articuloUnycop.CodLaboratorio,
                 NombreLaboratorio = articuloUnycop.NombreLaboratorio,
                 FechaCaducidad = fechaCaducidad,
-                FechaBaja = 0, // TODO: no hay info de fecha de baja
+                FechaBaja = string.IsNullOrEmpty(articuloUnycop.Fecha_Baja).ToInteger(),
                 // TODO cambiar doble mapeo
-                ExistenciasAux = articuloUnycop.Stock,  /*null, // TODO: no hay información de existencia, podría ser Mínimo*/
+                ExistenciasAux = articuloUnycop.Stock,
                 CodigoBarras = string.IsNullOrEmpty(articuloUnycop.CodigoBarrasArticulo) ? new string[0] : articuloUnycop.CodigoBarrasArticulo.Split(','),
                 ProveedorId = articuloUnycop.IdProveedor,
                 NombreProveedor = articuloUnycop.NombreProveedor

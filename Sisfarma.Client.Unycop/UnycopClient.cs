@@ -48,8 +48,8 @@ namespace Sisfarma.Client.Unycop
                     var llamada = $"{i}".PadLeft(2, '0');
                     string filtros = null;
                     //if (i == 3)
-                    //filtros = "(FechaRecepcion,>=,01/01/20)&(FechaRecepcion,<=,02/01/20 23:59:59)";
-                    var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Compras, Filtros = filtros };
+                    filtros = "(Fecha_Baja,>,01/01/01 12:00:00)";
+                    var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Stock, Filtros = filtros };
                     var client = new UnycopDataExtractor.UDataExtractor();
                     var json = JsonConvert.SerializeObject(entrada);
                     string response;
