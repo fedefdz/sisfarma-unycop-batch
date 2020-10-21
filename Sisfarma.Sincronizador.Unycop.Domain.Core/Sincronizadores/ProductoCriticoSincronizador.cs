@@ -44,7 +44,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var sw = new Stopwatch();
             sw.Start();
             var pedidos = (_falta == null)
-                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date.AddMonths(-9)).ToList()
+                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date.AddYears(-2)).ToList()
                 : _farmacia.Pedidos.GetAllByIdGreaterOrEqual(_falta.idPedido);
             Console.WriteLine($"pedidos recuperados en {sw.ElapsedMilliseconds}ms");
             if (!pedidos.Any())
@@ -57,34 +57,39 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
             var farmacosCriticos = sourceFarmacos.Where(x => x.ExistenciasAux == STOCK_CRITICO || x.ExistenciasAux <= x.Stock).ToArray();
 
-            foreach (var pedido in pedidos)
+            var batchSize = 1000;
+            for (int index = 0; index < pedidos.Count(); index += batchSize)
             {
-                Task.Delay(5).Wait();
-
-                _cancellationToken.ThrowIfCancellationRequested();
-                var lineasConProductosCriticos = pedido.lineasItem.Where(x => farmacosCriticos.Any(f => f.Id == x.CNArticulo.ToIntegerOrDefault())).ToArray();
-                var currentLinea = 0;
-                foreach (var linea in pedido.lineasItem)
+                var pedidosBatch = pedidos.Skip(index).Take(batchSize).ToList();
+                foreach (var pedido in pedidosBatch)
                 {
-                    Task.Delay(1).Wait();
-                    currentLinea++;
+                    Task.Delay(5).Wait();
 
-                    var farmaco = farmacosCriticos.FirstOrDefault(x => x.Id == linea.CNArticulo.ToIntegerOrDefault());
-                    if (farmaco == null)
-                        continue;
+                    _cancellationToken.ThrowIfCancellationRequested();
+                    var lineasConProductosCriticos = pedido.lineasItem.Where(x => farmacosCriticos.Any(f => f.Id == x.CNArticulo.ToIntegerOrDefault())).ToArray();
+                    var currentLinea = 0;
+                    foreach (var linea in pedido.lineasItem)
+                    {
+                        Task.Delay(1).Wait();
+                        currentLinea++;
 
-                    var tipoFalta = "Normal";
-                    if (farmaco.ExistenciasAux <= farmaco.Stock && farmaco.Stock > 0)
-                        tipoFalta = "StockMinimo";
+                        var farmaco = farmacosCriticos.FirstOrDefault(x => x.Id == linea.CNArticulo.ToIntegerOrDefault());
+                        if (farmaco == null)
+                            continue;
 
-                    if (!_sisfarma.Faltas.ExistsLineaDePedido(linea.IdPedido, currentLinea))
-                        _sisfarma.Faltas.Sincronizar(GenerarFaltante(pedido, linea, currentLinea, farmaco), tipoFalta);
+                        var tipoFalta = "Normal";
+                        if (farmaco.ExistenciasAux <= farmaco.Stock && farmaco.Stock > 0)
+                            tipoFalta = "StockMinimo";
+
+                        if (!_sisfarma.Faltas.ExistsLineaDePedido(linea.IdPedido, currentLinea))
+                            _sisfarma.Faltas.Sincronizar(GenerarFaltante(pedido, linea, currentLinea, farmaco), tipoFalta);
+                    }
+
+                    if (_falta == null)
+                        _falta = new Falta();
+
+                    _falta.idPedido = pedido.IdPedido;
                 }
-
-                if (_falta == null)
-                    _falta = new Falta();
-
-                _falta.idPedido = pedido.IdPedido;
             }
         }
 

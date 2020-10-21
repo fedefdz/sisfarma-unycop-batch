@@ -35,57 +35,37 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     Reset();
 
                 var repository = _farmacia.Clientes as ClientesRepository;
-                List<DTO.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado);
+                List<DTO.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
 
                 if (!localClientes.Any())
                     return;
 
-                //var hueco = -1L;
-                var batchClientes = new List<Cliente>();
-                foreach (var cliente in localClientes)
+                var batchSize = 1000;
+                for (int index = 0; index < localClientes.Count; index += batchSize)
                 {
-                    Task.Delay(5).Wait();
-                    _cancellationToken.ThrowIfCancellationRequested();
-
-                    //if (hueco == -1) hueco = cliente.Id;
-
-                    var clienteSisfarma = repository.GenerateCliente(cliente);
-                    clienteSisfarma.DebeCargarPuntos = _debeCargarPuntos;
-                    if (_perteneceFarmazul)
+                    var clientes = localClientes.Skip(index).Take(batchSize).ToList();
+                    var batchClientes = new List<Cliente>();
+                    foreach (var cliente in clientes)
                     {
-                        var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
-                        var beBlue = cliente.IdPerfil.HasValue && (cliente.IdPerfil == 2 || cliente.IdPerfil.ToString() == tipo);
-                        clienteSisfarma.BeBlue = beBlue;
-                    }
+                        Task.Delay(5).Wait();
+                        _cancellationToken.ThrowIfCancellationRequested();
 
-                    batchClientes.Add(clienteSisfarma);
-
-                    /*if (cliente.Id != hueco)
-                    {
-                        var huecos = new List<string>();
-                        var batch = 0;
-                        for (long i = hueco; i < cliente.Id; i++)
+                        var clienteSisfarma = repository.GenerateCliente(cliente);
+                        clienteSisfarma.DebeCargarPuntos = _debeCargarPuntos;
+                        if (_perteneceFarmazul)
                         {
-                            huecos.Add(i.ToString());
-                            batch++;
-                            if (batch == 1000)
-                            {
-                                _sisfarma.Huecos.Insert(huecos.ToArray());
-                                huecos.Clear();
-                                batch = 0;
-                            }
+                            var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
+                            var beBlue = cliente.IdPerfil.HasValue && (cliente.IdPerfil == 2 || cliente.IdPerfil.ToString() == tipo);
+                            clienteSisfarma.BeBlue = beBlue;
                         }
 
-                        if (huecos.Any())
-                            _sisfarma.Huecos.Insert(huecos.ToArray());
-
-                        hueco = cliente.Id;
+                        batchClientes.Add(clienteSisfarma);
                     }
-                    hueco++;*/
-                }
 
-                _sisfarma.Clientes.Sincronizar(batchClientes);
-                _ultimoClienteSincronizado = batchClientes.Last().Id;
+                    _sisfarma.Clientes.Sincronizar(batchClientes);
+                    _ultimoClienteSincronizado = batchClientes.Last().Id;
+                    batchClientes.Clear();
+                }
             }
         }
     }

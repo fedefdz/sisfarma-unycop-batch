@@ -45,29 +45,13 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
             Console.WriteLine($"Encargos recuperados en {sw.ElapsedMilliseconds}ms");
             sw.Restart();
-            //foreach (var encargo in encargos)
-            //{
-            //    Task.Delay(5);
-
-            //    _cancellationToken.ThrowIfCancellationRequested();
-            //    _sisfarma.Encargos.Sincronizar(GenerarEncargo(encargo));
-
-            //    if (_ultimo == null)
-            //        _ultimo = new Encargo();
-
-            //    _ultimo.idEncargo = encargo.Id;
-            //}
-            //Console.WriteLine($"Encargos sincronizados en ms {sw.ElapsedMilliseconds}");
-
             for (int i = 0; i < encargos.Count(); i += _batchSize)
             {
                 Task.Delay(1);
                 _cancellationToken.ThrowIfCancellationRequested();
 
                 sw.Restart();
-                var items = encargos
-                    .Skip(i)
-                    .Take(_batchSize)
+                var items = encargos.Skip(i).Take(_batchSize)
                         .Select(encargo => GenerarEncargo(encargo)).ToList();
 
                 Console.WriteLine($"Encargos lote {i + 1} preparado en {sw.ElapsedMilliseconds}ms");
@@ -82,6 +66,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 if (items.Any())
                     _ultimo.idEncargo = (long)items.Last().idEncargo;
             }
+            Console.WriteLine($"Encargos sincronizados en ms {sw.ElapsedMilliseconds}");
         }
 
         private Encargo GenerarEncargo(FAR.Encargo encargo)

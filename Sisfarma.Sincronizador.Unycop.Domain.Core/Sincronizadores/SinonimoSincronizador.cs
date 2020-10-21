@@ -24,21 +24,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
             if (_isEmpty)
             {
-                var sinonimos = _farmacia.Sinonimos.GetAll();
+                var sinonimos = _farmacia.Sinonimos.GetAll().ToList();
                 for (int i = 0; i < sinonimos.Count(); i += _batchSize)
                 {
                     Task.Delay(1);
 
                     _cancellationToken.ThrowIfCancellationRequested();
 
-                    var items = sinonimos
-                        .Skip(i)
-                        .Take(_batchSize)
-                            .Select(x => new Sinonimo
-                            {
-                                cod_barras = x.CodigoBarra,
-                                cod_nacional = x.CodigoNacional
-                            }).ToList();
+                    var items = sinonimos.Skip(i).Take(_batchSize)
+                        .Select(x => new Sinonimo { cod_barras = x.CodigoBarra, cod_nacional = x.CodigoNacional }).ToList();
 
                     _sisfarma.Sinonimos.Sincronizar(items);
                     // 1er lote pregunta

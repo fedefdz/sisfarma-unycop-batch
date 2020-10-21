@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
+using System.Linq;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -13,7 +14,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var familias = _farmacia.Familias.GetByDescripcion();
+            var familias = _farmacia.Familias.GetByDescripcion().ToList();
             foreach (var familia in familias)
             {
                 Task.Delay(5).Wait();
@@ -32,7 +33,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     Task.Delay(5).Wait();
                     _cancellationToken.ThrowIfCancellationRequested();
 
-                    // TODO la categoria se manda siempre
                     _sisfarma.Categorias.Sincronizar(new Categoria
                     {
                         categoria = categoria.Nombre,

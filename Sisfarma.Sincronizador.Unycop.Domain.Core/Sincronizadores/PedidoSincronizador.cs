@@ -74,151 +74,155 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var batchLineasPedidos = new List<LineaPedido>();
             var batchPedidos = new List<SF.Pedido>();
             sw.Restart();
-            foreach (var albaran in albaranes)
+
+            var batchSize = 1000;
+            for (int index = 0; index < albaranes.Count(); index += batchSize)
             {
-                Task.Delay(5).Wait();
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                var fechaRecepcion = albaran.FechaRecepcion.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase);
-                _anioInicio = fechaRecepcion.Year;
-
-                var linea = 0;
-                //var fecha = albaran.Value.First().Fecha; // a la vuelta preguntamos por > fecha
-                var proveedorPedido = new FAR.Proveedor
+                var items = albaranes.Skip(index).Take(batchSize).ToArray();
+                foreach (var albaran in items)
                 {
-                    Id = albaran.IdProveedor,
-                    Nombre = albaran.NombreProveedor
-                };
+                    Task.Delay(5).Wait();
+                    _cancellationToken.ThrowIfCancellationRequested();
 
-                //var albaran = albaran.Key.Albaran > 0 ? albaran.Key.Albaran : 0;
-                var identity = int.Parse($"{fechaRecepcion.Year}{albaran.IdAlbaran}");
-                var recepcion = new FAR.Recepcion
-                {
-                    Id = identity,
-                    Fecha = fechaRecepcion,
-                    ImportePVP = albaran.lineasItem.Sum(x => x.PVP * x.Recibidas),
-                    ImportePUC = albaran.lineasItem.Sum(x => x.PCTotal),
-                    Proveedor = proveedorPedido
-                };
+                    var fechaRecepcion = albaran.FechaRecepcion.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase);
+                    _anioInicio = fechaRecepcion.Year;
 
-                var detalle = new List<RecepcionDetalle>();
-                //var set = albaran.lineasItem.Select(x => int.Parse(x.CNArticulo)).Distinct();
-                //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set);
-                foreach (var item in albaran.lineasItem)
-                {
-                    var cna = int.Parse(item.CNArticulo);
-                    //var farmaco = (_farmacia.Farmacos as FarmacoRespository).GetOneOrDefaultById(cna);
-                    var farmaco = sourceFarmacos.FirstOrDefault(x => x.Id == cna);
-                    if (farmaco != null)
+                    var linea = 0;
+                    //var fecha = albaran.Value.First().Fecha; // a la vuelta preguntamos por > fecha
+                    var proveedorPedido = new FAR.Proveedor
                     {
-                        var recepcionDetalle = new RecepcionDetalle()
+                        Id = albaran.IdProveedor,
+                        Nombre = albaran.NombreProveedor
+                    };
+
+                    //var albaran = albaran.Key.Albaran > 0 ? albaran.Key.Albaran : 0;
+                    var identity = int.Parse($"{fechaRecepcion.Year}{albaran.IdAlbaran}");
+                    var recepcion = new FAR.Recepcion
+                    {
+                        Id = identity,
+                        Fecha = fechaRecepcion,
+                        ImportePVP = albaran.lineasItem.Sum(x => x.PVP * x.Recibidas),
+                        ImportePUC = albaran.lineasItem.Sum(x => x.PCTotal),
+                        Proveedor = proveedorPedido
+                    };
+
+                    var detalle = new List<RecepcionDetalle>();
+                    //var set = albaran.lineasItem.Select(x => int.Parse(x.CNArticulo)).Distinct();
+                    //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set);
+                    foreach (var item in albaran.lineasItem)
+                    {
+                        var cna = int.Parse(item.CNArticulo);
+                        //var farmaco = (_farmacia.Farmacos as FarmacoRespository).GetOneOrDefaultById(cna);
+                        var farmaco = sourceFarmacos.FirstOrDefault(x => x.Id == cna);
+                        if (farmaco != null)
                         {
-                            Linea = ++linea,
-                            RecepcionId = identity,
-                            Cantidad = item.Recibidas, // TODO: no hay info de devolución, - item.Devuelto,
-                            CantidadBonificada = item.Bonificadas,
-                            Recepcion = recepcion
-                        };
+                            var recepcionDetalle = new RecepcionDetalle()
+                            {
+                                Linea = ++linea,
+                                RecepcionId = identity,
+                                Cantidad = item.Recibidas, // TODO: no hay info de devolución, - item.Devuelto,
+                                CantidadBonificada = item.Bonificadas,
+                                Recepcion = recepcion
+                            };
 
-                        var pcoste = 0m;
-                        if (item.PVAlb > 0) pcoste = item.PVAlb;
-                        else if (item.PC > 0) pcoste = item.PC;
-                        else pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                            ? farmaco.PrecioUnicoEntrada.Value
-                            : (farmaco.PrecioMedio ?? 0m);
+                            var pcoste = 0m;
+                            if (item.PVAlb > 0) pcoste = item.PVAlb;
+                            else if (item.PC > 0) pcoste = item.PC;
+                            else pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
+                                ? farmaco.PrecioUnicoEntrada.Value
+                                : (farmaco.PrecioMedio ?? 0m);
 
-                        FAR.Proveedor proveedor = proveedorPedido;
+                            FAR.Proveedor proveedor = proveedorPedido;
 
-                        FAR.Categoria categoria = farmaco.CategoriaId.HasValue
-                            ? new FAR.Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }
-                            : null;
+                            FAR.Categoria categoria = farmaco.CategoriaId.HasValue
+                                ? new FAR.Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }
+                                : null;
 
-                        Subcategoria subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
-                            ? new Subcategoria { Id = farmaco.SubcategoriaId.Value, Nombre = farmaco.NombreSubcategoria }
-                            : null;
+                            Subcategoria subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
+                                ? new Subcategoria { Id = farmaco.SubcategoriaId.Value, Nombre = farmaco.NombreSubcategoria }
+                                : null;
 
-                        FAR.Familia familia = new FAR.Familia { Id = farmaco.FamiliaId, Nombre = farmaco.NombreFamilia };
-                        FAR.Laboratorio laboratorio = !string.IsNullOrEmpty(farmaco.CodigoLaboratorio)
-                            ? new FAR.Laboratorio { Codigo = farmaco.CodigoLaboratorio, Nombre = farmaco.NombreLaboratorio }
-                            : null;
+                            FAR.Familia familia = new FAR.Familia { Id = farmaco.FamiliaId, Nombre = farmaco.NombreFamilia };
+                            FAR.Laboratorio laboratorio = !string.IsNullOrEmpty(farmaco.CodigoLaboratorio)
+                                ? new FAR.Laboratorio { Codigo = farmaco.CodigoLaboratorio, Nombre = farmaco.NombreLaboratorio }
+                                : null;
 
-                        var codigoBarra = farmaco.CodigoBarras.FirstOrDefault();
+                            var codigoBarra = farmaco.CodigoBarras.FirstOrDefault();
 
-                        var iva = default(decimal);
-                        switch (farmaco.IVA)
-                        {
-                            case 1: iva = 4; break;
+                            var iva = default(decimal);
+                            switch (farmaco.IVA)
+                            {
+                                case 1: iva = 4; break;
 
-                            case 2: iva = 10; break;
+                                case 2: iva = 10; break;
 
-                            case 3: iva = 21; break;
+                                case 3: iva = 21; break;
 
-                            default: iva = 0; break;
+                                default: iva = 0; break;
+                            }
+
+                            recepcionDetalle.Farmaco = new Farmaco
+                            {
+                                Id = farmaco.Id,
+                                Codigo = cna.ToString(),
+                                PrecioCoste = pcoste,
+                                Proveedor = proveedor,
+                                Categoria = categoria,
+                                Subcategoria = subcategoria,
+                                Familia = familia,
+                                Laboratorio = laboratorio,
+                                Denominacion = farmaco.Denominacion,
+                                Precio = item.PVP * _factorCentecimal,
+                                Stock = farmaco.ExistenciasAux ?? 0,
+                                CodigoBarras = codigoBarra,
+                                FechaUltimaCompra = farmaco.FechaUltimaEntrada.HasValue && farmaco.FechaUltimaEntrada.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaEntrada.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
+                                FechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue && farmaco.FechaUltimaSalida.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
+                                Ubicacion = farmaco.Ubicacion ?? string.Empty,
+                                Web = farmaco.BolsaPlastico,
+                                Iva = iva,
+                                StockMinimo = farmaco.Stock ?? 0,
+                                Baja = farmaco.FechaBaja > 0,
+                                FechaCaducidad = farmaco.FechaCaducidad.HasValue && farmaco.FechaCaducidad.Value > 0 ? (DateTime?)$"{farmaco.FechaCaducidad.Value}".ToDateTimeOrDefault("yyyyMM") : null
+                            };
+
+                            detalle.Add(recepcionDetalle);
+                            batchLineasPedidos.Add(GenerarLineaDePedido(recepcionDetalle));
                         }
+                    }
 
-                        recepcionDetalle.Farmaco = new Farmaco
-                        {
-                            Id = farmaco.Id,
-                            Codigo = cna.ToString(),
-                            PrecioCoste = pcoste,
-                            Proveedor = proveedor,
-                            Categoria = categoria,
-                            Subcategoria = subcategoria,
-                            Familia = familia,
-                            Laboratorio = laboratorio,
-                            Denominacion = farmaco.Denominacion,
-                            Precio = item.PVP * _factorCentecimal,
-                            Stock = farmaco.ExistenciasAux ?? 0,
-                            CodigoBarras = codigoBarra,
-                            FechaUltimaCompra = farmaco.FechaUltimaEntrada.HasValue && farmaco.FechaUltimaEntrada.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaEntrada.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
-                            FechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue && farmaco.FechaUltimaSalida.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
-                            Ubicacion = farmaco.Ubicacion ?? string.Empty,
-                            Web = farmaco.BolsaPlastico,
-                            Iva = iva,
-                            StockMinimo = farmaco.Stock ?? 0,
-                            Baja = farmaco.FechaBaja > 0,
-                            FechaCaducidad = farmaco.FechaCaducidad.HasValue && farmaco.FechaCaducidad.Value > 0 ? (DateTime?)$"{farmaco.FechaCaducidad.Value}".ToDateTimeOrDefault("yyyyMM") : null
-                        };
+                    if (detalle.Any())
+                    {
+                        recepcion.Lineas = detalle.Count();
+                        var pedido = GenerarPedido(recepcion);
+                        batchPedidos.Add(pedido);
 
-                        detalle.Add(recepcionDetalle);
-                        batchLineasPedidos.Add(GenerarLineaDePedido(recepcionDetalle));
+                        _lastPedido = pedido;
+                    }
+                    else
+                    {
+                        recepcion.Lineas = 0;
+                        var pedido = GenerarPedido(recepcion);
+
+                        _lastPedido = pedido;
                     }
                 }
-
-                if (detalle.Any())
+                Console.WriteLine($"pedidos listos {batchLineasPedidos.Count}|{batchPedidos.Count} para enviar en  en {sw.ElapsedMilliseconds}ms");
+                if (batchLineasPedidos.Any())
                 {
-                    recepcion.Lineas = detalle.Count();
-                    var pedido = GenerarPedido(recepcion);
-                    batchPedidos.Add(pedido);
-
-                    _lastPedido = pedido;
+                    sw.Restart();
+                    _sisfarma.Pedidos.Sincronizar(batchLineasPedidos);
+                    Console.WriteLine($"lineas {batchLineasPedidos.Count()} sync en {sw.ElapsedMilliseconds}ms");
+                    batchLineasPedidos.Clear();
                 }
-                else
-                {
-                    recepcion.Lineas = 0;
-                    var pedido = GenerarPedido(recepcion);
 
-                    _lastPedido = pedido;
+                if (batchPedidos.Any())
+                {
+                    sw.Restart();
+                    _sisfarma.Pedidos.Sincronizar(batchPedidos);
+                    Console.WriteLine($"pedidos {batchPedidos.Count()} sync en {sw.ElapsedMilliseconds}ms");
+                    batchPedidos.Clear();
                 }
             }
-            Console.WriteLine($"pedidos listos {batchLineasPedidos.Count}|{batchPedidos.Count} para enviar en  en {sw.ElapsedMilliseconds}ms");
-            var batchSize = 1000;
-            if (batchLineasPedidos.Any()) for (int i = 0; i < batchLineasPedidos.Count(); i += batchSize)
-                {
-                    Task.Delay(1); _cancellationToken.ThrowIfCancellationRequested();
-                    var items = batchLineasPedidos.Skip(i).Take(batchSize).ToArray();
-                    sw.Restart();
-                    _sisfarma.Pedidos.Sincronizar(items);
-                    Console.WriteLine($"lineas {i} sync en {sw.ElapsedMilliseconds}ms");
-                }
-            if (batchPedidos.Any()) for (int i = 0; i < batchPedidos.Count(); i += batchSize)
-                {
-                    Task.Delay(1); _cancellationToken.ThrowIfCancellationRequested();
-                    var items = batchPedidos.Skip(i).Take(batchSize).ToArray();
-                    sw.Restart();
-                    _sisfarma.Pedidos.Sincronizar(items);
-                    Console.WriteLine($"pedidos {i} sync en {sw.ElapsedMilliseconds}ms");
-                }
         }
 
         internal class RecepcionCompositeKey

@@ -20,45 +20,33 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void Process()
         {
             var batchFamillias = new List<Familia>();
-            var familias = _farmacia.Familias.GetAll();
-            foreach (var familia in familias)
+            var familias = _farmacia.Familias.GetAll().ToList();
+
+            for (int i = 0; i < familias.Count(); i += _batchSize)
             {
-                Task.Delay(5);
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                batchFamillias.Add(GenerarFamilia(familia.Nombre, "Familia"));
-
-                foreach (var categoria in familia.Categorias)
+                var items = familias.Skip(i).Take(_batchSize).ToArray();
+                foreach (var item in items)
                 {
-                    Task.Delay(5);
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    batchFamillias.Add(GenerarFamilia(item.Nombre, "Familia"));
 
-                    batchFamillias.Add(GenerarFamilia(categoria.Nombre, "Categoria"));
-
-                    foreach (var subcategoria in categoria.Subcategorias)
+                    foreach (var categoria in item.Categorias)
                     {
                         Task.Delay(5);
                         _cancellationToken.ThrowIfCancellationRequested();
 
-                        batchFamillias.Add(GenerarFamilia(subcategoria, "Categoria"));
+                        batchFamillias.Add(GenerarFamilia(categoria.Nombre, "Categoria"));
+
+                        foreach (var subcategoria in categoria.Subcategorias)
+                        {
+                            Task.Delay(5);
+                            _cancellationToken.ThrowIfCancellationRequested();
+
+                            batchFamillias.Add(GenerarFamilia(subcategoria, "Categoria"));
+                        }
                     }
                 }
-            }
-
-            if (!batchFamillias.Any())
-                return;
-
-            for (int i = 0; i < batchFamillias.Count(); i += _batchSize)
-            {
-                Task.Delay(1).Wait();
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                var items = batchFamillias
-                    .Skip(i)
-                    .Take(_batchSize)
-                    .ToList();
-
-                _sisfarma.Familias.Sincronizar(items);
+                _sisfarma.Familias.Sincronizar(batchFamillias);
+                batchFamillias.Clear();
             }
         }
 

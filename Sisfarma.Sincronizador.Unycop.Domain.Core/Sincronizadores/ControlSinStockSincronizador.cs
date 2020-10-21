@@ -48,23 +48,28 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 return;
             }
 
-            var medicamentos = new List<Medicamento>();
-            foreach (var farmaco in farmacos)
+            var batchSize = 1000;
+            for (int index = 0; index < farmacos.Count; index += batchSize)
             {
-                Task.Delay(5).Wait();
-                _cancellationToken.ThrowIfCancellationRequested();
+                var articulos = farmacos.Skip(index).Take(batchSize).ToList();
+                var medicamentos = new List<Medicamento>();
+                foreach (var farmaco in articulos)
+                {
+                    Task.Delay(5).Wait();
+                    _cancellationToken.ThrowIfCancellationRequested();
 
-                var medicamento = GenerarMedicamento(repository.GenerarFarmaco(farmaco));
-                medicamentos.Add(medicamento);
-            }
+                    var medicamento = GenerarMedicamento(repository.GenerarFarmaco(farmaco));
+                    medicamentos.Add(medicamento);
+                }
 
-            _sisfarma.Medicamentos.Sincronizar(medicamentos);
-            _ultimoMedicamentoSincronizado = medicamentos.Last().cod_nacional;
+                _sisfarma.Medicamentos.Sincronizar(medicamentos);
+                _ultimoMedicamentoSincronizado = medicamentos.Last().cod_nacional;
 
-            if (!_farmacia.Farmacos.AnyGraterThatDoesnHaveStock(_ultimoMedicamentoSincronizado))
-            {
-                _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
-                _ultimoMedicamentoSincronizado = "0";
+                if (!_farmacia.Farmacos.AnyGraterThatDoesnHaveStock(_ultimoMedicamentoSincronizado))
+                {
+                    _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
+                    _ultimoMedicamentoSincronizado = "0";
+                }
             }
         }
 

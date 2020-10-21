@@ -97,11 +97,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             Console.WriteLine($"clientes recuperados en {sw.ElapsedMilliseconds}ms");
 
             var batchSize = 1000;
-            for (int index = 0; index < ventasAnuales.Count; index++)
+            for (int index = 0; index < ventasAnuales.Count; index += batchSize)
             {
-                Task.Delay(10);
-                _cancellationToken.ThrowIfCancellationRequested();
-
                 var ventas = ventasAnuales.Skip(index).Take(batchSize).ToList();
 
                 var batchPuntosPendientes = new List<PuntosPendientes>();
