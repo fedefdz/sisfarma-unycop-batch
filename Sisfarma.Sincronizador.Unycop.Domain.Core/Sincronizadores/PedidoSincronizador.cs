@@ -97,19 +97,20 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
                     //var albaran = albaran.Key.Albaran > 0 ? albaran.Key.Albaran : 0;
                     var identity = int.Parse($"{fechaRecepcion.Year}{albaran.IdAlbaran}");
+                    var lineasItemFiltradas = albaran.lineasItem.Where(x => x.Bonificadas != 0 || x.Recibidas != 0).ToArray();
                     var recepcion = new FAR.Recepcion
                     {
                         Id = identity,
                         Fecha = fechaRecepcion,
-                        ImportePVP = albaran.lineasItem.Sum(x => x.PVP * x.Recibidas),
-                        ImportePUC = albaran.lineasItem.Sum(x => x.PCTotal),
+                        ImportePVP = lineasItemFiltradas.Sum(x => x.PVP * x.Recibidas),
+                        ImportePUC = lineasItemFiltradas.Sum(x => x.PCTotal),
                         Proveedor = proveedorPedido
                     };
 
                     var detalle = new List<RecepcionDetalle>();
                     //var set = albaran.lineasItem.Select(x => int.Parse(x.CNArticulo)).Distinct();
                     //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set);
-                    foreach (var item in albaran.lineasItem)
+                    foreach (var item in lineasItemFiltradas)
                     {
                         var cna = int.Parse(item.CNArticulo);
                         //var farmaco = (_farmacia.Farmacos as FarmacoRespository).GetOneOrDefaultById(cna);

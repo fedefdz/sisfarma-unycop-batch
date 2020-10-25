@@ -6,6 +6,7 @@
         public const string OperacionContado = "Contado";
         public const string OperacionRetiroCaja = "Retirado Caja";
         public const string OperacionPerdida = "Pérdida";
+        public const string OperacionCredito = "Crédito";
 
         public int IdVenta { get; set; }
 
@@ -42,6 +43,21 @@
             public int IdVenta { get; set; }
 
             public string Operacion { get; set; }
+
+            public string CodigoOperacion => GetCodigoOperacion();
+
+            private string GetCodigoOperacion()
+            {
+                switch (Operacion)
+                {
+                    case OperacionContado: return "1";
+                    case OperacionCredito: return "2";
+                    case OperacionRetiroCaja: return "4";
+                    case OperacionPerdida: return "5";
+                    case OperacionCobro: return "6";
+                }
+                return Operacion;
+            }
 
             public string CNvendido { get; set; }
 
