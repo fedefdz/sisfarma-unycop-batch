@@ -1,8 +1,7 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using System;
@@ -10,15 +9,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 
 using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class PuntoPendienteSincronizador : DC.PuntoPendienteSincronizador
+    public class PuntoPendienteSincronizador : TaskSincronizador
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
@@ -34,6 +31,19 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         private UNYCOP.Venta _ultimaVentaCargada;
         private readonly string FILE_LOG;
 
+        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
+        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
+        protected const string VENDEDOR_DEFAULT = "NO";
+
+        protected bool _perteneceFarmazul;
+        protected string _puntosDeSisfarma;
+        protected string _cargarPuntos;
+        protected string _fechaDePuntos;
+        protected string _soloPuntosConTarjeta;
+        protected string _canjeoPuntos;
+        protected int _anioInicio;
+        protected long _ultimaVenta;
+
         public PuntoPendienteSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
@@ -45,6 +55,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void LoadConfiguration()
         {
             base.LoadConfiguration();
+            _perteneceFarmazul = bool.Parse(ConfiguracionPredefinida[Configuracion.FIELD_ES_FARMAZUL]);
+            _puntosDeSisfarma = ConfiguracionPredefinida[Configuracion.FIELD_PUNTOS_SISFARMA];
+            _cargarPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CARGAR_PUNTOS] ?? "no";
+            _fechaDePuntos = ConfiguracionPredefinida[Configuracion.FIELD_FECHA_PUNTOS];
+            _soloPuntosConTarjeta = ConfiguracionPredefinida[Configuracion.FIELD_SOLO_PUNTOS_CON_TARJETA];
+            _canjeoPuntos = ConfiguracionPredefinida[Configuracion.FIELD_CANJEO_PUNTOS];
+            _anioInicio = ConfiguracionPredefinida[Configuracion.FIELD_ANIO_INICIO]
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
+
             _clasificacion = !string.IsNullOrWhiteSpace(ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION])
                 ? ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION]
                 : TIPO_CLASIFICACION_DEFAULT;
@@ -56,6 +75,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void PreSincronizacion()
         {
             base.PreSincronizacion();
+            _ultimaVenta = _sisfarma.PuntosPendientes.GetUltimaVenta();
             if (_ultimaVenta == 0 || _ultimaVenta == 1)
                 _ultimaVenta = $"{_anioInicio}{_ultimaVenta}".ToIntegerOrDefault();
         }

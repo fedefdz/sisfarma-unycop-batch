@@ -2,16 +2,35 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class SinonimoSincronizador : DC.SinonimoSincronizador
+    public class SinonimoSincronizador : TaskSincronizador
     {
+        protected string[] _horariosDeVaciamiento;
+        protected readonly int _batchSize;
+
+        protected bool _isEmpty;
+
         public SinonimoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
-        { }
+        {
+            _batchSize = 1000;
+        }
+
+        public override void PreSincronizacion()
+        {
+            _isEmpty = _sisfarma.Sinonimos.IsEmpty();
+        }
+
+        public SinonimoSincronizador SetHorarioVaciamientos(params string[] hhmm)
+        {
+            _horariosDeVaciamiento = hhmm;
+            return this;
+        }
 
         public override void Process()
         {

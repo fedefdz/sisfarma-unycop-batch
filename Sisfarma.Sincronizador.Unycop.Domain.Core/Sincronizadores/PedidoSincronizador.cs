@@ -19,10 +19,11 @@ using SF = Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class PedidoSincronizador : DC.PedidoSincronizador
+    public class PedidoSincronizador : TaskSincronizador
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
@@ -35,6 +36,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         private readonly ILaboratorioRepository _laboratorioRepository;
         private readonly ICodigoBarraRepository _barraRepository;
 
+        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
+        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
+
+        protected int _anioInicio;
+        protected SF.Pedido _lastPedido;
+
         public PedidoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
@@ -43,9 +50,17 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             _barraRepository = new CodigoBarraRepository();
         }
 
+        public override void LoadConfiguration()
+        {
+            base.LoadConfiguration();
+            _anioInicio = ConfiguracionPredefinida[Configuracion.FIELD_ANIO_INICIO]
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
+        }
+
         public override void PreSincronizacion()
         {
             base.PreSincronizacion();
+            _lastPedido = _sisfarma.Pedidos.LastOrDefault();
         }
 
         public override void Process()

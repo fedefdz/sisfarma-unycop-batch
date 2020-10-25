@@ -3,12 +3,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class ProveedorSincronizador : DC.ProveedorSincronizador
+    public class ProveedorSincronizador : TaskSincronizador
     {
         public ProveedorSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) :
             base(farmacia, fisiotes)

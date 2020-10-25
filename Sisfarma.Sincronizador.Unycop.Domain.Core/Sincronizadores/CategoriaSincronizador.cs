@@ -3,11 +3,14 @@ using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 using System.Linq;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class CategoriaSincronizador : DC.CategoriaSincronizador
+    public class CategoriaSincronizador : TaskSincronizador
     {
+        protected const string PADRE_DEFAULT = @"<SIN PADRE>";
+
         public CategoriaSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         { }

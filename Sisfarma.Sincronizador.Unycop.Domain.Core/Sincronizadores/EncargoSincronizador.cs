@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
@@ -10,13 +12,19 @@ using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class EncargoSincronizador : DC.EncargoSincronizador
+    public class EncargoSincronizador : TaskSincronizador
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
         private readonly int _batchSize = 1000;
 
         private string _clasificacion;
+
+        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
+        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
+
+        protected int _anioInicio;
+        protected Encargo _ultimo;
 
         public EncargoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
@@ -25,6 +33,8 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void LoadConfiguration()
         {
             base.LoadConfiguration();
+            _anioInicio = ConfiguracionPredefinida[Configuracion.FIELD_ANIO_INICIO]
+                .ToIntegerOrDefault(@default: DateTime.Now.Year - 2);
             _clasificacion = !string.IsNullOrWhiteSpace(ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION])
                 ? ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION]
                 : TIPO_CLASIFICACION_DEFAULT;
@@ -33,6 +43,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void PreSincronizacion()
         {
             base.PreSincronizacion();
+            _ultimo = _sisfarma.Encargos.LastOrDefault();
         }
 
         public override void Process()

@@ -84,7 +84,6 @@
     <Compile Include="Repositories\Farmacia\IRecepcionRepository.cs" />
     <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
     <Compile Include="Repositories\Farmacia\ISubcategoriaRepository.cs" />
-    <Compile Include="Sincronizadores\ClienteSincronizador.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\Clientes\UpdatePuntaje.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\InsertPuntuacion.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\UpdatePuntacion.cs" />
@@ -114,34 +113,15 @@
     <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
     <Compile Include="Services\FarmaciaService.cs" />
     <Compile Include="Services\SisfarmaService.cs" />
-    <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
-    <Compile Include="Sincronizadores\ControlSinStockSincronizador.cs" />
-    <Compile Include="Sincronizadores\ControlStockFechaEntradaSincronizador.cs" />
-    <Compile Include="Sincronizadores\ControlStockFechaSalidaSincronizador.cs" />
-    <Compile Include="Sincronizadores\ControlStockSincronizador.cs" />
-    <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
-    <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
-    <Compile Include="Sincronizadores\HuecoSincronizador.cs" />
-    <Compile Include="Sincronizadores\ListaSincronizador.cs" />
-    <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
     <Compile Include="Sincronizadores\PowerSwitchManual.cs" />
     <Compile Include="Sincronizadores\PowerSwitchProgramado.cs" />
-    <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
-    <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
-    <Compile Include="Sincronizadores\ProveedorHistorialSincronizador.cs" />
-    <Compile Include="Sincronizadores\ProveedorSincronizador.cs" />
-    <Compile Include="Sincronizadores\PuntoPendienteActualizacionSincronizador.cs" />
-    <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <Compile Include="Sincronizadores\SincronizadorTaskManager.cs" />
-    <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\ControlSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\PowerSwitch.cs" />
     <Compile Include="Sincronizadores\SuperTypes\TaskSincronizador.cs" />
     <Compile Include="Sincronizadores\SuperTypes\_Sincronizador.cs" />
     <Compile Include="Sincronizadores\UpdateVersionSincronizador.cs" />
-    <Compile Include="Sincronizadores\VentaMensualActualizacionSincronizador.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj">

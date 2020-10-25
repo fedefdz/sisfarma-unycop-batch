@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Sisfarma.Client.Unycop;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
+using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
@@ -13,13 +14,19 @@ using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
-    public class ProductoCriticoSincronizador : DC.ProductoCriticoSincronizador
+    public class ProductoCriticoSincronizador : TaskSincronizador
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
         protected const string SISTEMA_UNYCOP = "unycop";
 
         private string _clasificacion;
+
+        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
+        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
+        protected const int STOCK_CRITICO = 0;
+
+        protected Falta _falta;
 
         public ProductoCriticoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) :
             base(farmacia, fisiotes)
@@ -36,6 +43,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public override void PreSincronizacion()
         {
             base.PreSincronizacion();
+            _falta = _sisfarma.Faltas.LastOrDefault();
         }
 
         public override void Process()
