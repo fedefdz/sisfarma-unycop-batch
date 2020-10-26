@@ -1,66 +1,18 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
-using Sisfarma.Sincronizador.Infrastructure.Fisiotes.DTO;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class ClientesExternalService : FisiotesExternalService, IClientesExternalService, IClientesExternalServiceNew
+    public class ClientesExternalService : FisiotesExternalService, IClientesExternalService
     {
-        public ClientesExternalService(IRestClient restClient, FisiotesConfig config) 
+        public ClientesExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
-        {}
-
-        public bool AnyWithDni(string dni)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetDniTrackingLast()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(string trabajador, string tarjeta, string idCliente, string nombre, string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento, string sexo, string tipo, DateTime? fechaAlta, int baja, int lopd, bool withTrack = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string nombre, string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, bool esHueco = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre, string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, bool esHueco = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdate(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre, string telefono, string direccion, string movil, string email, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, bool esHueco = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdate(Cliente cliente)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdateBeBlue(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre, string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, int esBeBlue, bool esHueco = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertOrUpdateBeBlue(string trabajador, string tarjeta, string idCliente, string dniCliente, string nombre, string telefono, string direccion, string movil, string email, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, int esBeBlue, bool esHueco = false)
-        {
-            throw new NotImplementedException();
-        }
+        { }
 
         public void ResetDniTracking()
         {
@@ -71,7 +23,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 
         public void Sincronizar(IEnumerable<FAR.Cliente> clientes)
         {
-            var resource = _config.Clientes.InsertBulk;            
+            var resource = _config.Clientes.InsertBulk;
             var bulk = clientes.Select(cc => GenerarClienteDinamico(cc));
 
             _restClient
@@ -81,7 +33,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 bulk = bulk
             });
         }
-        
 
         public object GenerarClienteDinamico(FAR.Cliente cliente)
         {
@@ -89,14 +40,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             {
                 return cliente.DebeCargarPuntos
                     ? GenerarAnonymousClientePuntuado(cliente, cliente.BeBlue.Value)
-                    : GenerarAnonymousClienteSinPuntuar(cliente, cliente.BeBlue.Value);                
+                    : GenerarAnonymousClienteSinPuntuar(cliente, cliente.BeBlue.Value);
             }
 
-            return cliente.DebeCargarPuntos 
-                ? GenerarAnonymousClientePuntuado(cliente) 
+            return cliente.DebeCargarPuntos
+                ? GenerarAnonymousClientePuntuado(cliente)
                 : GenerarAnonymousClienteSinPuntuar(cliente);
         }
-
 
         public void SincronizarHueco(FAR.Cliente cliente, bool cargarPuntos = false)
         {
@@ -109,7 +59,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             var resource = _config.Clientes.InsertHueco.Replace("{dni}", $"{cliente.Id}");
             Sincronizar(cliente, beBlue, cargarPuntos, resource);
         }
-
 
         private void Sincronizar(FAR.Cliente cliente, bool cargarPuntos, string resource)
         {
@@ -139,7 +88,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             {
                 dni = cliente.Id.ToString(),
                 nombre_tra = "",
-                dni_tra = "0",                
+                dni_tra = "0",
                 tarjeta = cliente.Tarjeta,
                 dniCliente = cliente.NumeroIdentificacion,
                 apellidos = cliente.NombreCompleto.Strip(),
@@ -153,7 +102,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 fechaAlta = cliente.FechaAlta.ToIsoString(),
                 baja = cliente.Baja.ToInteger(),
                 estado_civil = cliente.EstadoCivil.Strip(),
-                lopd = cliente.LOPD.ToInteger()                
+                lopd = cliente.LOPD.ToInteger()
             };
         }
 
@@ -196,7 +145,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 direccion = cliente.Direccion.Strip(),
                 movil = cliente.Celular.Strip(),
                 email = cliente.Email,
-                fecha_nacimiento = cliente.FechaNacimiento.ToDateInteger(),                
+                fecha_nacimiento = cliente.FechaNacimiento.ToDateInteger(),
                 sexo = cliente.Sexo,
                 fechaAlta = cliente.FechaAlta.ToIsoString(),
                 baja = cliente.Baja.ToInteger(),
@@ -227,16 +176,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 lopd = cliente.LOPD.ToInteger(),
                 beBlue = beBlue.ToInteger()
             };
-        }        
-
-        public void Update(string trabajador, string tarjeta, string nombre, string telefono, string direccion, string movil, string email, decimal puntos, long fechaNacimiento, string sexo, DateTime? fechaAlta, int baja, int lopd, string idCliente, bool withTrack = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdatePuntos(UpdatePuntaje pp)
-        {
-            throw new NotImplementedException();
         }
     }
 }

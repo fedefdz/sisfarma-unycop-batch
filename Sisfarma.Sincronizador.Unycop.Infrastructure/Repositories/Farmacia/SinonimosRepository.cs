@@ -1,12 +1,8 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
-using System.Linq;
 using System.Threading;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
@@ -15,43 +11,30 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     {
         private readonly UnycopClient _unycopClient;
 
-        public SinonimosRepository(LocalConfig config) : base(config)
-        { }
-
-        public SinonimosRepository()
-        {
-            _unycopClient = new UnycopClient();
-        }
+        public SinonimosRepository() => _unycopClient = new UnycopClient();
 
         public IEnumerable<Sinonimo> GetAll()
         {
             try
             {
-                try
-                {
-                    var sinonimos = new List<Sinonimo>();
-                    var filtro = $"(CodigoBarrasArticulo,<>,'')";
-                    var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                var sinonimos = new List<Sinonimo>();
+                var filtro = $"(CodigoBarrasArticulo,<>,'')";
+                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
 
-                    foreach (var item in articulos)
+                foreach (var item in articulos)
+                {
+                    var codigoBarras = item.CodigoBarrasArticulo.Split(',');
+                    foreach (var codigo in codigoBarras)
                     {
-                        var codigoBarras = item.CodigoBarrasArticulo.Split(',');
-                        foreach (var codigo in codigoBarras)
-                        {
-                            sinonimos.Add(new Sinonimo { CodigoNacional = item.CNArticulo, CodigoBarra = codigo });
-                        }
+                        sinonimos.Add(new Sinonimo { CodigoNacional = item.CNArticulo, CodigoBarra = codigo });
                     }
+                }
 
-                    return sinonimos;
-                }
-                catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
-                {
-                    Thread.Sleep(TimeSpan.FromSeconds(60));
-                    return GetAll();
-                }
+                return sinonimos;
             }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAll();
             }
         }

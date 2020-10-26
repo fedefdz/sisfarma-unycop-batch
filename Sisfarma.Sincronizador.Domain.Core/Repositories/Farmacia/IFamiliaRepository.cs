@@ -8,11 +8,5 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
         IEnumerable<Familia> GetAll();
 
         IEnumerable<Familia> GetByDescripcion();
-
-        Familia GetOneOrDefaultById(long id);
-
-        string GetSuperFamiliaDescripcionByFamilia(string familia);
-
-        string GetSuperFamiliaDescripcionById(short familia);
     }
 }

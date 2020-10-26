@@ -1,11 +1,8 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -21,40 +18,10 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
     public class FarmacoRespository : FarmaciaRepository, IFarmacoRepository, DC.IFarmacosRepository
     {
-        private readonly ICategoriaRepository _categoriaRepository;
-        private readonly ICodigoBarraRepository _barraRepository;
-        private readonly DC.IFamiliaRepository _familiaRepository;
-        private readonly DC.ILaboratorioRepository _laboratorioRepository;
-        private readonly DC.IProveedorRepository _proveedorRepository;
-
         private readonly UnycopClient _unycopClient;
 
-        public FarmacoRespository(LocalConfig config)
-            : base(config)
-        { }
+        public FarmacoRespository() => _unycopClient = new UnycopClient();
 
-        public FarmacoRespository()
-        {
-            _unycopClient = new UnycopClient();
-        }
-
-        public FarmacoRespository(
-            ICategoriaRepository categoriaRepository,
-            ICodigoBarraRepository barraRepository,
-            DC.IFamiliaRepository familiaRepository,
-            DC.ILaboratorioRepository laboratorioRepository,
-            DC.IProveedorRepository proveedorRepository)
-        {
-            _categoriaRepository = categoriaRepository ?? throw new ArgumentNullException(nameof(categoriaRepository));
-            _barraRepository = barraRepository ?? throw new ArgumentNullException(nameof(barraRepository));
-            _familiaRepository = familiaRepository ?? throw new ArgumentNullException(nameof(familiaRepository));
-            _laboratorioRepository = laboratorioRepository ?? throw new ArgumentNullException(nameof(laboratorioRepository));
-            _proveedorRepository = proveedorRepository ?? throw new ArgumentNullException(nameof(proveedorRepository));
-
-            _unycopClient = new UnycopClient();
-        }
-
-        // TODO hay que poner un filtro
         public IEnumerable<DTO.Farmaco> GetBySetId(IEnumerable<int> set)
         {
             try
@@ -109,125 +76,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetOneOrDefaultById(id);
             }
-
-            //try
-            //{
-            //    var idInteger = (int)id;
-            //    using (var db = FarmaciaContext.Farmacos())
-            //    {
-            //        var sql = @"select ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco = @id";
-            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
-            //            new OleDbParameter("id", id))
-            //            .FirstOrDefault();
-            //    }
-            //}
-            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            //{
-            //    return GetOneOrDefaultById(id);
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-        }
-
-        public IEnumerable<Farmaco> GetAllByFechaUltimaEntradaGreaterOrEqual(DateTime fecha)
-        {
-            try
-            {
-                var rs = Enumerable.Empty<DTO.Farmaco>();
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE Fecha_U_Entrada >= @fecha ORDER BY Fecha_U_Entrada ASC";
-                    rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("fecha", fecha.ToDateInteger("yyyyMMdd")))
-                        .ToList();
-                }
-
-                return rs.Select(GenerarFarmaco);
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetAllByFechaUltimaEntradaGreaterOrEqual(fecha);
-            }
-        }
-
-        public IEnumerable<DTO.Farmaco> GetAllByFechaUltimaEntradaGreaterOrEqualAsDTO(DateTime fecha)
-        {
-            try
-            {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE Fecha_U_Entrada >= @fecha ORDER BY Fecha_U_Entrada ASC";
-                    return db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("fecha", fecha.ToDateInteger("yyyyMMdd")))
-                        .ToList();
-                }
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetAllByFechaUltimaEntradaGreaterOrEqualAsDTO(fecha);
-            }
-        }
-
-        public IEnumerable<Farmaco> GetAllByFechaUltimaSalidaGreaterOrEqual(DateTime fecha)
-        {
-            try
-            {
-                var rs = Enumerable.Empty<DTO.Farmaco>();
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE Fecha_U_Salida >= @fecha ORDER BY Fecha_U_Salida ASC";
-                    rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("fecha", fecha.ToDateInteger("yyyyMMdd")))
-                        .ToList();
-                }
-
-                return rs.Select(GenerarFarmaco);
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetAllByFechaUltimaSalidaGreaterOrEqual(fecha);
-            }
-        }
-
-        public IEnumerable<DTO.Farmaco> GetAllByFechaUltimaSalidaGreaterOrEqualAsDTO(DateTime fecha)
-        {
-            try
-            {
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE Fecha_U_Salida >= @fecha ORDER BY Fecha_U_Salida ASC";
-                    return db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("fecha", fecha.ToDateInteger("yyyyMMdd")))
-                        .ToList();
-                }
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetAllByFechaUltimaSalidaGreaterOrEqualAsDTO(fecha);
-            }
-        }
-
-        public IEnumerable<Farmaco> GetAllWithoutStockByIdGreaterOrEqual(string codigo)
-        {
-            try
-            {
-                var rs = Enumerable.Empty<DTO.Farmaco>();
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND (existencias <= 0 OR existencias IS NULL) ORDER BY ID_Farmaco ASC";
-                    rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .ToList();
-                }
-
-                return rs.Select(GenerarFarmaco);
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetAllWithoutStockByIdGreaterOrEqual(codigo);
-            }
         }
 
         public IEnumerable<DTO.Farmaco> GetAllWithoutStockByIdGreaterOrEqualAsDTO(string codigo)
@@ -248,42 +96,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetAllWithoutStockByIdGreaterOrEqualAsDTO(codigo);
-            }
-
-            //try
-            //{
-            //    using (var db = FarmaciaContext.Farmacos())
-            //    {
-            //        var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND (existencias <= 0 OR existencias IS NULL) ORDER BY ID_Farmaco ASC";
-            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
-            //            new OleDbParameter("codigo", int.Parse(codigo)))
-            //            .ToList();
-            //    }
-            //}
-            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            //{
-            //    return GetAllWithoutStockByIdGreaterOrEqualAsDTO(codigo);
-            //}
-        }
-
-        public IEnumerable<Farmaco> GetWithStockByIdGreaterOrEqual(string codigo)
-        {
-            try
-            {
-                var rs = Enumerable.Empty<DTO.Farmaco>();
-                using (var db = FarmaciaContext.Farmacos())
-                {
-                    var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
-                    rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-                        new OleDbParameter("codigo", int.Parse(codigo)))
-                        .ToList();
-                }
-
-                return rs.Select(GenerarFarmaco);
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetWithStockByIdGreaterOrEqual(codigo);
             }
         }
 
@@ -306,20 +118,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetWithStockByIdGreaterOrEqualAsDTO(codigo);
             }
-            //try
-            //{
-            //    using (var db = FarmaciaContext.Farmacos())
-            //    {
-            //        var sql = @"select top 999 ID_Farmaco as Id, Familia, CategoriaId, SubcategoriaId, Fecha_U_Entrada as FechaUltimaEntrada, Fecha_U_Salida as FechaUltimaSalida, Ubicacion, PC_U_Entrada as PrecioUnicoEntrada, PCMedio as PrecioMedio, BolsaPlastico, PVP, IVA, Stock, CLng(IIf(IsNull(Existencias), 0, Existencias)) as ExistenciasAux, Denominacion, Laboratorio, FechaBaja, Fecha_Caducidad as FechaCaducidad from Farmacos WHERE ID_Farmaco >= @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
-            //        return db.Database.SqlQuery<DTO.Farmaco>(sql,
-            //            new OleDbParameter("codigo", int.Parse(codigo)))
-            //            .ToList();
-            //    }
-            //}
-            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            //{
-            //    return GetWithStockByIdGreaterOrEqualAsDTO(codigo);
-            //}
         }
 
         public bool AnyGraterThatDoesnHaveStock(string codigo)
@@ -338,22 +136,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return AnyGraterThatDoesnHaveStock(codigo);
             }
-            //try
-            //{
-            //    using (var db = FarmaciaContext.Farmacos())
-            //    {
-            //        var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias <= 0 ORDER BY ID_Farmaco ASC";
-            //        var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-            //            new OleDbParameter("codigo", int.Parse(codigo)))
-            //            .FirstOrDefault();
-
-            //        return rs != null;
-            //    }
-            //}
-            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            //{
-            //    return AnyGraterThatDoesnHaveStock(codigo);
-            //}
         }
 
         public bool AnyGreaterThatHasStock(string codigo)
@@ -372,22 +154,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return AnyGreaterThatHasStock(codigo);
             }
-            //try
-            //{
-            //    using (var db = FarmaciaContext.Farmacos())
-            //    {
-            //        var sql = @"select top 1 ID_Farmaco as Id FROM Farmacos WHERE ID_Farmaco > @codigo AND existencias > 0 ORDER BY ID_Farmaco ASC";
-            //        var rs = db.Database.SqlQuery<DTO.Farmaco>(sql,
-            //            new OleDbParameter("codigo", int.Parse(codigo)))
-            //            .FirstOrDefault();
-
-            //        return rs != null;
-            //    }
-            //}
-            //catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            //{
-            //    return AnyGreaterThatHasStock(codigo);
-            //}
         }
 
         public Farmaco GenerarFarmaco(DTO.Farmaco farmaco)

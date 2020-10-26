@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Sisfarma.Client.Unycop;
-using Sisfarma.Client.Unycop.Model;
 using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
-using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 
 using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using SF = Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
-using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
-using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 
@@ -31,11 +25,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         private string _clasificacion;
 
-        private readonly decimal _factorCentecimal = 0.01m;
-        private readonly ICategoriaRepository _categoriaRepository;
-        private readonly ILaboratorioRepository _laboratorioRepository;
-        private readonly ICodigoBarraRepository _barraRepository;
-
         protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
         protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
 
@@ -44,11 +33,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public PedidoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
-        {
-            _categoriaRepository = new CategoriaRepository();
-            _laboratorioRepository = new LaboratorioRepository();
-            _barraRepository = new CodigoBarraRepository();
-        }
+        { }
 
         public override void LoadConfiguration()
         {
@@ -65,7 +50,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var repository = _farmacia.Recepciones as RecepcionRespository;
+            var repository = new RecepcionRespository();
 
             var sw = new Stopwatch();
             sw.Start();
@@ -188,7 +173,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                                 Familia = familia,
                                 Laboratorio = laboratorio,
                                 Denominacion = farmaco.Denominacion,
-                                Precio = item.PVP * _factorCentecimal,
+                                Precio = item.PVP,
                                 Stock = farmaco.ExistenciasAux ?? 0,
                                 CodigoBarras = codigoBarra,
                                 FechaUltimaCompra = farmaco.FechaUltimaEntrada.HasValue && farmaco.FechaUltimaEntrada.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaEntrada.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,

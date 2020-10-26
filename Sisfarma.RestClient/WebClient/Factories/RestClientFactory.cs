@@ -1,5 +1,4 @@
-﻿using RSharp = RestSharp;
-using Sisfarma.RestClient.Exceptions;
+﻿using Sisfarma.RestClient.Exceptions;
 using System.Net;
 using System;
 using System.Net.Http;

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
-using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
-using CORE = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 using DTO = Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia.DTO;
+using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -70,7 +69,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     Reset();
 
                 var repository = _farmacia.Clientes as ClientesRepository;
-                List<DTO.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
+                List<UNYCOP.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
 
                 if (!localClientes.Any())
                     return;
@@ -90,7 +89,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                         if (_perteneceFarmazul)
                         {
                             var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
-                            var beBlue = cliente.IdPerfil.HasValue && (cliente.IdPerfil == 2 || cliente.IdPerfil.ToString() == tipo);
+                            var beBlue = cliente.idPerfil.HasValue && (cliente.idPerfil == 2 || cliente.idPerfil.ToString() == tipo);
                             clienteSisfarma.BeBlue = beBlue;
                         }
 

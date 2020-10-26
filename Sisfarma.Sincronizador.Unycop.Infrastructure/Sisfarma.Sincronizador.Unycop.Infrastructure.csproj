@@ -88,7 +88,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\FarmaciaContext.cs" />
     <Compile Include="ExternalServices\PedidosExternalService.cs" />
     <Compile Include="ExternalServices\Sisfarma\ClientesExternalService.cs" />
     <Compile Include="ExternalServices\Sisfarma\DTO\PuntosPendientes.cs" />
@@ -98,38 +97,19 @@
     <Compile Include="ExternalServices\Sisfarma\MedicamentosExternalServices.cs" />
     <Compile Include="ExternalServices\Sisfarma\PuntosPendientesExternalService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\Farmacia\CategoriaRepository.cs" />
     <Compile Include="Repositories\Farmacia\ClientesRepository.cs" />
-    <Compile Include="Repositories\Farmacia\CodigoBarraRepository.cs" />
-    <Compile Include="Repositories\Farmacia\DestinatariosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Categoria.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Cliente.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\CodigoBarra.cs" />
     <Compile Include="Repositories\Farmacia\DTO\Encargo.cs" />
     <Compile Include="Repositories\Farmacia\DTO\Farmaco.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\LineaVenta.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Pedido.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\ProveedorHistorico.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Recepcion.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Ticket.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Venta.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\VentaPremiun.cs" />
     <Compile Include="Repositories\Farmacia\EncargosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\CategoriasRepository.cs" />
     <Compile Include="Repositories\Farmacia\FamiliaRepository.cs" />
     <Compile Include="Repositories\Farmacia\FarmaciaRepository.cs" />
     <Compile Include="Repositories\Farmacia\FarmacoRespository.cs" />
-    <Compile Include="Repositories\Farmacia\LaboratoriosRepository.cs" />
     <Compile Include="Repositories\Farmacia\ListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\PedidosRepository.cs" />
     <Compile Include="Repositories\Farmacia\ProveedoresRepository.cs" />
     <Compile Include="Repositories\Farmacia\RecepcionRespository.cs" />
     <Compile Include="Repositories\Farmacia\SinonimosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\SubcategoriaRepository.cs" />
-    <Compile Include="Repositories\Farmacia\VendedoresRepository.cs" />
-    <Compile Include="Repositories\Farmacia\VentasPremiumRepository.cs" />
     <Compile Include="Repositories\Farmacia\VentasRepository.cs" />
-    <Compile Include="Repositories\TicketRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj">

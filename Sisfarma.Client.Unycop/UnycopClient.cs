@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Ionic.Zip;
-using System.Net;
 using System.Globalization;
 
 namespace Sisfarma.Client.Unycop

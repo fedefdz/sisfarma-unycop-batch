@@ -1,11 +1,8 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Core.Config;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
 using System.Linq;
 using System.Threading;
 
@@ -15,13 +12,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     {
         private readonly UnycopClient _unycopClient;
 
-        public FamiliaRepository(LocalConfig config) : base(config)
-        { }
-
-        public FamiliaRepository()
-        {
-            _unycopClient = new UnycopClient();
-        }
+        public FamiliaRepository() => _unycopClient = new UnycopClient();
 
         public IEnumerable<Familia> GetAll()
         {
@@ -87,36 +78,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetByDescripcion();
             }
-        }
-
-        public Familia GetOneOrDefaultById(long id)
-        {
-            try
-            {
-                var idInteger = (int)id;
-
-                using (var db = FarmaciaContext.Default())
-                {
-                    var sql = "SELECT Nombre FROM familias WHERE ID_Familia = @id";
-                    return db.Database.SqlQuery<Familia>(sql,
-                        new OleDbParameter("id", id))
-                            .FirstOrDefault();
-                }
-            }
-            catch (Exception ex) when (ex.Message.Contains(FarmaciaContext.MessageUnderlyngProviderFailed))
-            {
-                return GetOneOrDefaultById(id);
-            }
-        }
-
-        public string GetSuperFamiliaDescripcionByFamilia(string familia)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetSuperFamiliaDescripcionById(short familia)
-        {
-            throw new NotImplementedException();
         }
     }
 }

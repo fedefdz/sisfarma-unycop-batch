@@ -1,7 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Domain.Core.Services;
 using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using DC = Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 using System.Linq;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 

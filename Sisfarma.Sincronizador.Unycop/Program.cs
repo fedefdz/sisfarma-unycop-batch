@@ -1,11 +1,7 @@
 ﻿using Microsoft.Win32;
 using Sisfarma.ClickOnce;
-using Sisfarma.Client.Unycop;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
-using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Domain.Core.Config;
 using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Data;
 using Sisfarma.Sincronizador.Unycop.IoC.Factories;
 using Sisfarma.Sincronizador.Unycop.Properties;
 using System;
@@ -166,10 +162,6 @@ namespace Sisfarma.Sincronizador.Unycop
 
                 var remoteToken = stream.ReadLine();
                 SisfarmaFactory.Setup(remoteServer, remoteToken);
-
-                var local = GetConnexionLocal(remoteServer, remoteToken);
-
-                FarmaciaContext.Setup(local.pathFicheros, local.password, local.marketCodeList);
             }
             catch (IOException)
             {
@@ -188,39 +180,6 @@ namespace Sisfarma.Sincronizador.Unycop
 
             RegistryKey reg = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             reg.SetValue(productName, location);
-        }
-
-        private static LocalConfiguracion GetConnexionLocal(string server, string token)
-        {
-            //return new LocalConfiguracion
-            //{
-            //    pathFicheros = @"C:\Users\F15612\Documents\sisfarma\data\unycop\Datos",
-            //    //pathFicheros = @"C:\Users\Federico\Documents\sisfarma\sincronizador\access\JM-ACCESS\TEST",
-            //    //pathFicheros = @"C:\Users\Federico\Documents\sisfarma\sincronizador\access\DATOS UNYCOP\DATOS UNYCOP",
-            //    //pathFicheros = @"C:\Users\Federico\Documents\sisfarma\sincronizador\access\JM",
-            //    password = "BIGOTES",
-            //    marketCodeList = -1
-            //};
-
-            try
-            {
-                var restClient = new RestClient.WebClient.RestClient();
-
-                var config = FisiotesConfig.TestConfig(server, token);
-
-                var conn = restClient.BaseAddress(config.BaseAddress)
-                    .UseAuthenticationBasic(config.Credentials.Token)
-                    .Resource(config.Configuraciones.ConexionLocal)
-                    .SendGet<LocalConfiguracion>();
-
-                return conn;
-            }
-            catch (Exception ex)
-            {
-                Task.Delay(30000).Wait();
-
-                return GetConnexionLocal(server, token);
-            }
         }
     }
 }

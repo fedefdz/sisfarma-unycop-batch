@@ -3,7 +3,6 @@ using RestSharp.Authenticators;
 using Sisfarma.RestClient.RestSharp.Factories;
 using System;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using RSharp = RestSharp;
 
 namespace Sisfarma.RestClient.RestSharp

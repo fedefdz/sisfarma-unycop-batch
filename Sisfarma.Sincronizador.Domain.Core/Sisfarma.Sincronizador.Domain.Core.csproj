@@ -81,9 +81,7 @@
     <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IRecepcionRepository.cs" />
     <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\ISubcategoriaRepository.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\Clientes\UpdatePuntaje.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\InsertPuntuacion.cs" />
     <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\UpdatePuntacion.cs" />
@@ -104,12 +102,9 @@
     <Compile Include="ExternalServices\Fisiotes\IPuntosPendientesExternalService.cs" />
     <Compile Include="ExternalServices\Fisiotes\ISinonimosExternalService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\Farmacia\ICategoriaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IClientesRepository.cs" />
     <Compile Include="Repositories\Farmacia\IFamiliaRepository.cs" />
-    <Compile Include="Repositories\Farmacia\ILaboratorioRepository.cs" />
     <Compile Include="Repositories\Farmacia\IProveedorRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IVendedoresRepository.cs" />
     <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
     <Compile Include="Services\FarmaciaService.cs" />
     <Compile Include="Services\SisfarmaService.cs" />

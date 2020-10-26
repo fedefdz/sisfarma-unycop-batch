@@ -1,5 +1,4 @@
-﻿using Sisfarma.Client.Unycop.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Sisfarma.Client.Unycop
 {

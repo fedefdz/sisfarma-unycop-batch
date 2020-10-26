@@ -79,15 +79,10 @@
     <Compile Include="Extensions\EnumerableExtension.cs" />
     <Compile Include="Extensions\NumberExtensions.cs" />
     <Compile Include="Helpers\ConfiguracionDictionary.cs" />
-    <Compile Include="Config\ConexionLocal.cs" />
-    <Compile Include="Config\LocalConfig.cs" />
-    <Compile Include="Config\RemoteConfig.cs" />
-    <Compile Include="Config\UserConfig.cs" />
     <Compile Include="Extensions\BooleanExtension.cs" />
     <Compile Include="Extensions\DateTimeExtension.cs" />
     <Compile Include="Extensions\ExceptionExtension.cs" />
     <Compile Include="Extensions\StringExtend.cs" />
-    <Compile Include="Helpers\Calculator.cs" />
     <Compile Include="Helpers\Cryptographer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

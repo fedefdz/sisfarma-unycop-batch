@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
-{    
+{
     public class Lista
     {
         public int Id { get; set; }

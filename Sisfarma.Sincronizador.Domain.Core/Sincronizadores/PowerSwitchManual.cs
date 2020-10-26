@@ -1,8 +1,6 @@
-﻿using Sisfarma.RestClient;
-using Sisfarma.Sincronizador.Domain.Core.Services;
+﻿using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using System;
 
 namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
 {

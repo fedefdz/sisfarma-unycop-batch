@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
@@ -20,9 +18,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
         protected const string SISTEMA_UNYCOP = "unycop";
-
-        private readonly ITicketRepository _ticketRepository;
-        private readonly decimal _factorCentecimal = 0.01m;
 
         private string _clasificacion;
         private bool _debeCopiarClientes;
@@ -47,7 +42,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
         public PuntoPendienteSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
         {
-            _ticketRepository = new TicketRepository();
             _aniosProcesados = new HashSet<int>();
             //FILE_LOG = System.Configuration.ConfigurationManager.AppSettings["Directory.Logs"] + @"Ventas.logs";
         }
@@ -133,7 +127,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     //Logging.WriteToFileThreadSafe(DateTime.Now.ToString("o") + " " + $"Generando puntos pendientes despues de if {venta.Id}", FILE_LOG);
 
                     //var puntosPendientes = new List<PuntosPendientes>();
-                    var cliente = sourceClientes.FirstOrDefault(x => x.Id == venta.IdCliente);
+                    var cliente = sourceClientes.FirstOrDefault(x => x.IdCliente == venta.IdCliente);
                     var fechaVenta = venta.FechaVenta.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase);
 
                     if (venta.lineasItem.Count() == 1 && venta.lineasItem.First().CNvendido == null)
@@ -159,7 +153,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             Pago = venta.Pago,
                             TipoPago = venta.lineasItem.First().CodigoOperacion,
                             Fecha = fechaVenta.Date.ToDateInteger(),
-                            DNI = cliente?.DNICIF ?? "0",
+                            DNI = cliente?.DNI ?? "0",
                             Cargado = _cargarPuntos.ToLower().Equals("si") ? "no" : "si",
                             Puesto = $"{venta.Puesto}",
                             Trabajador = venta.NombreVendedor,
@@ -225,7 +219,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             Pago = currentLine == 1 ? venta.Pago : 0,
                             TipoPago = item.CodigoOperacion,
                             Fecha = fechaVenta.Date.ToDateInteger(),
-                            DNI = cliente?.DNICIF ?? "0",
+                            DNI = cliente?.DNI ?? "0",
                             Cargado = _cargarPuntos.ToLower().Equals("si") ? "no" : "si",
                             Puesto = $"{venta.Puesto}",
                             Trabajador = venta.NombreVendedor,
@@ -271,21 +265,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 _ultimaVenta = $"{anioProcesando + 1 }{0}".ToIntegerOrDefault();
                 _ultimaVentaCargada = null;
             }
-        }
-
-        private void InsertOrUpdateCliente(FAR.Cliente cliente)
-        {
-            var debeCargarPuntos = _puntosDeSisfarma.ToLower().Equals("no") || string.IsNullOrWhiteSpace(_puntosDeSisfarma);
-            cliente.DebeCargarPuntos = debeCargarPuntos;
-
-            if (_perteneceFarmazul)
-            {
-                var tipo = ConfiguracionPredefinida[Configuracion.FIELD_TIPO_BEBLUE];
-                var beBlue = _farmacia.Clientes.EsBeBlue($"{cliente.Id}", tipo);
-                cliente.BeBlue = beBlue;
-            }
-
-            _sisfarma.Clientes.Sincronizar(new List<FAR.Cliente>() { cliente });
         }
 
         private MedicamentoP GenerarMedicamentoP(Infrastructure.Repositories.Farmacia.DTO.Farmaco farmaco)
