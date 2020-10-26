@@ -59,7 +59,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
                     _cancellationToken.ThrowIfCancellationRequested();
 
-                    if (!farmacos.Any(x => x.Id == med.cod_nacional.ToIntegerOrDefault()))
+                    if (!farmacos.Any(x => x.IdArticulo == med.cod_nacional.ToIntegerOrDefault()))
                         _sisfarma.Medicamentos.DeleteByCodigoNacional(med.cod_nacional);
 
                     _ultimoMedicamentoSincronizado = med.cod_nacional;

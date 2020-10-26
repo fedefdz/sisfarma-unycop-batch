@@ -114,7 +114,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     {
                         var cna = int.Parse(item.CNArticulo);
                         //var farmaco = (_farmacia.Farmacos as FarmacoRespository).GetOneOrDefaultById(cna);
-                        var farmaco = sourceFarmacos.FirstOrDefault(x => x.Id == cna);
+                        var farmaco = sourceFarmacos.FirstOrDefault(x => x.CNArticulo == item.CNArticulo);
                         if (farmaco != null)
                         {
                             var recepcionDetalle = new RecepcionDetalle()
@@ -129,29 +129,23 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             var pcoste = 0m;
                             if (item.PVAlb > 0) pcoste = item.PVAlb;
                             else if (item.PC > 0) pcoste = item.PC;
-                            else pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                                ? farmaco.PrecioUnicoEntrada.Value
-                                : (farmaco.PrecioMedio ?? 0m);
+                            else pcoste = farmaco.PC.HasValue && farmaco.PC != 0
+                                ? farmaco.PC.Value
+                                : (farmaco.PCM ?? 0m);
 
-                            FAR.Proveedor proveedor = proveedorPedido;
+                            var proveedor = new FAR.Proveedor { Id = farmaco.IdProveedor, Nombre = farmaco.NombreProveedor };
+                            var categoria = new FAR.Categoria { Id = farmaco.IdCategoria, Nombre = farmaco.NombreCategoria };
+                            var subcategoria = new FAR.Subcategoria { Id = farmaco.IdSubCategoria, Nombre = farmaco.NombreSubCategoria };
 
-                            FAR.Categoria categoria = farmaco.CategoriaId.HasValue
-                                ? new FAR.Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }
-                                : null;
+                            var familia = new FAR.Familia { Id = farmaco.IdFamilia, Nombre = farmaco.NombreFamilia };
+                            var laboratorio = new FAR.Laboratorio { Codigo = farmaco.CodLaboratorio, Nombre = farmaco.NombreLaboratorio };
 
-                            Subcategoria subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
-                                ? new Subcategoria { Id = farmaco.SubcategoriaId.Value, Nombre = farmaco.NombreSubcategoria }
-                                : null;
+                            var codigosDeBarras = string.IsNullOrEmpty(farmaco.CodigoBarrasArticulo) ? new string[0] : farmaco.CodigoBarrasArticulo.Split(',');
+                            var codigoBarra = codigosDeBarras.Any() ? codigosDeBarras.First() : string.Empty;
 
-                            FAR.Familia familia = new FAR.Familia { Id = farmaco.FamiliaId, Nombre = farmaco.NombreFamilia };
-                            FAR.Laboratorio laboratorio = !string.IsNullOrEmpty(farmaco.CodigoLaboratorio)
-                                ? new FAR.Laboratorio { Codigo = farmaco.CodigoLaboratorio, Nombre = farmaco.NombreLaboratorio }
-                                : null;
-
-                            var codigoBarra = farmaco.CodigoBarras.FirstOrDefault();
-
-                            var iva = default(decimal);
-                            switch (farmaco.IVA)
+                            var impuesto = (int)Math.Ceiling(farmaco.Impuesto);
+                            decimal iva;
+                            switch (impuesto)
                             {
                                 case 1: iva = 4; break;
 
@@ -162,10 +156,17 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                                 default: iva = 0; break;
                             }
 
+                            var culture = UnycopFormat.GetCultureTwoDigitYear();
+
+                            var fechaUltimaEntrada = string.IsNullOrWhiteSpace(farmaco.UltEntrada) ? null : (int?)farmaco.UltEntrada.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+                            var fechaUltimaSalida = string.IsNullOrWhiteSpace(farmaco.UltSalida) ? null : (int?)farmaco.UltSalida.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+                            var fechaCaducidad = string.IsNullOrWhiteSpace(farmaco.Caducidad) ? null : (int?)farmaco.Caducidad.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+                            const string BolsaPlastico = "Bolsa de plástico";
+
                             recepcionDetalle.Farmaco = new Farmaco
                             {
-                                Id = farmaco.Id,
-                                Codigo = cna.ToString(),
+                                Id = farmaco.IdArticulo,
+                                Codigo = farmaco.CNArticulo,
                                 PrecioCoste = pcoste,
                                 Proveedor = proveedor,
                                 Categoria = categoria,
@@ -174,16 +175,16 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                                 Laboratorio = laboratorio,
                                 Denominacion = farmaco.Denominacion,
                                 Precio = item.PVP,
-                                Stock = farmaco.ExistenciasAux ?? 0,
+                                Stock = farmaco.Stock,
                                 CodigoBarras = codigoBarra,
-                                FechaUltimaCompra = farmaco.FechaUltimaEntrada.HasValue && farmaco.FechaUltimaEntrada.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaEntrada.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
-                                FechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue && farmaco.FechaUltimaSalida.Value > 0 ? (DateTime?)$"{farmaco.FechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
+                                FechaUltimaCompra = fechaUltimaEntrada.HasValue && fechaUltimaEntrada.Value > 0 ? (DateTime?)$"{fechaUltimaEntrada.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
+                                FechaUltimaVenta = fechaUltimaSalida.HasValue && fechaUltimaSalida.Value > 0 ? (DateTime?)$"{fechaUltimaSalida.Value}".ToDateTimeOrDefault("yyyyMMdd") : null,
                                 Ubicacion = farmaco.Ubicacion ?? string.Empty,
-                                Web = farmaco.BolsaPlastico,
+                                Web = farmaco.Tipo.Equals(BolsaPlastico, StringComparison.InvariantCultureIgnoreCase),
                                 Iva = iva,
-                                StockMinimo = farmaco.Stock ?? 0,
-                                Baja = farmaco.FechaBaja > 0,
-                                FechaCaducidad = farmaco.FechaCaducidad.HasValue && farmaco.FechaCaducidad.Value > 0 ? (DateTime?)$"{farmaco.FechaCaducidad.Value}".ToDateTimeOrDefault("yyyyMM") : null
+                                StockMinimo = farmaco.Minimo ?? 0,
+                                Baja = string.IsNullOrEmpty(farmaco.Fecha_Baja).ToInteger() > 0,
+                                FechaCaducidad = fechaCaducidad.HasValue && fechaCaducidad.Value > 0 ? (DateTime?)$"{fechaCaducidad.Value}".ToDateTimeOrDefault("yyyyMM") : null
                             };
 
                             detalle.Add(recepcionDetalle);

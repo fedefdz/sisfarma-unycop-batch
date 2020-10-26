@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
+﻿namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
     public abstract class FarmaciaRepository
     {

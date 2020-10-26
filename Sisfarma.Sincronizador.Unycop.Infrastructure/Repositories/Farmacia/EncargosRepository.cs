@@ -3,11 +3,10 @@ using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
-using ENTITY = Sisfarma.Sincronizador.Domain.Entities;
 using Sisfarma.Sincronizador.Core.Extensions;
+using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
@@ -31,18 +30,13 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                var calendar = (Calendar)CultureInfo.CurrentCulture.Calendar.Clone();
-                calendar.TwoDigitYearMax = DateTime.Now.Year;
-
-                var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-                culture.DateTimeFormat.Calendar = calendar;
+                var culture = UnycopFormat.GetCultureTwoDigitYear();
 
                 var fecha = new DateTime(year, 1, 1);
                 var fechaFiltro = fecha.ToString("dd/MM/yy", culture);
                 var filtro = $"(Fecha,>=,{fechaFiltro})&(IdEncargo,>=,{encargo})";
 
-                var encargos = _unycopClient.Send<Client.Unycop.Model.Encargo>(new UnycopRequest(RequestCodes.Encargos, filtro));
-
+                var encargos = _unycopClient.Send<UNYCOP.Encargo>(new UnycopRequest(RequestCodes.Encargos, filtro));
                 if (!encargos.Any())
                     return new Encargo[0];
 
@@ -56,7 +50,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 var set = encargos.Select(x => x.CNArticulo.ToIntegerOrDefault()).Distinct();
                 var famacosSource = farmacoRepository.GetBySetId(set).ToArray();
 
-                return encargos.Select(x => GenerarEncargo(DTO.Encargo.CreateFrom(x), clientesSource, famacosSource));
+                return encargos.Select(x => GenerarEncargo(x, clientesSource, famacosSource));
             }
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
@@ -65,48 +59,30 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
-        private Encargo GenerarEncargo(DTO.Encargo encargo, IEnumerable<ENTITY.Farmacia.Cliente> clientes, IEnumerable<DTO.Farmaco> farmacos)
+        private Encargo GenerarEncargo(UNYCOP.Encargo encargo, IEnumerable<Cliente> clientes, IEnumerable<UNYCOP.Articulo> farmacos)
         {
-            //TODO: buscar varios clientes, hasta que nos saquen la limitación de 5 minutos
-            var cliente = clientes.FirstOrDefault(x => x.Id == encargo.Cliente);
+            var cliente = clientes.FirstOrDefault(x => x.Id == encargo.IdCliente);
+            var vendedor = new Vendedor { Id = encargo.IdVendedor, Nombre = encargo.NombreVendedor };
 
-            // TODO sólo el nombre del vendedor
-            //var vendedor = _vendedoresRepository.GetOneOrDefaultById(encargo.Vendedor ?? 0);
-            var vendedor = new ENTITY.Farmacia.Vendedor { Id = encargo.Vendedor ?? 0, Nombre = encargo.NombreVendedor };
-
-            // TODO varios articulos
             var farmacoEncargado = default(Farmaco);
-            //DTO.Farmaco farmaco = _farmacoRepository.GetOneOrDefaultById(encargo.Farmaco ?? 0);
-            var farmaco = farmacos.FirstOrDefault(x => x.Id == encargo.Farmaco);
+            var farmaco = farmacos.FirstOrDefault(x => x.CNArticulo == encargo.CNArticulo);
             if (farmaco != null)
             {
-                var pcoste = farmaco.PrecioUnicoEntrada.HasValue && farmaco.PrecioUnicoEntrada != 0
-                    ? farmaco.PrecioUnicoEntrada.Value
-                    : (farmaco.PrecioMedio ?? 0m);
+                var pcoste = farmaco.PC.HasValue && farmaco.PC != 0
+                    ? farmaco.PC.Value
+                    : (farmaco.PCM ?? 0m);
 
-                ENTITY.Farmacia.Proveedor proveedor = new ENTITY.Farmacia.Proveedor
-                {
-                    Id = farmaco.ProveedorId,
-                    Nombre = farmaco.NombreProveedor
-                };
+                var proveedor = new Proveedor { Id = farmaco.IdProveedor, Nombre = farmaco.NombreProveedor };
+                var categoria = new Categoria { Id = farmaco.IdCategoria, Nombre = farmaco.NombreCategoria };
+                var subcategoria = new Subcategoria { Id = farmaco.IdSubCategoria, Nombre = farmaco.NombreSubCategoria };
 
-                Categoria categoria = farmaco.CategoriaId.HasValue
-                    ? new Categoria { Id = farmaco.CategoriaId.Value, Nombre = farmaco.NombreCategoria }
-                    : null;
-
-                Subcategoria subcategoria = farmaco.CategoriaId.HasValue && farmaco.SubcategoriaId.HasValue
-                    ? new Subcategoria { Id = farmaco.SubcategoriaId.Value, Nombre = farmaco.NombreSubcategoria }
-                    : null;
-
-                Familia familia = new Familia { Id = farmaco.FamiliaId, Nombre = farmaco.NombreFamilia };
-                ENTITY.Farmacia.Laboratorio laboratorio = !string.IsNullOrEmpty(farmaco.CodigoLaboratorio)
-                    ? new ENTITY.Farmacia.Laboratorio { Codigo = farmaco.CodigoLaboratorio, Nombre = farmaco.NombreLaboratorio }
-                    : null;
+                var familia = new Familia { Id = farmaco.IdFamilia, Nombre = farmaco.NombreFamilia };
+                var laboratorio = new Laboratorio { Codigo = farmaco.CodLaboratorio, Nombre = farmaco.NombreLaboratorio };
 
                 farmacoEncargado = new Farmaco
                 {
-                    Id = farmaco.Id,
-                    Codigo = encargo.Farmaco.ToString(),
+                    Id = farmaco.IdArticulo,
+                    Codigo = encargo.CNArticulo,
                     PrecioCoste = pcoste,
                     Proveedor = proveedor,
                     Categoria = categoria,
@@ -115,17 +91,20 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                     Laboratorio = laboratorio,
                     Denominacion = farmaco.Denominacion,
                     Precio = farmaco.PVP,
-                    Stock = farmaco.ExistenciasAux ?? 0
+                    Stock = farmaco.Stock
                 };
             }
 
+            var fechaHora = string.IsNullOrWhiteSpace(encargo.Fecha) ? null : (DateTime?)encargo.Fecha.ToDateTimeOrDefault("d/M/yyyy HH:mm:ss");
+            var fechaEntrega = string.IsNullOrWhiteSpace(encargo.FEntrega) ? null : (DateTime?)encargo.FEntrega.ToDateTimeOrDefault("d/M/yyyy HH:mm:ss");
+
             return new Encargo
             {
-                Id = encargo.Id,
-                Fecha = encargo.FechaHora ?? DateTime.MinValue,
-                FechaEntrega = encargo.FechaHoraEntrega,
+                Id = encargo.IdEncargo,
+                Fecha = fechaHora ?? DateTime.MinValue,
+                FechaEntrega = fechaEntrega,
                 Farmaco = farmacoEncargado,
-                Cantidad = encargo.Cantidad,
+                Cantidad = encargo.Unidades,
                 Cliente = cliente,
                 Vendedor = vendedor,
                 Observaciones = encargo.Observaciones

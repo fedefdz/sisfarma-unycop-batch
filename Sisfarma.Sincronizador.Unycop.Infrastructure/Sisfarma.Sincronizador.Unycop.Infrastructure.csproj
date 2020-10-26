@@ -98,8 +98,6 @@
     <Compile Include="ExternalServices\Sisfarma\PuntosPendientesExternalService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Farmacia\ClientesRepository.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Encargo.cs" />
-    <Compile Include="Repositories\Farmacia\DTO\Farmaco.cs" />
     <Compile Include="Repositories\Farmacia\EncargosRepository.cs" />
     <Compile Include="Repositories\Farmacia\FamiliaRepository.cs" />
     <Compile Include="Repositories\Farmacia\FarmaciaRepository.cs" />

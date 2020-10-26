@@ -191,21 +191,22 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                     {
                         currentLine++;
 
-                        var farmaco = sourceFarmacos.FirstOrDefault(x => x.Id == item.CNvendido.ToIntegerOrDefault());
+                        var farmaco = sourceFarmacos.FirstOrDefault(x => x.CNArticulo == item.CNvendido);
                         if (farmaco == null)
                             continue;
 
                         var familia = farmaco.NombreFamilia ?? FAMILIA_DEFAULT;
+                        var codigosDeBarras = string.IsNullOrEmpty(farmaco.CodigoBarrasArticulo) ? new string[0] : farmaco.CodigoBarrasArticulo.Split(',');
                         var puntoPendiente = new PuntosPendientes
                         {
                             VentaId = $"{fechaVenta.Year}{venta.IdVenta}".ToLongOrDefault(),
                             LineaNumero = currentLine,
-                            CodigoBarra = farmaco.CodigoBarras.Any() ? farmaco.CodigoBarras.First() : "847000" + item.CNvendido.PadLeft(6, '0'),
+                            CodigoBarra = codigosDeBarras.Any() ? codigosDeBarras.First() : "847000" + item.CNvendido.PadLeft(6, '0'),
                             CodigoNacional = item.CNvendido,
                             Descripcion = farmaco.Denominacion,
 
                             Familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                                ? farmaco.NombreSubcategoria ?? FAMILIA_DEFAULT
+                                ? farmaco.NombreSubCategoria ?? FAMILIA_DEFAULT
                                 : farmaco.NombreFamilia,
                             SuperFamilia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
                                 ? farmaco.NombreCategoria ?? FAMILIA_DEFAULT
@@ -223,15 +224,15 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                             Cargado = _cargarPuntos.ToLower().Equals("si") ? "no" : "si",
                             Puesto = $"{venta.Puesto}",
                             Trabajador = venta.NombreVendedor,
-                            LaboratorioCodigo = farmaco.CodigoLaboratorio ?? string.Empty,
+                            LaboratorioCodigo = farmaco.CodLaboratorio ?? string.Empty,
                             Laboratorio = farmaco.NombreLaboratorio ?? LABORATORIO_DEFAULT,
                             Proveedor = farmaco.NombreProveedor ?? string.Empty,
                             Receta = item.CodigoTipoAportacion,
                             FechaVenta = fechaVenta,
                             PVP = item.PvpArticulo ?? -1,
-                            PUC = farmaco.PrecioUnicoEntrada ?? 0,
+                            PUC = farmaco.PC ?? 0,
                             Categoria = farmaco.NombreCategoria ?? string.Empty,
-                            Subcategoria = farmaco.NombreSubcategoria ?? string.Empty,
+                            Subcategoria = farmaco.NombreSubCategoria ?? string.Empty,
                             VentaDescuento = currentLine == 1 ? venta.DescuentoVenta : 0,
                             LineaDescuento = item.Descuento ?? -1,
                             TicketNumero = ticketNumero,
@@ -267,44 +268,53 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             }
         }
 
-        private MedicamentoP GenerarMedicamentoP(Infrastructure.Repositories.Farmacia.DTO.Farmaco farmaco)
+        private MedicamentoP GenerarMedicamentoP(UNYCOP.Articulo farmaco)
         {
             var familia = farmaco.NombreFamilia ?? FAMILIA_DEFAULT;
             var familiaAux = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? familia : string.Empty;
 
-            familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? farmaco.NombreSubcategoria ?? farmaco.NombreCategoria ?? FAMILIA_DEFAULT : familia;
+            familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? farmaco.NombreSubCategoria ?? farmaco.NombreCategoria ?? FAMILIA_DEFAULT : familia;
+
+            var codigosDeBarras = string.IsNullOrEmpty(farmaco.CodigoBarrasArticulo) ? new string[0] : farmaco.CodigoBarrasArticulo.Split(',');
+            var impuesto = (int)Math.Ceiling(farmaco.Impuesto);
+
+            const string BolsaPlastico = "Bolsa de plástico";
 
             var culture = UnycopFormat.GetCultureTwoDigitYear();
 
+            var fechaUltimaEntrada = string.IsNullOrWhiteSpace(farmaco.UltEntrada) ? null : (int?)farmaco.UltEntrada.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+            var fechaUltimaSalida = string.IsNullOrWhiteSpace(farmaco.UltSalida) ? null : (int?)farmaco.UltSalida.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+            var fechaCaducidad = string.IsNullOrWhiteSpace(farmaco.Caducidad) ? null : (int?)farmaco.Caducidad.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+
             return new MedicamentoP
             {
-                cod_barras = (farmaco.CodigoBarras.Any() ? farmaco.CodigoBarras.First() : "847000" + farmaco.Id.ToString().PadLeft(6, '0')).Strip(),
-                cod_nacional = farmaco.Id.ToString(),
+                cod_barras = (codigosDeBarras.Any() ? codigosDeBarras.First() : "847000" + farmaco.IdArticulo.ToString().PadLeft(6, '0')).Strip(),
+                cod_nacional = farmaco.CNArticulo,
                 nombre = farmaco.Denominacion?.Strip(),
                 familia = familia.Strip(),
                 precio = (float)farmaco.PVP,
                 descripcion = farmaco.Denominacion?.Strip(),
-                laboratorio = farmaco.CodigoLaboratorio.Strip(),
+                laboratorio = farmaco.CodLaboratorio.Strip(),
                 nombre_laboratorio = (farmaco.NombreLaboratorio ?? LABORATORIO_DEFAULT).Strip(),
                 proveedor = (farmaco.NombreProveedor ?? string.Empty).Strip(),
-                pvpSinIva = (float)Math.Round(farmaco.PVP / (1 + 0.01m * farmaco.IVA), 2),
-                iva = farmaco.IVA,
-                stock = farmaco.ExistenciasAux,
-                puc = farmaco.PrecioUnicoEntrada.HasValue ? (float?)farmaco.PrecioUnicoEntrada.Value : null,
+                pvpSinIva = (float)Math.Round(farmaco.PVP / (1 + 0.01m * impuesto), 2),
+                iva = impuesto,
+                stock = farmaco.Stock,
+                puc = farmaco.PC.HasValue ? (float?)farmaco.PC.Value : null,
                 stockMinimo = farmaco.Stock,
                 stockMaximo = 0,
                 categoria = (farmaco.NombreCategoria ?? string.Empty).Strip(),
-                subcategoria = (farmaco.NombreSubcategoria ?? string.Empty).Strip(),
-                web = farmaco.BolsaPlastico.ToInteger(),
+                subcategoria = (farmaco.NombreSubCategoria ?? string.Empty).Strip(),
+                web = farmaco.Tipo.Equals(BolsaPlastico, StringComparison.InvariantCultureIgnoreCase).ToInteger(),
                 ubicacion = (farmaco.Ubicacion ?? string.Empty).Strip(),
                 presentacion = string.Empty,
                 descripcionTienda = string.Empty,
-                activoPrestashop = (!(farmaco.FechaBaja > 0)).ToInteger(),
+                activoPrestashop = (!(string.IsNullOrEmpty(farmaco.Fecha_Baja).ToInteger() > 0)).ToInteger(),
                 familiaAux = familiaAux,
-                fechaCaducidad = farmaco.FechaCaducidad ?? 0,
-                fechaUltimaCompra = farmaco.FechaUltimaEntrada.HasValue ? farmaco.FechaUltimaEntrada.Value.ToString().ToDateTimeOrDefault("dd/MM/yy", culture).ToIsoString() : DateTime.MinValue.ToString(),
-                fechaUltimaVenta = farmaco.FechaUltimaSalida.HasValue ? farmaco.FechaUltimaSalida.Value.ToString().ToDateTimeOrDefault("dd/MM/yy", culture).ToIsoString() : DateTime.MinValue.ToString(),
-                baja = (farmaco.FechaBaja > 0).ToInteger(),
+                fechaCaducidad = fechaCaducidad ?? 0,
+                fechaUltimaCompra = fechaUltimaEntrada.HasValue ? fechaUltimaEntrada.Value.ToString().ToDateTimeOrDefault("dd/MM/yy", culture).ToIsoString() : DateTime.MinValue.ToString(),
+                fechaUltimaVenta = fechaUltimaSalida.HasValue ? fechaUltimaSalida.Value.ToString().ToDateTimeOrDefault("dd/MM/yy", culture).ToIsoString() : DateTime.MinValue.ToString(),
+                baja = (string.IsNullOrEmpty(farmaco.Fecha_Baja).ToInteger() > 0).ToInteger(),
                 actualizadoPS = 1
             };
         }
