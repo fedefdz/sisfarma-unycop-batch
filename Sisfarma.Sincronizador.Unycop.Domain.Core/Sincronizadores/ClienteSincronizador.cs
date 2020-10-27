@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
@@ -67,7 +66,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 if (IsHoraVaciamientos())
                     Reset();
 
-                var repository = _farmacia.Clientes as ClientesRepository;
+                var repository = _farmacia.Clientes;
                 List<UNYCOP.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
 
                 if (!localClientes.Any())

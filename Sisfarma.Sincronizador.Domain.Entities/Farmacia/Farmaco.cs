@@ -44,16 +44,6 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
 
         public bool Baja { get; set; }
 
-        public bool HasProveedor() => Proveedor != null;
-
-        public bool HasCategoria() => Categoria != null;
-
-        public bool HasSubcategoria() => Subcategoria != null;
-
-        public bool HasFamilia() => Familia != null;
-
-        public bool HasLaboratorio => Laboratorio != null;
-
         public decimal PrecioSinIva() => Math.Round(Precio / (1 + 0.01m * Iva), 2);
     }
 }

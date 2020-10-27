@@ -10,26 +10,11 @@ using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class EncargosExternalService : FisiotesExternalService, IEncargosExternalService
+    public class EncargosExternalService : FisiotesExternalService, IEncargoRepository
     {
         public EncargosExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         { }
-
-        public bool Exists(int encargo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Encargo GetByEncargoOrDefault(int encargo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(Encargo ee)
-        {
-            throw new NotImplementedException();
-        }
 
         public Encargo LastOrDefault()
         {
@@ -79,16 +64,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 {
                     bulk = encargos
                 });
-        }
-
-        public void UpdateFechaDeEntrega(DateTime fechaEntrega, long idEncargo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateFechaDeRecepcion(DateTime fechaRecepcion, long idEncargo)
-        {
-            throw new NotImplementedException();
         }
     }
 }

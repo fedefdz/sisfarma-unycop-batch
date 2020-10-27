@@ -9,32 +9,12 @@ using System.Linq;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class FamiliasExternalService : FisiotesExternalService, IFamiliasExternalService
+    public class FamiliasExternalService : FisiotesExternalService, IFamiliaRepository
     {
-        public FamiliasExternalService(IRestClient restClient, FisiotesConfig config) 
+        public FamiliasExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         { }
 
-        public bool Exists(string familia)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Familia GetByFamilia(string familia)
-        {
-            throw new NotImplementedException();
-        }
-
-        public decimal GetPuntosByFamiliaTipoVerificado(string familia)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(Familia ff)
-        {
-            throw new NotImplementedException();
-        }
-        
         public void Sincronizar(IEnumerable<Familia> ffs)
         {
             var bulk = ffs.Select(ff => new

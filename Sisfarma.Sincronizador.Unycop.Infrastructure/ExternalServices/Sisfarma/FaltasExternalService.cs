@@ -7,9 +7,9 @@ using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class FaltasExternalService : FisiotesExternalService, IFaltasExternalService
+    public class FaltasExternalService : FisiotesExternalService, IFaltaRepository
     {
-        public FaltasExternalService(IRestClient restClient, FisiotesConfig config) 
+        public FaltasExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
         { }
 
@@ -32,11 +32,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
         public bool ExistsLineaDePedido(int idPedido, int idLinea)
         {
             return GetByLineaDePedido(idPedido, idLinea) != null;
-        }
-
-        public void Insert(Falta ff)
-        {
-            throw new System.NotImplementedException();
         }
 
         public Falta LastOrDefault()
@@ -62,7 +57,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
                 cod_nacional = ff.cod_nacional,
                 descripcion = ff.descripcion.Strip(),
                 familia = ff.familia.Strip(),
-                superFamilia = ff.superFamilia.Strip(),                
+                superFamilia = ff.superFamilia.Strip(),
                 cantidadPedida = ff.cantidadPedida,
                 fechaFalta = ff.fechaFalta.ToIsoString(),
                 cod_laboratorio = ff.cod_laboratorio.Strip(),

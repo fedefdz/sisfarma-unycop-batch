@@ -13,12 +13,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
     public class EncargosRepository : FarmaciaRepository, IEncargosRepository
     {
         private readonly IClientesRepository _clientesRepository;
-        private readonly IFarmacoRepository _farmacoRepository;
+        private readonly IFarmacosRepository _farmacoRepository;
         private readonly UnycopClient _unycopClient;
 
         public EncargosRepository(
             IClientesRepository clientesRepository,
-            IFarmacoRepository farmacoRepository)
+            IFarmacosRepository farmacoRepository)
         {
             _clientesRepository = clientesRepository ?? throw new ArgumentNullException(nameof(clientesRepository));
             _farmacoRepository = farmacoRepository ?? throw new ArgumentNullException(nameof(farmacoRepository));

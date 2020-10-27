@@ -16,7 +16,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
         {
             var configuraciones = new INF.ConfiguracionesExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
             var clientes = new ClientesExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
-            var huecos = new INF.HuecosExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
             var puntosPendientes = new PuntosPendientesExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
             var programacion = new INF.ProgramacionExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
             var listas = new INF.ListasExternalService(new RestClient.WebClient.RestClient(), INF.FisiotesConfig.TestConfig(_host, _token));
@@ -31,7 +30,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
 
             return new SisfarmaService(
                 clientes: clientes,
-                huecos: huecos,
                 puntosPendientes: puntosPendientes,
                 configuraciones: configuraciones,
                 medicamentos: medicamentos,

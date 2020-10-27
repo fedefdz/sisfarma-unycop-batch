@@ -7,7 +7,6 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 
 using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using SF = Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
@@ -50,7 +49,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var repository = new RecepcionRespository();
+            var repository = _farmacia.Recepciones;
 
             var sw = new Stopwatch();
             sw.Start();
@@ -68,7 +67,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var set = albaranes.SelectMany(x => x.lineasItem).Select(x => int.Parse(x.CNArticulo)).Distinct();
             Console.WriteLine($"cant articulos {set.Count()}");
             sw.Restart();
-            var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToList();
+            var sourceFarmacos = _farmacia.Farmacos.GetBySetId(set).ToList();
             Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
             //var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetAll().ToList();
             var batchLineasPedidos = new List<LineaPedido>();

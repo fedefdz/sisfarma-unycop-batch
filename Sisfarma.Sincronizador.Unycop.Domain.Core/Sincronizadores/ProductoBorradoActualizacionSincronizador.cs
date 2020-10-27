@@ -2,7 +2,6 @@
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,7 +51,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             else
             {
                 var set = medicamentos.Select(x => x.cod_nacional.ToIntegerOrDefault()).Distinct();
-                var farmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToArray();
+                var farmacos = _farmacia.Farmacos.GetBySetId(set).ToArray();
                 foreach (var med in medicamentos)
                 {
                     Task.Delay(5).Wait();

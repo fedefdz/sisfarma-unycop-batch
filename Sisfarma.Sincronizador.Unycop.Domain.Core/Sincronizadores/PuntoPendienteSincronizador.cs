@@ -3,7 +3,6 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -101,13 +100,13 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var set = ventasAnuales.SelectMany(x => x.lineasItem).Select(x => x.CNvendido.ToIntegerOrDefault()).Distinct().ToArray();
             Console.WriteLine($"cant articulos {set.Count()}");
             sw.Restart();
-            var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToList();
+            var sourceFarmacos = _farmacia.Farmacos.GetBySetId(set).ToList();
             Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
 
             set = ventasAnuales.Select(x => x.IdCliente).Distinct().ToArray();
             Console.WriteLine($"cant clientes {set.Count()}");
             sw.Restart();
-            var sourceClientes = (_farmacia.Clientes as ClientesRepository).GetBySetId(set).ToList();
+            var sourceClientes = _farmacia.Clientes.GetBySetId(set).ToList();
             Console.WriteLine($"clientes recuperados en {sw.ElapsedMilliseconds}ms");
 
             var batchSize = 1000;

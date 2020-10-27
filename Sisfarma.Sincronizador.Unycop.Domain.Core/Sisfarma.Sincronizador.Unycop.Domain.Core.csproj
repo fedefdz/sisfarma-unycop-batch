@@ -77,8 +77,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\LocalConfiguracion.cs" />
+    <Compile Include="Repositories\Sisfarma\ICategoriaRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IClienteRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IConfiguracionRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IEncargoRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IFaltaRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IFamiliaRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IListaArticuloRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IListaRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IMedicamentoRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IPedidoRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IProgramacionRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IProveedorRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\IPuntoPendienteRepository.cs" />
+    <Compile Include="Repositories\Sisfarma\ISinonimoRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\Farmacia\IClientesRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IEncargosRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IFamiliaRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IProveedorRepository.cs" />
+    <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
+    <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
+    <Compile Include="UnitOfWorks\FarmaciaService.cs" />
+    <Compile Include="UnitOfWorks\SisfarmaService.cs" />
     <Compile Include="Sincronizadores\CategoriaSincronizador.cs" />
     <Compile Include="Sincronizadores\ClienteSincronizador.cs" />
     <Compile Include="Sincronizadores\ControlSinStockSincronizador.cs" />
@@ -86,45 +110,53 @@
     <Compile Include="Sincronizadores\EncargoSincronizador.cs" />
     <Compile Include="Sincronizadores\FamiliaSincronizador.cs" />
     <Compile Include="Sincronizadores\ListaSincronizador.cs" />
+    <Compile Include="Sincronizadores\Management\PowerSwitchManual.cs" />
+    <Compile Include="Sincronizadores\Management\PowerSwitchProgramado.cs" />
+    <Compile Include="Sincronizadores\Management\SincronizadorTaskManager.cs" />
+    <Compile Include="Sincronizadores\Management\UpdateVersionSincronizador.cs" />
     <Compile Include="Sincronizadores\PedidoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoBorradoActualizacionSincronizador.cs" />
     <Compile Include="Sincronizadores\ProductoCriticoSincronizador.cs" />
     <Compile Include="Sincronizadores\ProveedorSincronizador.cs" />
     <Compile Include="Sincronizadores\PuntoPendienteSincronizador.cs" />
     <Compile Include="Sincronizadores\SinonimoSincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\PowerSwitch.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\TaskSincronizador.cs" />
+    <Compile Include="Sincronizadores\SuperTypes\_Sincronizador.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj">
+      <Project>{92CBB2CC-844F-4B52-9208-87B322BB6DBA}</Project>
+      <Name>Sisfarma.ClickOnce</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sisfarma.Client.Unycop\Sisfarma.Client.Unycop.csproj">
       <Project>{E9163B7E-A8FF-49F5-822C-E360F7D64958}</Project>
       <Name>Sisfarma.Client.Unycop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sisfarma.Client\Sisfarma.Client.csproj">
+      <Project>{2e54d529-6e2d-4c31-9355-758d26f3b77d}</Project>
+      <Name>Sisfarma.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Sincronizador.Core.csproj">
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
       <Project>{2E7A3E8F-959C-4C3A-9D86-7C2B61FE0724}</Project>
-      <Name>Sisfarma.Sincronizador.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Core\Sisfarma.Sincronizador.Domain.Core.csproj">
-      <Project>{1F2269EE-5AAB-4F0B-BDE5-CE3E863BE613}</Project>
-      <Name>Sisfarma.Sincronizador.Domain.Core</Name>
+      <Name>Sisfarma.Utils</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Entities\Sisfarma.Sincronizador.Domain.Entities.csproj">
       <Project>{E3C4EEFD-3134-458C-8141-15CCDA19300B}</Project>
       <Name>Sisfarma.Sincronizador.Domain.Entities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Infrastructure\Sisfarma.Sincronizador.Infrastructure.csproj">
-      <Project>{3308B4C4-2740-49FC-B021-1CA7CA59A4D6}</Project>
-      <Name>Sisfarma.Sincronizador.Infrastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Unycop.Infrastructure\Sisfarma.Sincronizador.Unycop.Infrastructure.csproj">
-      <Project>{D21CF482-E9C4-437C-A311-D459730F96D1}</Project>
-      <Name>Sisfarma.Sincronizador.Unycop.Infrastructure</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ExternalServices\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

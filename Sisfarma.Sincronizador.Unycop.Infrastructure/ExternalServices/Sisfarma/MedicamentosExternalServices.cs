@@ -4,13 +4,12 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class MedicamentosExternalServices : FisiotesExternalService, IMedicamentosExternalService
+    public class MedicamentosExternalServices : FisiotesExternalService, IMedicamentoRepository
     {
         public MedicamentosExternalServices(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
@@ -47,78 +46,43 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             }
         }
 
-        public Medicamento GetOneOrDefaultByCodNacional(string codNacional)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(Medicamento mm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(string codigoBarras, string codNacional, string nombre, string superFamilia, string familia, float precio, string descripcion, string laboratorio, string nombreLaboratorio, string proveedor, float pvpSinIva, int iva, int stock, float puc, int stockMinimo, int stockMaximo, string presentacion, string descripcionTienda, bool activo, DateTime? caducidad, DateTime? ultimaCompra, DateTime? ultimaVenta, bool baja)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ResetPorDondeVoy()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ResetPorDondeVoySinStock()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Sincronizar(IEnumerable<Medicamento> mms, bool controlado = false)
         {
             var bulk = mms.Select(mm => new
-                {
-                    actualizadoPS = 1,
-                    cod_barras = mm.cod_barras.Strip(),
-                    cod_nacional = mm.cod_nacional,
-                    nombre = mm.nombre.Strip(),
-                    familia = mm.familia.Strip(),
-                    familiaAux = mm.familiaAux.Strip(),
-                    precio = mm.precio,
-                    descripcion = mm.descripcion.Strip(),
-                    laboratorio = mm.laboratorio.Strip(),
-                    nombre_laboratorio = mm.nombre_laboratorio.Strip(),
-                    proveedor = mm.proveedor.Strip(),
-                    pvpSinIva = mm.pvpSinIva,
-                    iva = mm.iva,
-                    stock = mm.stock,
-                    puc = mm.puc,
-                    stockMinimo = mm.stockMinimo,
-                    stockMaximo = mm.stockMaximo,
-                    categoria = mm.categoria.Strip(),
-                    subcategoria = mm.subcategoria.Strip(),
-                    web = mm.web.ToInteger(),
-                    ubicacion = mm.ubicacion.Strip(),
-                    presentacion = mm.presentacion,
-                    descripcionTienda = mm.descripcionTienda,
-                    activoPrestashop = mm.activoPrestashop.ToInteger(),
-                    fechaCaducidad = mm.fechaCaducidad?.ToDateInteger("yyyyMM") ?? 0,
-                    fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
-                    fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
-                    baja = mm.baja.ToInteger()
-                }).ToArray();
+            {
+                actualizadoPS = 1,
+                cod_barras = mm.cod_barras.Strip(),
+                cod_nacional = mm.cod_nacional,
+                nombre = mm.nombre.Strip(),
+                familia = mm.familia.Strip(),
+                familiaAux = mm.familiaAux.Strip(),
+                precio = mm.precio,
+                descripcion = mm.descripcion.Strip(),
+                laboratorio = mm.laboratorio.Strip(),
+                nombre_laboratorio = mm.nombre_laboratorio.Strip(),
+                proveedor = mm.proveedor.Strip(),
+                pvpSinIva = mm.pvpSinIva,
+                iva = mm.iva,
+                stock = mm.stock,
+                puc = mm.puc,
+                stockMinimo = mm.stockMinimo,
+                stockMaximo = mm.stockMaximo,
+                categoria = mm.categoria.Strip(),
+                subcategoria = mm.subcategoria.Strip(),
+                web = mm.web.ToInteger(),
+                ubicacion = mm.ubicacion.Strip(),
+                presentacion = mm.presentacion,
+                descripcionTienda = mm.descripcionTienda,
+                activoPrestashop = mm.activoPrestashop.ToInteger(),
+                fechaCaducidad = mm.fechaCaducidad?.ToDateInteger("yyyyMM") ?? 0,
+                fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
+                fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
+                baja = mm.baja.ToInteger()
+            }).ToArray();
 
             _restClient.
                 Resource(_config.Medicamentos.Insert)
                 .SendPost(new { bulk = bulk, controlado = controlado });
-        }
-
-        public void Update(Medicamento mm, bool withSqlExtra = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(string codigoBarras, string nombre, string superFamilia, string familia, float precio, string descripcion, string laboratorio, string nombreLaboratorio, string proveedor, int iva, float pvpSinIva, int stock, float puc, int stockMinimo, int stockMaximo, string presentacion, string descripcionTienda, bool activo, DateTime? caducidad, DateTime? ultimaCompra, DateTime? ultimaVenta, bool baja, string codNacional, bool withSqlExtra = false)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -186,17 +186,9 @@
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Sincronizador.Core.csproj">
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
       <Project>{2e7a3e8f-959c-4c3a-9d86-7c2b61fe0724}</Project>
-      <Name>Sisfarma.Sincronizador.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Core\Sisfarma.Sincronizador.Domain.Core.csproj">
-      <Project>{1F2269EE-5AAB-4F0B-BDE5-CE3E863BE613}</Project>
-      <Name>Sisfarma.Sincronizador.Domain.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Infrastructure\Sisfarma.Sincronizador.Infrastructure.csproj">
-      <Project>{3308B4C4-2740-49FC-B021-1CA7CA59A4D6}</Project>
-      <Name>Sisfarma.Sincronizador.Infrastructure</Name>
+      <Name>Sisfarma.Utils</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.Sincronizador.Unycop.Domain.Core\Sisfarma.Sincronizador.Unycop.Domain.Core.csproj">
       <Project>{3D6C7586-ECDE-4051-8DC0-BD512BC653BC}</Project>
@@ -211,9 +203,7 @@
       <Name>Sisfarma.Sincronizador.Unycop.IoC</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Fisiotes\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
       <Visible>False</Visible>

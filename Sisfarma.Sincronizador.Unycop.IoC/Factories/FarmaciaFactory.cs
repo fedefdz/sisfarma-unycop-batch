@@ -26,7 +26,9 @@ namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
 
                 sinonimos: new SinonimosRepository(),
 
-                proveedores: new ProveedoresRepository()
+                proveedores: new ProveedoresRepository(),
+
+                recepciones: new RecepcionRespository()
             );
         }
     }

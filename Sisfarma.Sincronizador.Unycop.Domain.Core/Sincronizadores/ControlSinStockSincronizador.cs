@@ -5,7 +5,6 @@ using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -47,7 +46,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var repository = _farmacia.Farmacos as FarmacoRespository;
+            var repository = _farmacia.Farmacos;
             var farmacos = repository.GetAllWithoutStockByIdGreaterOrEqualAsDTO(_ultimoMedicamentoSincronizado).ToList();
 
             if (!farmacos.Any())

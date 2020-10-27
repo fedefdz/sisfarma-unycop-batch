@@ -10,15 +10,4 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Farmacia
 
         public string Nombre { get; set; }
     }
-
-    public class ProveedorHistorico
-    {
-        public int Id { get; set; }
-
-        public long FarmacoId { get; set; }
-
-        public DateTime Fecha { get; set; }
-
-        public decimal PUC { get; set; }
-    }
 }

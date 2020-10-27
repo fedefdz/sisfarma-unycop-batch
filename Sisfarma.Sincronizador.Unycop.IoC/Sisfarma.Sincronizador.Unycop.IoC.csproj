@@ -86,21 +86,21 @@
       <Project>{E9163B7E-A8FF-49F5-822C-E360F7D64958}</Project>
       <Name>Sisfarma.Client.Unycop</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sisfarma.Client\Sisfarma.Client.csproj">
+      <Project>{2E54D529-6E2D-4C31-9355-758D26F3B77D}</Project>
+      <Name>Sisfarma.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Sincronizador.Core.csproj">
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
       <Project>{2e7a3e8f-959c-4c3a-9d86-7c2b61fe0724}</Project>
-      <Name>Sisfarma.Sincronizador.Core</Name>
+      <Name>Sisfarma.Utils</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Core\Sisfarma.Sincronizador.Domain.Core.csproj">
-      <Project>{1F2269EE-5AAB-4F0B-BDE5-CE3E863BE613}</Project>
-      <Name>Sisfarma.Sincronizador.Domain.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Infrastructure\Sisfarma.Sincronizador.Infrastructure.csproj">
-      <Project>{3308b4c4-2740-49fc-b021-1ca7ca59a4d6}</Project>
-      <Name>Sisfarma.Sincronizador.Infrastructure</Name>
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Unycop.Domain.Core\Sisfarma.Sincronizador.Unycop.Domain.Core.csproj">
+      <Project>{3D6C7586-ECDE-4051-8DC0-BD512BC653BC}</Project>
+      <Name>Sisfarma.Sincronizador.Unycop.Domain.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.Sincronizador.Unycop.Infrastructure\Sisfarma.Sincronizador.Unycop.Infrastructure.csproj">
       <Project>{D21CF482-E9C4-437C-A311-D459730F96D1}</Project>

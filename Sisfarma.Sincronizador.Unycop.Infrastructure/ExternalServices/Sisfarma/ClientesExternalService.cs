@@ -8,7 +8,7 @@ using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class ClientesExternalService : FisiotesExternalService, IClientesExternalService
+    public class ClientesExternalService : FisiotesExternalService, IClienteRepository
     {
         public ClientesExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)
@@ -46,40 +46,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             return cliente.DebeCargarPuntos
                 ? GenerarAnonymousClientePuntuado(cliente)
                 : GenerarAnonymousClienteSinPuntuar(cliente);
-        }
-
-        public void SincronizarHueco(FAR.Cliente cliente, bool cargarPuntos = false)
-        {
-            var resource = _config.Clientes.InsertHueco.Replace("{dni}", $"{cliente.Id}");
-            Sincronizar(cliente, cargarPuntos, resource);
-        }
-
-        public void SincronizarHueco(FAR.Cliente cliente, bool beBlue, bool cargarPuntos = false)
-        {
-            var resource = _config.Clientes.InsertHueco.Replace("{dni}", $"{cliente.Id}");
-            Sincronizar(cliente, beBlue, cargarPuntos, resource);
-        }
-
-        private void Sincronizar(FAR.Cliente cliente, bool cargarPuntos, string resource)
-        {
-            var clienteToSend = (cargarPuntos) ?
-                GenerarAnonymousClientePuntuado(cliente) :
-                GenerarAnonymousClienteSinPuntuar(cliente);
-
-            _restClient
-                .Resource(resource)
-                .SendPut(clienteToSend);
-        }
-
-        private void Sincronizar(FAR.Cliente cliente, bool beBlue, bool cargarPuntos, string resource)
-        {
-            var clienteToSend = (cargarPuntos) ?
-                GenerarAnonymousClientePuntuado(cliente, beBlue) :
-                GenerarAnonymousClienteSinPuntuar(cliente, beBlue);
-
-            _restClient
-                .Resource(resource)
-                .SendPut(clienteToSend);
         }
 
         private object GenerarAnonymousClientePuntuado(FAR.Cliente cliente)

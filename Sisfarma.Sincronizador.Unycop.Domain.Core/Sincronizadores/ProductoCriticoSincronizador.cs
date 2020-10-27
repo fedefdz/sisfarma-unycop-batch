@@ -7,7 +7,6 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
@@ -59,7 +58,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var set = pedidos.SelectMany(x => x.lineasItem).Select(x => x.CNArticulo.ToIntegerOrDefault()).Distinct().ToArray();
             Console.WriteLine($"cant articulos {set.Count()}");
             sw.Restart();
-            var sourceFarmacos = (_farmacia.Farmacos as FarmacoRespository).GetBySetId(set).ToList();
+            var sourceFarmacos = _farmacia.Farmacos.GetBySetId(set).ToList();
             Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
             var farmacosCriticos = sourceFarmacos.Where(x => x.Stock == STOCK_CRITICO || x.Stock <= x.Stock).ToArray();
 

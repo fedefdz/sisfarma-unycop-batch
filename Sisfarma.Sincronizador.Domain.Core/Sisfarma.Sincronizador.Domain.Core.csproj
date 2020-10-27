@@ -77,46 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Repositories\Farmacia\IEncargosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
-    <Compile Include="ExternalServices\Fisiotes\DTO\Clientes\UpdatePuntaje.cs" />
-    <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\InsertPuntuacion.cs" />
-    <Compile Include="ExternalServices\Fisiotes\DTO\PuntosPendientes\UpdatePuntacion.cs" />
-    <Compile Include="ExternalServices\Fisiotes\ICategoriasExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IClientesExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IConfiguracionesExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IEncargosExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IEntregasExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IFaltasExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IFamiliasExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IHuecosExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IListasArticulosExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IListasExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IMedicamentosExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IPedidosExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IProgramacionExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IProveedoresExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\IPuntosPendientesExternalService.cs" />
-    <Compile Include="ExternalServices\Fisiotes\ISinonimosExternalService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\Farmacia\IClientesRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IFamiliaRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IProveedorRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
-    <Compile Include="Services\FarmaciaService.cs" />
-    <Compile Include="Services\SisfarmaService.cs" />
-    <Compile Include="Sincronizadores\PowerSwitchManual.cs" />
-    <Compile Include="Sincronizadores\PowerSwitchProgramado.cs" />
-    <Compile Include="Sincronizadores\SincronizadorTaskManager.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\BaseSincronizador.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\ISincronizador.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\PowerSwitch.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\TaskSincronizador.cs" />
-    <Compile Include="Sincronizadores\SuperTypes\_Sincronizador.cs" />
-    <Compile Include="Sincronizadores\UpdateVersionSincronizador.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sisfarma.ClickOnce\Sisfarma.ClickOnce.csproj">
@@ -131,9 +92,9 @@
       <Project>{496093B9-667B-4041-8581-462771FC68FC}</Project>
       <Name>Sisfarma.RestClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Sincronizador.Core.csproj">
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
       <Project>{2E7A3E8F-959C-4C3A-9D86-7C2B61FE0724}</Project>
-      <Name>Sisfarma.Sincronizador.Core</Name>
+      <Name>Sisfarma.Utils</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Entities\Sisfarma.Sincronizador.Domain.Entities.csproj">
       <Project>{E3C4EEFD-3134-458C-8141-15CCDA19300B}</Project>
@@ -142,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="Sincronizadores\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
