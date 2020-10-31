@@ -34,31 +34,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 .ToDictionary(key => key.Key, value => value.Where(x => !string.IsNullOrEmpty(x)).ToArray());
 
             var batchCategorias = new List<Categoria>();
-            batchCategorias.AddRange(familias.Select(x => new Categoria
-            {
-                categoria = x,
-                padre = PADRE_DEFAULT,
-                prestashopPadreId = null,
-                tipo = "Familia"
-            }));
+            batchCategorias.AddRange(familias.Select(familia => new Categoria(familia, PADRE_DEFAULT, Categoria.TipoFamilia)));
 
             foreach (var categoria in categorias)
             {
-                batchCategorias.Add(new Categoria
-                {
-                    categoria = categoria.Key,
-                    padre = PADRE_DEFAULT,
-                    prestashopPadreId = null,
-                    tipo = "Categoria"
-                });
-
-                batchCategorias.AddRange(categoria.Value.Distinct().Select(subcategoria => new Categoria
-                {
-                    categoria = subcategoria,
-                    padre = categoria.Key,
-                    prestashopPadreId = null,
-                    tipo = "Categoria"
-                }));
+                batchCategorias.Add(new Categoria(categoria.Key, PADRE_DEFAULT, Categoria.TipoCategoria));
+                batchCategorias.AddRange(categoria.Value.Distinct().Select(subcategoria => new Categoria(subcategoria, categoria.Key, Categoria.TipoCategoria)));
             }
 
             _sisfarma.Categorias.Sincronizar(batchCategorias);

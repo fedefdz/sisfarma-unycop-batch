@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 
 namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
 {
@@ -7,6 +6,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
     {
         void ResetDniTracking();
 
-        void Sincronizar(IEnumerable<FAR.Cliente> clientes);
+        void Sincronizar(IEnumerable<Client.Fisiotes.Cliente> clientes);
     }
 }

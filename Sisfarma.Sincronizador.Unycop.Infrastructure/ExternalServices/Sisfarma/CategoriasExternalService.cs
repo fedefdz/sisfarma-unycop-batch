@@ -13,22 +13,10 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
             : base(restClient, config)
         { }
 
-        public void Sincronizar(IEnumerable<Categoria> ccs)
+        public void Sincronizar(IEnumerable<Categoria> categorias)
         {
-            var categorias = ccs.Select(cc => new
-            {
-                categoria = cc.categoria.Strip(),
-                padre = cc.padre.Strip(),
-                prestashopPadreId = cc.prestashopPadreId,
-                tipo = cc.tipo
-            }).ToArray();
-
-            _restClient
-                .Resource(_config.Categorias.Insert)
-                .SendPost(new
-                {
-                    categorias = categorias
-                });
+            _restClient.Resource(_config.Categorias.Insert)
+                .SendPost(new { categorias = categorias.ToArray() });
         }
     }
 }

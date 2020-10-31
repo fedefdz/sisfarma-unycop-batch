@@ -18,12 +18,12 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         public ClientesRepository()
             => _unycopClient = new UnycopClient();
 
-        public List<UNYCOP.Cliente> GetGreatThanIdAsDTO(long id)
+        public IEnumerable<UNYCOP.Cliente> GetGreatThanIdAsDTO(long id)
         {
             try
             {
                 var filtro = $"(IdCliente,>=,{id})";
-                var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
+                var clients = _unycopClient.Send<UNYCOP.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
 
                 return clients.ToList();
             }

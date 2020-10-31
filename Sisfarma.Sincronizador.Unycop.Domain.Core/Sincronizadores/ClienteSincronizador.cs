@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Sisfarma.Client.Unycop;
+using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
@@ -12,7 +14,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
     public class ClienteSincronizador : TaskSincronizador
     {
         protected string[] _horariosDeVaciamiento;
-
         protected string _puntosDeSisfarma;
         protected bool _perteneceFarmazul;
         protected bool _debeCargarPuntos;
@@ -36,13 +37,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             Reset();
         }
 
-        public override void PreSincronizacion()
-        {
-            base.PreSincronizacion();
-            _sisfarma.Clientes.ResetDniTracking();
-            _ultimoClienteSincronizado = -1;
-        }
-
         public ClienteSincronizador SetHorarioVaciemientos(params string[] hhmm)
         {
             _horariosDeVaciamiento = hhmm;
@@ -57,7 +51,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             return _horariosDeVaciamiento.Any(x => x.Equals(DateTime.Now.ToString("HHmm")));
         }
 
-        public void Reset() => _ultimoClienteSincronizado = 0;
+        public void Reset() => _ultimoClienteSincronizado = -1;
 
         public override void Process()
         {
@@ -66,8 +60,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 if (IsHoraVaciamientos())
                     Reset();
 
-                var repository = _farmacia.Clientes;
-                List<UNYCOP.Cliente> localClientes = repository.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
+                var localClientes = _farmacia.Clientes.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
 
                 if (!localClientes.Any())
                     return;
@@ -76,29 +69,53 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 for (int index = 0; index < localClientes.Count; index += batchSize)
                 {
                     var clientes = localClientes.Skip(index).Take(batchSize).ToList();
-                    var batchClientes = new List<Sincronizador.Domain.Entities.Farmacia.Cliente>();
+                    var batchClientes = new List<Client.Fisiotes.Cliente>();
                     foreach (var cliente in clientes)
                     {
                         Task.Delay(5).Wait();
                         _cancellationToken.ThrowIfCancellationRequested();
 
-                        var clienteSisfarma = repository.GenerateCliente(cliente);
-                        clienteSisfarma.DebeCargarPuntos = _debeCargarPuntos;
-                        if (_perteneceFarmazul)
-                        {
-                            var tipo = ConfiguracionPredefinida[Sisfarma.Sincronizador.Domain.Entities.Fisiotes.Configuracion.FIELD_TIPO_BEBLUE];
-                            var beBlue = cliente.idPerfil.HasValue && (cliente.idPerfil == 2 || cliente.idPerfil.ToString() == tipo);
-                            clienteSisfarma.BeBlue = beBlue;
-                        }
-
+                        var clienteSisfarma = To(cliente);
                         batchClientes.Add(clienteSisfarma);
                     }
 
                     _sisfarma.Clientes.Sincronizar(batchClientes);
-                    _ultimoClienteSincronizado = batchClientes.Last().Id;
+                    _ultimoClienteSincronizado = clientes.Last().IdCliente;
                     batchClientes.Clear();
                 }
             }
+        }
+
+        public Client.Fisiotes.Cliente To(UNYCOP.Cliente clienteUnycop)
+        {
+            var culture = UnycopFormat.GetCultureTwoDigitYear();
+
+            var fechaNacimiento = string.IsNullOrWhiteSpace(clienteUnycop.FNacimiento) ? 0 : clienteUnycop.FNacimiento.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
+            var beBlue = _perteneceFarmazul
+                ? clienteUnycop.idPerfil.HasValue && (clienteUnycop.idPerfil == 2 || clienteUnycop.idPerfil.ToString() == ConfiguracionPredefinida[Configuracion.FIELD_TIPO_BEBLUE])
+                : _perteneceFarmazul;
+
+            var puntos = _debeCargarPuntos
+                ? (long)Convert.ToDouble(clienteUnycop.PuntosFidelidad)
+                : 0L;
+
+            return new Client.Fisiotes.Cliente(
+                dni: clienteUnycop.IdCliente.ToString(),
+                tarjeta: clienteUnycop.Clave,
+                dniCliente: clienteUnycop.DNI,
+                apellidos: clienteUnycop.Nombre,
+                telefono: clienteUnycop.Telefono,
+                direccion: clienteUnycop.Direccion,
+                movil: clienteUnycop.Movil,
+                email: clienteUnycop.Email,
+                fecha_nacimiento: fechaNacimiento,
+                puntos: puntos,
+                sexo: clienteUnycop.Genero.ToUpper(),
+                fechaAlta: clienteUnycop.FAlta.ToDateTimeOrDefault("dd/MM/yy", culture).ToIsoString(),
+                baja: (!string.IsNullOrWhiteSpace(clienteUnycop.FBaja)).ToInteger(),
+                estado_civil: clienteUnycop.EstadoCivil,
+                lopd: clienteUnycop.LOPD.Equals("Firmado", StringComparison.InvariantCultureIgnoreCase).ToInteger(),
+                beBlue: beBlue.ToInteger());
         }
     }
 }

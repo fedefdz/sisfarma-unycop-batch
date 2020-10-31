@@ -6,12 +6,10 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
 {
     public interface IClientesRepository
     {
-        Cliente GenerateCliente(UNYCOP.Cliente clienteUnycop);
-
         List<UNYCOP.Cliente> GetAllBetweenIDs(long min, long max);
 
         List<UNYCOP.Cliente> GetBySetId(int[] set);
 
-        List<UNYCOP.Cliente> GetGreatThanIdAsDTO(long id);
+        IEnumerable<UNYCOP.Cliente> GetGreatThanIdAsDTO(long id);
     }
 }

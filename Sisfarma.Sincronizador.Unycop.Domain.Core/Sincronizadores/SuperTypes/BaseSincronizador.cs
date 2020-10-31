@@ -53,12 +53,10 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
         }
 
         public virtual void LoadConfiguration()
-        {
-        }
+        { }
 
         public virtual void PreSincronizacion()
-        {
-        }
+        { }
 
         private void LogError(string message)
         {

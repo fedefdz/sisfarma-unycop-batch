@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fisiotes\Categoria.cs" />
+    <Compile Include="Fisiotes\Cliente.cs" />
     <Compile Include="Fisiotes\Configuracion.cs" />
     <Compile Include="Fisiotes\Encargo.cs" />
     <Compile Include="Fisiotes\Falta.cs" />
@@ -63,6 +64,10 @@
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">
       <Project>{496093b9-667b-4041-8581-462771fc68fc}</Project>
       <Name>Sisfarma.RestClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
+      <Project>{2E7A3E8F-959C-4C3A-9D86-7C2B61FE0724}</Project>
+      <Name>Sisfarma.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
