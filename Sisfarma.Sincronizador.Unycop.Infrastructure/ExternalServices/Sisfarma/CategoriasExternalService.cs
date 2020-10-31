@@ -1,8 +1,9 @@
 ﻿using Sisfarma.RestClient;
-using Sisfarma.RestClient.Exceptions;
 using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
@@ -12,21 +13,21 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
             : base(restClient, config)
         { }
 
-        public void Sincronizar(Categoria cc)
+        public void Sincronizar(IEnumerable<Categoria> ccs)
         {
-            var categoria = new
+            var categorias = ccs.Select(cc => new
             {
                 categoria = cc.categoria.Strip(),
                 padre = cc.padre.Strip(),
                 prestashopPadreId = cc.prestashopPadreId,
                 tipo = cc.tipo
-            };
+            }).ToArray();
 
             _restClient
                 .Resource(_config.Categorias.Insert)
                 .SendPost(new
                 {
-                    categorias = new[] { categoria }
+                    categorias = categorias
                 });
         }
     }

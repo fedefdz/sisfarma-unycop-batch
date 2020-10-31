@@ -2,6 +2,7 @@
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,63 +18,50 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
+            Task.Delay(5).Wait();
+            _cancellationToken.ThrowIfCancellationRequested();
+
             var notEqual = new string[] { "ESPECIALIDAD", "EFP", "SIN FAMILIA" };
             var notContains = new string[] { "ESPECIALIDADES", "MEDICAMENTO" };
             var filtered = _farmacia.Farmacos.GetByFamlias(notEqual, notContains);
 
-            var familias2 = filtered.GroupBy(k => k.NombreFamilia, g => new { Categoria = g.NombreCategoria, SubCategoria = g.NombreSubCategoria })
-                    .Select(g =>
-                    {
-                        var categorias = g
-                            .Where(x => !string.IsNullOrEmpty(x.Categoria))
-                            .Where(x => !notEqual.Contains(x.Categoria, StringComparer.InvariantCultureIgnoreCase))
-                            .Where(x => !notContains.Any(template => x.Categoria.Contains(template)))
-                                .GroupBy(key => key.Categoria, value => value.SubCategoria)
-                                .Select(x => new { Nombre = x.Key, Subcategorias = x.Where(sub => !string.IsNullOrEmpty(sub)) })
-                                .ToArray();
+            var familias = filtered.Select(x => x.NombreFamilia).Distinct().ToArray();
+            var categorias = filtered
+                .Where(x => !string.IsNullOrEmpty(x.NombreCategoria))
+                .Where(x => !notEqual.Contains(x.NombreCategoria, StringComparer.InvariantCultureIgnoreCase))
+                .Where(x => !notContains.Any(template => x.NombreCategoria.Contains(template)))
+                .GroupBy(key => key.NombreCategoria, value => value.NombreSubCategoria)
+                .ToDictionary(key => key.Key, value => value.Where(x => !string.IsNullOrEmpty(x)).ToArray());
 
-                        return new { Nombre = g.Key, Categorias = categorias };
-                    }).ToArray();
-            var familias = _farmacia.Familias.GetByDescripcion().ToList();
-            foreach (var familia in familias2)
+            var batchCategorias = new List<Categoria>();
+            batchCategorias.AddRange(familias.Select(x => new Categoria
             {
-                Task.Delay(5).Wait();
-                _cancellationToken.ThrowIfCancellationRequested();
+                categoria = x,
+                padre = PADRE_DEFAULT,
+                prestashopPadreId = null,
+                tipo = "Familia"
+            }));
 
-                _sisfarma.Categorias.Sincronizar(new Categoria
+            foreach (var categoria in categorias)
+            {
+                batchCategorias.Add(new Categoria
                 {
-                    categoria = familia.Nombre,
+                    categoria = categoria.Key,
                     padre = PADRE_DEFAULT,
                     prestashopPadreId = null,
-                    tipo = "Familia"
+                    tipo = "Categoria"
                 });
 
-                foreach (var categoria in familia.Categorias)
+                batchCategorias.AddRange(categoria.Value.Distinct().Select(subcategoria => new Categoria
                 {
-                    Task.Delay(5).Wait();
-                    _cancellationToken.ThrowIfCancellationRequested();
-
-                    _sisfarma.Categorias.Sincronizar(new Categoria
-                    {
-                        categoria = categoria.Nombre,
-                        padre = PADRE_DEFAULT,
-                        prestashopPadreId = null,
-                        tipo = "Categoria"
-                    });
-
-                    if (categoria.Subcategorias.Any())
-                        foreach (var nombre in categoria.Subcategorias)
-                        {
-                            _sisfarma.Categorias.Sincronizar(new Categoria
-                            {
-                                categoria = nombre,
-                                padre = categoria.Nombre,
-                                prestashopPadreId = null,
-                                tipo = "Categoria"
-                            });
-                        }
-                }
+                    categoria = subcategoria,
+                    padre = categoria.Key,
+                    prestashopPadreId = null,
+                    tipo = "Categoria"
+                }));
             }
+
+            _sisfarma.Categorias.Sincronizar(batchCategorias);
         }
     }
 }
