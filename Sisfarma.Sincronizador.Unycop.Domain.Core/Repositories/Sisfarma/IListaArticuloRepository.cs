@@ -7,6 +7,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
     {
         void Delete(int codigo);
 
-        void Sincronizar(List<ListaArticulo> items);
+        void Sincronizar(IEnumerable<ListaArticulo> items);
     }
 }

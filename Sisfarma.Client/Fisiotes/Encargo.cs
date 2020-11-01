@@ -1,5 +1,6 @@
 namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 {
+    using Sisfarma.Sincronizador.Core.Extensions;
     using System;
 
     public class Encargo
@@ -7,29 +8,29 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
         public const string FamiliaDefault = "<Sin Clasificar>";
         public const string LaboratorioDefault = "<Sin Laboratorio>";
 
-        public Encargo(int idEncargo, string cod_nacional, string nombre, string cod_laboratorio, string laboratorio, string proveedor, string trabajador, decimal puc, decimal pvp, int? unidades, string dni, DateTime? fecha, DateTime? fechaEntrega, string familia, string superFamilia, string categoria, string subcategoria, string familiaAux, bool? cambioClasificacion, string observaciones)
+        public Encargo(int idEncargo, string cod_nacional, string nombre, string cod_laboratorio, string laboratorio, string proveedor, string trabajador, decimal puc, decimal pvp, int? unidades, string dni, DateTime fecha, DateTime fechaEntrega, string familia, string superFamilia, string categoria, string subcategoria, string familiaAux, bool? cambioClasificacion, string observaciones)
         {
             this.idEncargo = idEncargo;
-            this.cod_nacional = cod_nacional ?? throw new ArgumentNullException(nameof(cod_nacional));
-            this.nombre = nombre ?? throw new ArgumentNullException(nameof(nombre));
-            this.cod_laboratorio = cod_laboratorio ?? throw new ArgumentNullException(nameof(cod_laboratorio));
-            this.laboratorio = laboratorio ?? throw new ArgumentNullException(nameof(laboratorio));
-            this.proveedor = proveedor ?? throw new ArgumentNullException(nameof(proveedor));
+            this.cod_nacional = cod_nacional;
+            this.nombre = nombre;
+            this.cod_laboratorio = cod_laboratorio.Strip();
+            this.laboratorio = laboratorio.Strip();
+            this.proveedor = proveedor.Strip();
             this.trabajador = trabajador ?? throw new ArgumentNullException(nameof(trabajador));
             this.puc = puc;
             this.pvp = pvp;
             this.unidades = unidades;
             this.dni = dni;
-            this.fecha = fecha;
-            this.fechaEntrega = fechaEntrega;
-            this.familia = familia;
-            this.superFamilia = superFamilia;
-            this.categoria = categoria ?? string.Empty;
-            this.subcategoria = subcategoria ?? string.Empty;
+            this.fecha = fecha.ToIsoString();
+            this.fechaEntrega = fechaEntrega.ToIsoString();
+            this.familia = familia.Strip();
+            this.superFamilia = superFamilia.Strip();
+            this.categoria = categoria.Strip();
+            this.subcategoria = subcategoria.Strip();
             this.superFamiliaAux = string.Empty;
             this.familiaAux = familiaAux;
-            this.cambioClasificacion = cambioClasificacion;
-            this.observaciones = observaciones;
+            this.cambioClasificacion = cambioClasificacion.ToInteger();
+            this.observaciones = observaciones.Strip();
         }
 
         public int idEncargo { get; set; }
@@ -54,13 +55,13 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 
         public string dni { get; set; }
 
-        public DateTime? fecha { get; set; }
+        public string fecha { get; set; }
 
         public string trabajador { get; set; }
 
         public int? unidades { get; set; }
 
-        public DateTime? fechaEntrega { get; set; }
+        public string fechaEntrega { get; set; }
 
         public string observaciones { get; set; }
 
@@ -72,6 +73,6 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 
         public string familiaAux { get; set; }
 
-        public bool? cambioClasificacion { get; set; }
+        public int cambioClasificacion { get; set; }
     }
 }

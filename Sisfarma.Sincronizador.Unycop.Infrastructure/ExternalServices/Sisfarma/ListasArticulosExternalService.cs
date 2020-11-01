@@ -19,20 +19,10 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
                 .SendPut(new { ids = new[] { codigo } });
         }
 
-        public void Sincronizar(List<ListaArticulo> items)
+        public void Sincronizar(IEnumerable<ListaArticulo> articulos)
         {
-            var articulos = items.Select(i => new
-            {
-                cod_lista = i.cod_lista,
-                cod_articulo = i.cod_articulo
-            });
-
-            _restClient
-                .Resource(_config.ListaDeArticulos.Insert)
-                .SendPost(new
-                {
-                    bulk = articulos
-                });
+            _restClient.Resource(_config.ListaDeArticulos.Insert)
+                .SendPost(new { bulk = articulos.ToArray() });
         }
     }
 }

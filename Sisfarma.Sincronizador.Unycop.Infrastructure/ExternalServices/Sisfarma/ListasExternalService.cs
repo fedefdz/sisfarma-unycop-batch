@@ -36,21 +36,10 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
             }
         }
 
-        public void Sincronizar(Lista ll)
+        public void Sincronizar(Lista lista)
         {
-            var lista = new
-            {
-                cod = ll.cod,
-                lista = ll.lista.Strip(),
-                porDondeVoy = 1
-            };
-
-            _restClient
-                .Resource(_config.Listas.InsertOrUpdate)
-                .SendPost(new
-                {
-                    bulk = new[] { lista }
-                });
+            _restClient.Resource(_config.Listas.InsertOrUpdate)
+                .SendPost(new { bulk = new[] { lista } });
         }
     }
 }

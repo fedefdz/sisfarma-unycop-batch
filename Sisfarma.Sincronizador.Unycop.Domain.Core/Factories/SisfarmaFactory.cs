@@ -77,7 +77,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
         public static Encargo CreateEncargo(UNYCOP.Encargo encargo, UNYCOP.Articulo farmaco, bool isClasificacionCategoria)
         {
             var fechaHora = string.IsNullOrWhiteSpace(encargo.Fecha) ? DateTime.MinValue : encargo.Fecha.ToDateTimeOrDefault("d/M/yyyy HH:mm:ss");
-            var fechaEntrega = string.IsNullOrWhiteSpace(encargo.FEntrega) ? null : (DateTime?)encargo.FEntrega.ToDateTimeOrDefault("d/M/yyyy HH:mm:ss");
+            var fechaEntrega = string.IsNullOrWhiteSpace(encargo.FEntrega) ? DateTime.MinValue : (DateTime)encargo.FEntrega.ToDateTimeOrDefault("d/M/yyyy HH:mm:ss");
 
             return new Encargo(
                 idEncargo: encargo.IdEncargo,
