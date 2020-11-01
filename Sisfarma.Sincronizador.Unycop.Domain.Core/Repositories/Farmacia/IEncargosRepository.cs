@@ -11,8 +11,8 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
 
     public interface IRecepcionRespository
     {
-        IEnumerable<Albaran> GetAllByDateAsDTO(DateTime fecha);
+        IEnumerable<Albaran> GetAllByDate(DateTime fecha);
 
-        IEnumerable<Albaran> GetAllByYearAsDTO(int year);
+        IEnumerable<Albaran> GetAllByYear(int year);
     }
 }

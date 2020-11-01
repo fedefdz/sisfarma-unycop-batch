@@ -83,7 +83,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 idEncargo: encargo.IdEncargo,
                 cod_nacional: encargo.CNArticulo,
                 nombre: farmaco.Denominacion,
-                cod_laboratorio: !string.IsNullOrEmpty(farmaco.CodLaboratorio) ? farmaco.CodLaboratorio : string.Empty,
+                cod_laboratorio: !string.IsNullOrEmpty(farmaco.CodLaboratorio) ? farmaco.CodLaboratorio : "0",
                 laboratorio: !string.IsNullOrEmpty(farmaco.NombreLaboratorio) ? farmaco.NombreLaboratorio : Encargo.LaboratorioDefault,
                 proveedor: !string.IsNullOrEmpty(farmaco.NombreProveedor) ? farmaco.NombreProveedor : string.Empty,
                 pvp: farmaco.PVP,
@@ -134,6 +134,41 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 estado_civil: clienteUnycop.EstadoCivil,
                 lopd: clienteUnycop.LOPD.Equals("Firmado", StringComparison.InvariantCultureIgnoreCase).ToInteger(),
                 beBlue: beBlue.ToInteger());
+        }
+
+        public static LineaPedido CreateLineaPedido(int id, int linea, DateTime fecha, UNYCOP.Albaran.Lineasitem item, UNYCOP.Articulo articulo, bool isClasificacionCategoria)
+        {
+            return new LineaPedido(
+                idPedido: id,
+                idLinea: linea,
+                fechaPedido: fecha,
+                cod_nacional: articulo.IdArticulo,
+                descripcion: articulo.Denominacion,
+                familia: articulo.NombreFamilia ?? LineaPedido.FamiliaDefault,
+                categoria: articulo.NombreCategoria ?? string.Empty,
+                subcategoria: articulo.NombreSubCategoria ?? string.Empty,
+                cantidad: item.Recibidas,
+                cantidadBonificada: item.Bonificadas,
+                pvp: articulo.PVP,
+                puc: (articulo.PC.HasValue && articulo.PC != 0) ? articulo.PC.Value : articulo.PCM ?? 0m,
+                cod_laboratorio: !string.IsNullOrEmpty(articulo.CodLaboratorio) ? articulo.CodLaboratorio : "0",
+                laboratorio: !string.IsNullOrEmpty(articulo.NombreLaboratorio) ? articulo.NombreLaboratorio : LineaPedido.LaboratorioDefault,
+                proveedor: !string.IsNullOrEmpty(articulo.NombreProveedor) ? articulo.NombreProveedor : string.Empty,
+                articulo: CreateMedicamento(articulo, isClasificacionCategoria));
+        }
+
+        public static Pedido GenerarPedido(int id, DateTime fecha, int lineas, UNYCOP.Albaran albaran)
+        {
+            var items = albaran.lineasItem.Where(x => x.Bonificadas != 0 || x.Recibidas != 0).ToArray();
+            return new Pedido(
+                idPedido: id,
+                fechaPedido: fecha,
+                hora: DateTime.Now,
+                numLineas: lineas,
+                importePvp: items.Sum(x => x.PVP * x.Recibidas),
+                importePuc: items.Sum(x => x.PCTotal),
+                idProveedor: albaran.CodProveedor.ToString(),
+                proveedor: albaran.NombreProveedor ?? string.Empty);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 
         public RecepcionRespository() => _unycopClient = new UnycopClient();
 
-        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByYearAsDTO(int year)
+        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByYear(int year)
         {
             try
             {
@@ -35,11 +35,11 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetAllByYearAsDTO(year);
+                return GetAllByYear(year);
             }
         }
 
-        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByDateAsDTO(DateTime fecha)
+        public IEnumerable<Client.Unycop.Model.Albaran> GetAllByDate(DateTime fecha)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetAllByDateAsDTO(fecha);
+                return GetAllByDate(fecha);
             }
         }
     }
