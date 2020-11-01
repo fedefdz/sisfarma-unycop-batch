@@ -9,7 +9,7 @@ using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
 {
-    public abstract class BaseSincronizador : Sincronizador, ISincronizadorAsync
+    public abstract class BaseSincronizador : Sincronizador
     {
         protected ISisfarmaService _sisfarma;
 
@@ -20,8 +20,6 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
         {
             _cancellationToken = cancellationToken;
             LoadConfiguration();
-
-            PreSincronizacion();
 
             while (true)
             {
