@@ -1,13 +1,12 @@
-﻿using Sisfarma.ClickOnce;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ST = Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.ClickOnce;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.Management
 {
-    public class UpdateVersionSincronizador : ST.Sincronizador
-    {                
+    public class UpdateVersionSincronizador : SuperTypes.Sincronizador
+    {
         public override void Process()
         {
             if (Updater.CheckUpdateSyncWithInfo())
@@ -34,9 +33,8 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
                 }
 
                 Updater.UpdateHot();
-                AppProcessHelper.BeginReStart();                
+                AppProcessHelper.BeginReStart();
             }
         }
-        
     }
 }

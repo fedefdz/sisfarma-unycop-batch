@@ -1,14 +1,14 @@
 ﻿using Sisfarma.Client.Unycop;
 using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Sisfarma.Client.Model;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores

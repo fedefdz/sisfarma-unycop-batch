@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sisfarma.Sincronizador.Models
+namespace Sisfarma.Sincronizador.Core.Helpers
 {
     public class ConfiguracionDictionary : Dictionary<string, string>
     {

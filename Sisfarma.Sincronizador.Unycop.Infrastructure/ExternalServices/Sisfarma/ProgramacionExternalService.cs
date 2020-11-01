@@ -1,13 +1,14 @@
-﻿using Sisfarma.RestClient;
+﻿using Sisfarma.Client.Config;
+using Sisfarma.Client.Model;
+using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
 
-namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
+namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
     public class ProgramacionExternalService : SisfarmaExternalService, IProgramacionRepository
     {
-        public ProgramacionExternalService(IRestClient restClient, FisiotesConfig config) 
+        public ProgramacionExternalService(IRestClient restClient, SisfarmaConfig config)
             : base(restClient, config)
         { }
 
@@ -15,7 +16,7 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
         {
             try
             {
-                if (Programacion.Encendido == estado)                
+                if (Programacion.Encendido == estado)
                     return _restClient
                         .Resource(_config.Programacion.Encendido)
                         .SendGet<Programacion>();

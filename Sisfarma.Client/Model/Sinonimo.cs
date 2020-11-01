@@ -1,6 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Core.Extensions;
 
-namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
+namespace Sisfarma.Client.Model
 {
     public class Sinonimo
     {

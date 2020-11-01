@@ -1,7 +1,7 @@
 ﻿using System;
-using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Services
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks
 {
     public interface IFarmaciaService
     {

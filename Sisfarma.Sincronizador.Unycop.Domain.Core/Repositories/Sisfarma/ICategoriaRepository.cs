@@ -1,7 +1,7 @@
-﻿using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Sisfarma.Client.Model;
 
-namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma
 {
     public interface ICategoriaRepository
     {

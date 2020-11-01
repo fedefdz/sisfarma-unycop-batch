@@ -1,10 +1,10 @@
-﻿using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using System;
+﻿using System;
+using Sisfarma.Client.Model;
+using Sisfarma.Sincronizador.Core.Extensions;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.Management
 {
     public class PowerSwitchProgramado : PowerSwitch
     {
@@ -22,16 +22,15 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
             if (encedido == null || apagado == null)
                 return;
 
-
             var turnoMatutino = new Turno(encedido.horaM, apagado.horaM);
             var turnoTarde = new Turno(encedido.horaT, apagado.horaT);
 
             var debeEstarPrendido = turnoMatutino.EstaEnHorarioDeAtencion() || turnoTarde.EstaEnHorarioDeAtencion();
 
-            if (!EstaEncendido && debeEstarPrendido)            
-                Encender();            
-            else if (EstaEncendido && turnoMatutino.EstaProgramado && turnoTarde.EstaProgramado && !debeEstarPrendido)            
-                Apagar();            
+            if (!EstaEncendido && debeEstarPrendido)
+                Encender();
+            else if (EstaEncendido && turnoMatutino.EstaProgramado && turnoTarde.EstaProgramado && !debeEstarPrendido)
+                Apagar();
         }
 
         protected override void Encender()
@@ -45,11 +44,11 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
             base.Apagar();
             _sisfarma.Configuraciones.Update(FIELD_ENCENDIDO, Programacion.Apagado);
         }
-        
 
         public class Turno
         {
             public int? Apertura { get; set; }
+
             public int? Cierre { get; set; }
 
             public bool EstaProgramado => Apertura.HasValue && Cierre.HasValue;
@@ -74,7 +73,7 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
                 if (TimeSpan.TryParse(horario, out var hhmm))
                     return DateTime.Today.Add(hhmm).ToTimeInteger();
                 return null;
-            }            
+            }
         }
     }
 }

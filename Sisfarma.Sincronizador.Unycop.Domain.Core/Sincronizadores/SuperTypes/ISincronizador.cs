@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
 {
     public interface ISincronizadorAsync
     {

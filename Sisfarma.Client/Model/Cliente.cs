@@ -1,6 +1,6 @@
 ﻿using Sisfarma.Sincronizador.Core.Extensions;
 
-namespace Sisfarma.Client.Fisiotes
+namespace Sisfarma.Client.Model
 {
     public class Cliente
     {

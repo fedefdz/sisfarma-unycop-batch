@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Sisfarma.Client.Config;
+using Sisfarma.Client.Model;
 using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
     public class EncargosExternalService : SisfarmaExternalService, IEncargoRepository
     {
-        public EncargosExternalService(IRestClient restClient, FisiotesConfig config)
+        public EncargosExternalService(IRestClient restClient, SisfarmaConfig config)
             : base(restClient, config)
         { }
 

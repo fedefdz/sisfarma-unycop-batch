@@ -4,12 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Sisfarma.Client.Unycop;
 using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-
 using System.Diagnostics;
-using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.Client.Model;
 using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {

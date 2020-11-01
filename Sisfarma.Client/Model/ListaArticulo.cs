@@ -1,4 +1,4 @@
-namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
+namespace Sisfarma.Client.Model
 {
     public class ListaArticulo
     {

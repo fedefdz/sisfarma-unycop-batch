@@ -57,7 +57,7 @@
     <Compile Include="Model\PuntosPendientes.cs" />
     <Compile Include="Model\Sinonimo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Config\FisiotesConfig.cs" />
+    <Compile Include="Config\SisfarmaConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">

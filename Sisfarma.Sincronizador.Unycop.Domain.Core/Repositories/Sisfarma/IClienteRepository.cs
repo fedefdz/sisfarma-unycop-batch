@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Sisfarma.Client.Model;
 
-namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma
 {
     public interface IClienteRepository
     {
         void ResetDniTracking();
 
-        void Sincronizar(IEnumerable<Client.Fisiotes.Cliente> clientes);
+        void Sincronizar(IEnumerable<Cliente> clientes);
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
@@ -16,7 +16,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         public ClientesRepository()
             => _unycopClient = new UnycopClient();
 
-        public IEnumerable<UNYCOP.Cliente> GetGreatThanIdAsDTO(long id)
+        public IEnumerable<UNYCOP.Cliente> GetGreatThanId(long id)
         {
             try
             {
@@ -28,24 +28,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetGreatThanIdAsDTO(id);
-            }
-        }
-
-        // TODO chango for array input
-        public List<UNYCOP.Cliente> GetAllBetweenIDs(long min, long max)
-        {
-            try
-            {
-                var filtro = $"(IdCliente,>=,{min})&(IdCliente,<=,{max})";
-                var clients = _unycopClient.Send<Client.Unycop.Model.Cliente>(new UnycopRequest(RequestCodes.Clientes, filtro));
-
-                return clients.ToList();
-            }
-            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetAllBetweenIDs(min, max);
+                return GetGreatThanId(id);
             }
         }
 

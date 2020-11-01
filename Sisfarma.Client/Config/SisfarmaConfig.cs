@@ -1,6 +1,6 @@
-﻿namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
+﻿namespace Sisfarma.Client.Config
 {
-    public class FisiotesConfig
+    public class SisfarmaConfig
     {
         public string BaseAddress { get; set; }
 
@@ -38,9 +38,9 @@
 
         public ProgramacionResource Programacion { get; set; }
 
-        public static FisiotesConfig Intsance(string remoteServer, string token)
+        public static SisfarmaConfig Intsance(string remoteServer, string token)
         {
-            return new FisiotesConfig
+            return new SisfarmaConfig
             {
                 BaseAddress = remoteServer,
                 Credentials = new Credential
@@ -185,203 +185,203 @@
             };
         }
     }
-}
 
-public class CategoriaResource
-{
-    public string GetByCategoriaAndPadre { get; set; }
+    public class CategoriaResource
+    {
+        public string GetByCategoriaAndPadre { get; set; }
 
-    public string GetByPadre { get; set; }
+        public string GetByPadre { get; set; }
 
-    public string Insert { get; internal set; }
-}
+        public string Insert { get; internal set; }
+    }
 
-public class ClienteResource
-{
-    public string GetDniTrackingLast { get; set; }
+    public class ClienteResource
+    {
+        public string GetDniTrackingLast { get; set; }
 
-    public string ResetDniTracking { get; set; }
+        public string ResetDniTracking { get; set; }
 
-    public string GetByDni { get; set; }
+        public string GetByDni { get; set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string Update { get; set; }
+        public string Update { get; set; }
 
-    public string InsertHueco { get; internal set; }
+        public string InsertHueco { get; internal set; }
 
-    public string InsertBulk { get; set; }
-}
+        public string InsertBulk { get; set; }
+    }
 
-public class HuecoResource
-{
-    public string Exists { get; set; }
+    public class HuecoResource
+    {
+        public string Exists { get; set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string GetAll { get; set; }
+        public string GetAll { get; set; }
 
-    public string Delete { get; set; }
-}
+        public string Delete { get; set; }
+    }
 
-public class PuntoResource
-{
-    public string GetVentasNoActualizadas { get; set; }
+    public class PuntoResource
+    {
+        public string GetVentasNoActualizadas { get; set; }
 
-    public string GetVentasRecetasPendientes { get; set; }
+        public string GetVentasRecetasPendientes { get; set; }
 
-    public string GetSinRedencion { get; set; }
+        public string GetSinRedencion { get; set; }
 
-    public string Update { get; set; }
+        public string Update { get; set; }
 
-    public string GetLastOfYear { get; set; }
+        public string GetLastOfYear { get; set; }
 
-    public string GetByItemVenta { get; set; }
+        public string GetByItemVenta { get; set; }
 
-    public string Insert { get; internal set; }
+        public string Insert { get; internal set; }
 
-    public string InsertActualizarVenta { get; internal set; }
+        public string InsertActualizarVenta { get; internal set; }
 
-    public string GetUltimaVenta { get; set; }
+        public string GetUltimaVenta { get; set; }
 
-    public string ExistsByFechaGreatThanOrEqual { get; internal set; }
+        public string ExistsByFechaGreatThanOrEqual { get; internal set; }
 
-    public string GetPuntosByDni { get; internal set; }
+        public string GetPuntosByDni { get; internal set; }
 
-    public string GetPuntosCanjeadosByDni { get; set; }
-}
+        public string GetPuntosCanjeadosByDni { get; set; }
+    }
 
-public class ConfiguracionResource
-{
-    public string GetValorByCampo { get; set; }
+    public class ConfiguracionResource
+    {
+        public string GetValorByCampo { get; set; }
 
-    public string UpdateValorByCampo { get; set; }
+        public string UpdateValorByCampo { get; set; }
 
-    public string PerteneceFarmazul { get; set; }
+        public string PerteneceFarmazul { get; set; }
 
-    public string GetAll { get; set; }
+        public string GetAll { get; set; }
 
-    public string ConexionLocal { get; set; }
-}
+        public string ConexionLocal { get; set; }
+    }
 
-public class EntregaResource
-{
-    public string GetByKey { get; set; }
+    public class EntregaResource
+    {
+        public string GetByKey { get; set; }
 
-    public string Insert { get; internal set; }
-}
+        public string Insert { get; internal set; }
+    }
 
-public class MedicamentoResource
-{
-    public string GetGreaterOrEqualByCodigoNacional { get; set; }
+    public class MedicamentoResource
+    {
+        public string GetGreaterOrEqualByCodigoNacional { get; set; }
 
-    public string Delete { get; set; }
+        public string Delete { get; set; }
 
-    public string ResetSeguimientoSinStock { get; set; }
+        public string ResetSeguimientoSinStock { get; set; }
 
-    public string ResetSeguimientoDondeVoy { get; set; }
+        public string ResetSeguimientoDondeVoy { get; set; }
 
-    public string GetByCodNacional { get; internal set; }
+        public string GetByCodNacional { get; internal set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string Update { get; set; }
-}
+        public string Update { get; set; }
+    }
 
-public class SinonimoResource
-{
-    public string IsEmpty { get; set; }
+    public class SinonimoResource
+    {
+        public string IsEmpty { get; set; }
 
-    public string Empty { get; set; }
+        public string Empty { get; set; }
 
-    public string Insert { get; set; }
-}
+        public string Insert { get; set; }
+    }
 
-public class PedidoResource
-{
-    public string Ultimo { get; set; }
+    public class PedidoResource
+    {
+        public string Ultimo { get; set; }
 
-    public string GetByPedido { get; set; }
+        public string GetByPedido { get; set; }
 
-    public string Insert { get; internal set; }
+        public string Insert { get; internal set; }
 
-    public string GetByLineaDePedido { get; set; }
+        public string GetByLineaDePedido { get; set; }
 
-    public string InsertLineaDePedido { get; set; }
-}
+        public string InsertLineaDePedido { get; set; }
+    }
 
-public class FaltaResource
-{
-    public string Ultima { get; set; }
+    public class FaltaResource
+    {
+        public string Ultima { get; set; }
 
-    public string GetByLineaDePedido { get; set; }
+        public string GetByLineaDePedido { get; set; }
 
-    public string InsertLineaDePedido { get; set; }
-}
+        public string InsertLineaDePedido { get; set; }
+    }
 
-public class FamiliaResource
-{
-    public string GetByFamilia { get; set; }
+    public class FamiliaResource
+    {
+        public string GetByFamilia { get; set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string GetPuntosByFamilia { get; set; }
-}
+        public string GetPuntosByFamilia { get; set; }
+    }
 
-public class EncargoResource
-{
-    public string Ultimo { get; set; }
+    public class EncargoResource
+    {
+        public string Ultimo { get; set; }
 
-    public string GetByEncargo { get; set; }
+        public string GetByEncargo { get; set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string Update { get; set; }
-}
+        public string Update { get; set; }
+    }
 
-public class ListaResource
-{
-    public string PorDondeVoyActual { get; set; }
+    public class ListaResource
+    {
+        public string PorDondeVoyActual { get; set; }
 
-    public string GetByCodigo { get; set; }
+        public string GetByCodigo { get; set; }
 
-    public string ResetPorDondeVoy { get; set; }
+        public string ResetPorDondeVoy { get; set; }
 
-    public string InsertOrUpdate { get; set; }
-}
+        public string InsertOrUpdate { get; set; }
+    }
 
-public class ListaArticuloResource
-{
-    public string Eliminar { get; set; }
+    public class ListaArticuloResource
+    {
+        public string Eliminar { get; set; }
 
-    public string Insert { get; set; }
-}
+        public string Insert { get; set; }
+    }
 
-public class ProveedorResource
-{
-    public string GetFechaMaximaHistorial { get; set; }
+    public class ProveedorResource
+    {
+        public string GetFechaMaximaHistorial { get; set; }
 
-    public string InsertHistorico { get; set; }
+        public string InsertHistorico { get; set; }
 
-    public string GetOneByProveedor { get; set; }
+        public string GetOneByProveedor { get; set; }
 
-    public string Insert { get; set; }
+        public string Insert { get; set; }
 
-    public string Update { get; set; }
-}
+        public string Update { get; set; }
+    }
 
-public class ProgramacionResource
-{
-    public string Encendido { get; set; }
+    public class ProgramacionResource
+    {
+        public string Encendido { get; set; }
 
-    public string Apagado { get; set; }
-}
+        public string Apagado { get; set; }
+    }
 
-public class Credential
-{
-    public string Username { get; set; }
+    public class Credential
+    {
+        public string Username { get; set; }
 
-    public string Password { get; set; }
+        public string Password { get; set; }
 
-    public string Token { get; set; }
+        public string Token { get; set; }
+    }
 }

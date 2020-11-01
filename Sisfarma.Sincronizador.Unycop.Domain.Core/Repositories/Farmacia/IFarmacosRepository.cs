@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia
 {
     public interface IFarmacosRepository
     {

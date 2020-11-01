@@ -1,7 +1,7 @@
 ﻿using System;
-using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Services
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks
 {
     public interface ISisfarmaService
     {
@@ -88,25 +88,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
             Faltas = faltas ?? throw new ArgumentNullException(nameof(faltas));
             Proveedores = proveedores ?? throw new ArgumentNullException(nameof(proveedores));
             Programacion = programacion ?? throw new ArgumentNullException(nameof(programacion));
-        }
-
-        public SisfarmaService(string host, string token)
-        {
-            //Clientes = new ClientesExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Huecos = new HuecosExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //PuntosPendientes = new PuntosPendientesExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Configuraciones = new ConfiguracionesExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Entregas = new EntregasExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Medicamentos = new MedicamentosExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Sinonimos = new SinonimosExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Pedidos = new PedidosExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Faltas = new FaltasExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Familias = new FamiliasExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Encargos = new EncargosExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Categorias = new CategoriasExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Listas = new ListasExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Proveedores = new ProveedoresExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
-            //Programacion = new ProgramacionExternalService(new RestClient.RestSharp.RestClient(), FisiotesConfig.TestConfig(host, token));
         }
     }
 }

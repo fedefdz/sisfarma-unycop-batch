@@ -1,9 +1,9 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia

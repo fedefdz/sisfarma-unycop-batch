@@ -1,7 +1,8 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+﻿using Sisfarma.Client.Model;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.Management;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
 {
     public abstract class PowerSwitch : BaseSincronizador
     {
@@ -11,20 +12,20 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
 
         //protected string FILE_LOG = System.Configuration.ConfigurationManager.AppSettings["Directory.Logs"] + @"Power.logs";
 
-        public PowerSwitch(ISisfarmaService fisiotes) 
+        public PowerSwitch(ISisfarmaService fisiotes)
             : base(fisiotes)
-        { }        
+        { }
 
         protected virtual void Encender()
         {
             SincronizadorTaskManager.PowerOn();
-            EstaEncendido = true;            
+            EstaEncendido = true;
         }
 
         protected virtual void Apagar()
         {
             SincronizadorTaskManager.PowerOff();
-            EstaEncendido = false;            
+            EstaEncendido = false;
         }
     }
 }

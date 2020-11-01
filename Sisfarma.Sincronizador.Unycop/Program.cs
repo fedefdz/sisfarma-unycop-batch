@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using Sisfarma.ClickOnce;
-using Sisfarma.Sincronizador.Domain.Core.Sincronizadores;
 using Sisfarma.Sincronizador.Unycop.IoC.Factories;
 using Sisfarma.Sincronizador.Unycop.Properties;
 using System;
@@ -11,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.Management;
 
 namespace Sisfarma.Sincronizador.Unycop
 {

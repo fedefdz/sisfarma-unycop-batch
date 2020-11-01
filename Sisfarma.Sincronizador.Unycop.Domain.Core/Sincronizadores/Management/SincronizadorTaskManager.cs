@@ -1,17 +1,18 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.Management
 {
     public static class SincronizadorTaskManager
     {
         public static ConcurrentBag<Task> CurrentTasks;
         public static CancellationTokenSource TokenSource;
+
         public static List<KeyValuePair<TaskSincronizador, int>> TaskSincronizadores { get; set; } = new List<KeyValuePair<TaskSincronizador, int>>();
 
         // milisegundos
@@ -62,14 +63,14 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
 
             //var listaDeCompra = LocalConfig.GetSingletonInstance().ListaDeCompras;
 
-            var tasks = TaskSincronizadores.Select(t => RunTask(t.Key, cancellationToken, t.Value));
+            var tasks = TaskSincronizadores.Select(t => RunTask<TaskSincronizador>(t.Key, cancellationToken, t.Value));
 
             CurrentTasks = new ConcurrentBag<Task>(tasks);
 
             return CurrentTasks;
         }
 
-        public static List<KeyValuePair<T, int>> AddSincronizador<T>(this List<KeyValuePair<T, int>> @this,  T sincronizador, int delay) where T : TaskSincronizador
+        public static List<KeyValuePair<T, int>> AddSincronizador<T>(this List<KeyValuePair<T, int>> @this, T sincronizador, int delay) where T : TaskSincronizador
         {
             @this.Add(new KeyValuePair<T, int>(sincronizador, delay));
             return @this;
@@ -128,5 +129,5 @@ namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores
         public static Task RunTask<T>(T sincronizador, CancellationToken cancellationToken, int delayLoop = 60000)
             where T : BaseSincronizador
             => Task.Run(() => sincronizador.SincronizarAsync(cancellationToken, delayLoop), cancellationToken);
-    }    
+    }
 }

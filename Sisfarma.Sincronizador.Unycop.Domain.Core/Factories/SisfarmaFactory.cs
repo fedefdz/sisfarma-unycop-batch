@@ -1,9 +1,8 @@
-﻿using Sisfarma.Client.Fisiotes;
-using Sisfarma.Client.Unycop;
+﻿using Sisfarma.Client.Unycop;
 using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using System;
 using System.Linq;
+using Sisfarma.Client.Model;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
@@ -117,7 +116,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 ? (long)Convert.ToDouble(clienteUnycop.PuntosFidelidad)
                 : 0L;
 
-            return new Client.Fisiotes.Cliente(
+            return new Cliente(
                 dni: clienteUnycop.IdCliente.ToString(),
                 tarjeta: clienteUnycop.Clave,
                 dniCliente: clienteUnycop.DNI,

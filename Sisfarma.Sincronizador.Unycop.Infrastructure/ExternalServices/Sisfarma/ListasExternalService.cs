@@ -1,21 +1,22 @@
-﻿using Sisfarma.RestClient;
+﻿using Sisfarma.Client.Config;
+using Sisfarma.Client.Model;
+using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
 
-namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
+namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
     public class ListasExternalService : SisfarmaExternalService, IListaRepository
     {
         public IListaArticuloRepository DeArticulos { get; set; }
 
-        public ListasExternalService(IRestClient restClient, FisiotesConfig config)
+        public ListasExternalService(IRestClient restClient, SisfarmaConfig config)
             : base(restClient, config)
         {
             DeArticulos = new ListasArticulosExternalService(restClient, config);
         }
 
-        public ListasExternalService(IRestClient restClient, FisiotesConfig config, IListaArticuloRepository listaDeArticulos)
+        public ListasExternalService(IRestClient restClient, SisfarmaConfig config, IListaArticuloRepository listaDeArticulos)
             : base(restClient, config)
         {
             DeArticulos = listaDeArticulos ?? throw new System.ArgumentNullException(nameof(listaDeArticulos));

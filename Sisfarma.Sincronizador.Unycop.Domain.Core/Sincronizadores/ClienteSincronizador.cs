@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Client.Model;
 using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
@@ -58,7 +58,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 if (IsHoraVaciamientos())
                     Reset();
 
-                var localClientes = _farmacia.Clientes.GetGreatThanIdAsDTO(_ultimoClienteSincronizado).ToList();
+                var localClientes = _farmacia.Clientes.GetGreatThanId(_ultimoClienteSincronizado).ToList();
 
                 if (!localClientes.Any())
                     return;
@@ -67,7 +67,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 for (int index = 0; index < localClientes.Count; index += batchSize)
                 {
                     var clientes = localClientes.Skip(index).Take(batchSize).ToList();
-                    var batchClientes = new List<Client.Fisiotes.Cliente>();
+                    var batchClientes = new List<Cliente>();
                     foreach (var cliente in clientes)
                     {
                         Task.Delay(5).Wait();

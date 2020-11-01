@@ -1,6 +1,6 @@
-﻿using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+﻿using Sisfarma.Client.Model;
 
-namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma
 {
     public interface IListaRepository
     {

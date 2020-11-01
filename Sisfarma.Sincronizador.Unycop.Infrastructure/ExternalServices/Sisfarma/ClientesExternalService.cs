@@ -1,15 +1,15 @@
-﻿using Sisfarma.Client.Fisiotes;
-using Sisfarma.RestClient;
-using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
-using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
+﻿using Sisfarma.RestClient;
 using System.Collections.Generic;
 using System.Linq;
+using Sisfarma.Client.Config;
+using Sisfarma.Client.Model;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
     public class ClientesExternalService : SisfarmaExternalService, IClienteRepository
     {
-        public ClientesExternalService(IRestClient restClient, FisiotesConfig config)
+        public ClientesExternalService(IRestClient restClient, SisfarmaConfig config)
             : base(restClient, config)
         { }
 

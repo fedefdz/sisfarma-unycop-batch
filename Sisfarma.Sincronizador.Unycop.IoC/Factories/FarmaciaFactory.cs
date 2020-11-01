@@ -1,4 +1,4 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Services;
+﻿using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 using Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia;
 
 namespace Sisfarma.Sincronizador.Unycop.IoC.Factories

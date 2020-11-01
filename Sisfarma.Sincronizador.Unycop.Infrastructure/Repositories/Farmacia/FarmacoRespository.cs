@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using DC = Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
-    public class FarmacoRespository : DC.IFarmacosRepository
+    public class FarmacoRespository : IFarmacosRepository
     {
         private readonly UnycopClient _unycopClient;
 

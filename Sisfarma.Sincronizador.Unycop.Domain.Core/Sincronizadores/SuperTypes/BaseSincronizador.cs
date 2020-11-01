@@ -1,13 +1,13 @@
-﻿using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Core.Extensions;
-using Sisfarma.Sincronizador.Core.Helpers;
-using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Sisfarma.Client.Model;
+using Sisfarma.RestClient.Exceptions;
+using Sisfarma.Sincronizador.Core.Extensions;
+using Sisfarma.Sincronizador.Core.Helpers;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
 {
     public abstract class BaseSincronizador : Sincronizador, ISincronizadorAsync
     {

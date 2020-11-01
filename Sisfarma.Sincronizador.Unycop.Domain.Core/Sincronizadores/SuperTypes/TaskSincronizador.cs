@@ -1,9 +1,9 @@
-﻿using Sisfarma.Sincronizador.Domain.Core.Services;
-using Sisfarma.Sincronizador.Models;
-using System;
+﻿using System;
 using System.Linq;
+using Sisfarma.Sincronizador.Core.Helpers;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.UnitOfWorks;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores.SuperTypes
 {
     public abstract class TaskSincronizador : BaseSincronizador
     {

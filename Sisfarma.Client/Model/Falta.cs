@@ -1,8 +1,8 @@
-namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
-{
-    using Sisfarma.Sincronizador.Core.Extensions;
-    using System;
+using System;
+using Sisfarma.Sincronizador.Core.Extensions;
 
+namespace Sisfarma.Client.Model
+{
     public class Falta
     {
         public const string FamiliaDefault = "<Sin Clasificar>";

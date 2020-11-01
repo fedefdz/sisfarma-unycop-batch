@@ -1,18 +1,10 @@
-﻿using Sisfarma.Client.Unycop.Model;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Sisfarma.Client.Unycop.Model;
 
-namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
+namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Farmacia
 {
     public interface IEncargosRepository
     {
         IEnumerable<Encargo> GetAllByIdGreaterOrEqual(int anio, long encargo);
-    }
-
-    public interface IRecepcionRespository
-    {
-        IEnumerable<Albaran> GetAllByDate(DateTime fecha);
-
-        IEnumerable<Albaran> GetAllByYear(int year);
     }
 }
