@@ -213,5 +213,112 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 sistema: "unycop"
             );
         }
+
+        public static PuntosPendientes CreatePuntoPendiente(string dni, string cargado, UNYCOP.Venta venta, UNYCOP.Venta.Lineasitem item, int currentLinea, UNYCOP.Articulo farmaco, bool isClasificacionCategoria)
+        {
+            var fechaVenta = venta.FechaVenta.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase);
+
+            var ticketNumero = 0;
+            var ticketSerie = string.Empty;
+            if (!string.IsNullOrEmpty(venta.NumeroTiquet) && venta.NumeroTiquet != "-" && venta.NumeroTiquet.Contains("-"))
+            {
+                var ticket = venta.NumeroTiquet.Split(new[] { '-' }, 2);
+                ticketSerie = ticket[0];
+                int.TryParse(ticket[1], out ticketNumero);
+            }
+
+            var codigosDeBarras = string.IsNullOrEmpty(farmaco.CodigoBarrasArticulo) ? new string[0] : farmaco.CodigoBarrasArticulo.Split(',');
+
+            return new PuntosPendientes(
+                idventa: $"{fechaVenta.Year}{venta.IdVenta}".ToLongOrDefault(),
+                idnlinea: currentLinea,
+                cod_barras: codigosDeBarras.Any() ? codigosDeBarras.First() : "847000" + item.CNvendido.PadLeft(6, '0'),
+                cod_nacional: item.CNvendido,
+                descripcion: farmaco.Denominacion,
+                familia: isClasificacionCategoria
+                    ? farmaco.NombreSubCategoria ?? PuntosPendientes.FamiliaDefault
+                    : farmaco.NombreFamilia,
+                superFamilia: isClasificacionCategoria
+                    ? farmaco.NombreCategoria ?? PuntosPendientes.FamiliaDefault
+                    : string.Empty,
+                familiaAux: isClasificacionCategoria ? farmaco.NombreFamilia : string.Empty,
+                cambioClasificacion: isClasificacionCategoria.ToInteger(),
+                cantidad: item.UnidadesVendidas,
+                precio: item.PvpArticulo ?? -1,
+                pago: currentLinea == 1 ? venta.Pago : 0,
+                tipoPago: item.CodigoOperacion,
+                fecha: fechaVenta.Date.ToDateInteger(),
+                dni: string.IsNullOrEmpty(dni) ? "0" : dni,
+                cargado: cargado,
+                puesto: $"{venta.Puesto}",
+                trabajador: venta.NombreVendedor,
+                cod_laboratorio: farmaco.CodLaboratorio ?? string.Empty,
+                laboratorio: farmaco.NombreLaboratorio ?? PuntosPendientes.LaboratorioDefault,
+                proveedor: farmaco.NombreProveedor ?? string.Empty,
+                receta: item.CodigoTipoAportacion,
+                fechaVenta: fechaVenta,
+                pvp: item.PvpArticulo ?? -1,
+                puc: farmaco.PC ?? 0,
+                categoria: farmaco.NombreCategoria ?? string.Empty,
+                subcategoria: farmaco.NombreSubCategoria ?? string.Empty,
+                dtoVenta: currentLinea == 1 ? venta.DescuentoVenta : 0,
+                dtoLinea: item.Descuento ?? -1,
+                numTicket: ticketNumero,
+                serie: ticketSerie,
+                sistema: "unycop",
+                articulo: CreateMedicamento(farmaco, isClasificacionCategoria));
+        }
+
+        public static PuntosPendientes CreatePuntoPendiente(string dni, string cargado, UNYCOP.Venta venta, bool isClasificacionCategoria)
+        {
+            var fechaVenta = venta.FechaVenta.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase);
+
+            var ticketNumero = 0;
+            var ticketSerie = string.Empty;
+            if (!string.IsNullOrEmpty(venta.NumeroTiquet) && venta.NumeroTiquet != "-" && venta.NumeroTiquet.Contains("-"))
+            {
+                var ticket = venta.NumeroTiquet.Split(new[] { '-' }, 2);
+                ticketSerie = ticket[0];
+                int.TryParse(ticket[1], out ticketNumero);
+            }
+
+            return new PuntosPendientes(
+                idventa: $"{fechaVenta.Year}{venta.IdVenta}".ToLongOrDefault(),
+                idnlinea: 1,
+                cod_barras: string.Empty,
+                cod_nacional: "9999999",
+                descripcion: "Pago Deposito",
+
+                familia: PuntosPendientes.FamiliaDefault,
+                superFamilia: isClasificacionCategoria
+                    ? PuntosPendientes.FamiliaDefault
+                    : string.Empty,
+                familiaAux: PuntosPendientes.FamiliaDefault,
+                cambioClasificacion: isClasificacionCategoria.ToInteger(),
+
+                cantidad: 0,
+                precio: 0,
+                pago: venta.Pago,
+                tipoPago: venta.lineasItem.First().CodigoOperacion,
+                fecha: fechaVenta.Date.ToDateInteger(),
+                dni: string.IsNullOrEmpty(dni) ? "0" : dni,
+                cargado: cargado,
+                puesto: $"{venta.Puesto}",
+                trabajador: venta.NombreVendedor,
+                cod_laboratorio: string.Empty,
+                laboratorio: PuntosPendientes.LaboratorioDefault,
+                proveedor: string.Empty,
+                receta: string.Empty,
+                fechaVenta: fechaVenta,
+                pvp: 0,
+                puc: 0,
+                categoria: string.Empty,
+                subcategoria: string.Empty,
+                dtoVenta: venta.DescuentoVenta,
+                dtoLinea: 0,
+                numTicket: ticketNumero,
+                serie: ticketSerie,
+                sistema: "unycop");
+        }
     }
 }

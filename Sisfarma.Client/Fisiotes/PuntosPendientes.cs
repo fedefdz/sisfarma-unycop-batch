@@ -1,75 +1,120 @@
 namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 {
+    using Sisfarma.Sincronizador.Core.Extensions;
     using System;
 
-    public partial class PuntosPendientes
+    public class PuntosPendientes
     {
-        public long VentaId { get; set; }
+        public const string FamiliaDefault = "<Sin Clasificar>";
+        public const string LaboratorioDefault = "<Sin Laboratorio>";
 
-        public long LineaNumero { get; set; }
+        public PuntosPendientes(long idventa, int idnlinea, string cod_barras, string cod_nacional, string descripcion, string familia, int cantidad, decimal precio, decimal pago, string tipoPago, int fecha, string dni, string cargado, string puesto, string trabajador, string cod_laboratorio, string laboratorio, string proveedor, string receta, DateTime? fechaVenta, string superFamilia, decimal pvp, decimal puc, string categoria, string subcategoria, string sistema, decimal dtoLinea, decimal dtoVenta, int numTicket, string serie, string familiaAux, int cambioClasificacion, Medicamento articulo = null)
+        {
+            this.idventa = idventa;
+            this.idnlinea = idnlinea;
+            this.cod_barras = cod_barras;
+            this.cod_nacional = cod_nacional;
+            this.descripcion = descripcion.Strip();
+            this.familia = familia.Strip();
+            this.cantidad = cantidad;
+            this.precio = precio;
+            this.pago = pago;
+            this.tipoPago = tipoPago;
+            this.fecha = fecha;
+            this.dni = dni;
+            this.cargado = cargado;
+            this.puesto = puesto;
+            this.trabajador = trabajador;
+            this.cod_laboratorio = cod_laboratorio.Strip();
+            this.laboratorio = laboratorio.Strip();
+            this.proveedor = proveedor.Strip();
+            this.receta = receta;
+            this.fechaVenta = fechaVenta.ToIsoString();
+            this.superFamilia = superFamilia.Strip();
+            this.pvp = pvp;
+            this.puc = puc;
+            this.categoria = categoria.Strip();
+            this.subcategoria = subcategoria.Strip();
+            this.sistema = sistema;
+            this.dtoLinea = dtoLinea;
+            this.dtoVenta = dtoVenta;
+            this.numTicket = numTicket;
+            this.serie = serie;
+            this.superFamiliaAux = string.Empty;
+            this.familiaAux = familiaAux.Strip();
+            this.cambioClasificacion = cambioClasificacion;
+            this.articulo = articulo;
+            this.actualizado = "1";
+        }
 
-        public string CodigoBarra { get; set; }
+        public long idventa { get; set; }
 
-        public string CodigoNacional { get; set; }
+        public int idnlinea { get; set; }
 
-        public string Descripcion { get; set; }
+        public string cod_barras { get; set; }
 
-        public string Familia { get; set; }
+        public string cod_nacional { get; set; }
 
-        public int Cantidad { get; set; }
+        public string descripcion { get; set; }
 
-        public decimal Precio { get; set; }
+        public string familia { get; set; }
 
-        public decimal Pago { get; set; }
+        public int cantidad { get; set; }
 
-        public string TipoPago { get; set; }
+        public decimal precio { get; set; }
 
-        public int Fecha { get; set; }
+        public decimal pago { get; set; }
 
-        public string DNI { get; set; }
+        public string tipoPago { get; set; }
 
-        public string Cargado { get; set; }
+        public int fecha { get; set; }
 
-        public string Puesto { get; set; }
+        public string dni { get; set; }
 
-        public string Trabajador { get; set; }
+        public string cargado { get; set; }
 
-        public string LaboratorioCodigo { get; set; }
+        public string puesto { get; set; }
 
-        public string Laboratorio { get; set; }
+        public string trabajador { get; set; }
 
-        public string Proveedor { get; set; }
+        public string cod_laboratorio { get; set; }
 
-        public string Receta { get; set; }
+        public string laboratorio { get; set; }
 
-        public DateTime? FechaVenta { get; set; }
+        public string proveedor { get; set; }
 
-        public string SuperFamilia { get; set; }
+        public string receta { get; set; }
 
-        public decimal PVP { get; set; }
+        public string fechaVenta { get; set; }
 
-        public decimal PUC { get; set; }
+        public string superFamilia { get; set; }
 
-        public string Categoria { get; set; }
+        public decimal pvp { get; set; }
 
-        public string Subcategoria { get; set; }
+        public decimal puc { get; set; }
 
-        public string Sistema { get; set; }
+        public string categoria { get; set; }
 
-        public decimal LineaDescuento { get; set; }
+        public string subcategoria { get; set; }
 
-        public decimal VentaDescuento { get; set; }
+        public string sistema { get; set; }
 
-        public long? TicketNumero { get; set; }
+        public decimal dtoLinea { get; set; }
 
-        public string Serie { get; set; }
+        public decimal dtoVenta { get; set; }
 
-        public string SuperFamiliaAux { get; set; }
+        public int numTicket { get; set; }
 
-        public string FamiliaAux { get; set; }
+        public string serie { get; set; }
 
-        public int CambioClasificacion { get; set; }
+        public string superFamiliaAux { get; set; }
 
-        public MedicamentoP articulo { get; set; }
+        public string familiaAux { get; set; }
+
+        public int cambioClasificacion { get; set; }
+
+        public Medicamento articulo { get; set; }
+
+        public string actualizado { get; set; }
     }
 }
