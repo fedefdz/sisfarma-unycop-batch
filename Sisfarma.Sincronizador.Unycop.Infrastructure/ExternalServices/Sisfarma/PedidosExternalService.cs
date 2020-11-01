@@ -1,10 +1,8 @@
 ﻿using Sisfarma.RestClient;
 using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

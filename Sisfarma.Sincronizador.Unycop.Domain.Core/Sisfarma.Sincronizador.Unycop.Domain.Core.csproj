@@ -98,7 +98,6 @@
     <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
     <Compile Include="UnitOfWorks\FarmaciaService.cs" />
     <Compile Include="UnitOfWorks\SisfarmaService.cs" />
@@ -145,10 +144,6 @@
     <ProjectReference Include="..\Sisfarma.Sincronizador.Core\Sisfarma.Utils.csproj">
       <Project>{2E7A3E8F-959C-4C3A-9D86-7C2B61FE0724}</Project>
       <Name>Sisfarma.Utils</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sisfarma.Sincronizador.Domain.Entities\Sisfarma.Sincronizador.Domain.Entities.csproj">
-      <Project>{E3C4EEFD-3134-458C-8141-15CCDA19300B}</Project>
-      <Name>Sisfarma.Sincronizador.Domain.Entities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,4 @@
 using Sisfarma.Sincronizador.Core.Extensions;
-using System;
 
 namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 {

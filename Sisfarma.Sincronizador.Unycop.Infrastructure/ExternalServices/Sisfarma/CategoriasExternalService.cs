@@ -1,5 +1,4 @@
 ﻿using Sisfarma.RestClient;
-using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 using System.Collections.Generic;

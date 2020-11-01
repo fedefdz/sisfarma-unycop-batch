@@ -1,5 +1,4 @@
-﻿using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
@@ -11,6 +10,8 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
         IEnumerable<UNYCOP.Articulo> GetAllWithFamilias();
 
         IEnumerable<UNYCOP.Articulo> GetAllWithProveedores();
+
+        IEnumerable<UNYCOP.Articulo> GetAllWithCodigoDeBarras();
 
         IEnumerable<UNYCOP.Articulo> GetBySetId(IEnumerable<int> set);
 

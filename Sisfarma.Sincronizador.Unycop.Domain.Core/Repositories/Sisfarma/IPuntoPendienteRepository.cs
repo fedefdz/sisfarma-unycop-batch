@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes

@@ -20,8 +20,6 @@ namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
 
                 listas: new ListaRepository(),
 
-                sinonimos: new SinonimosRepository(),
-
                 recepciones: new RecepcionRespository()
             );
         }

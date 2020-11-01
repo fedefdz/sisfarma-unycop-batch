@@ -1,5 +1,4 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Client.Unycop.Model;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
 using System;
 using System.Collections.Generic;

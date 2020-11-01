@@ -7,7 +7,7 @@ namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
     {
         void Empty();
 
-        void Sincronizar(List<Sinonimo> items);
+        void Sincronizar(IEnumerable<Sinonimo> items);
 
         bool IsEmpty();
     }

@@ -17,8 +17,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
 
         IListaRepository Listas { get; }
 
-        ISinonimosRepository Sinonimos { get; }
-
         IRecepcionRespository Recepciones { get; }
     }
 
@@ -31,7 +29,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
             IPedidosRepository pedidos,
             IEncargosRepository encargos,
             IListaRepository listas,
-            ISinonimosRepository sinonimos,
             IRecepcionRespository recepciones)
         {
             Ventas = ventas ?? throw new ArgumentNullException(nameof(ventas));
@@ -40,7 +37,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
             Pedidos = pedidos ?? throw new ArgumentNullException(nameof(pedidos));
             Encargos = encargos ?? throw new ArgumentNullException(nameof(encargos));
             Listas = listas ?? throw new ArgumentNullException(nameof(listas));
-            Sinonimos = sinonimos ?? throw new ArgumentNullException(nameof(sinonimos));
             Recepciones = recepciones ?? throw new ArgumentNullException(nameof(recepciones));
         }
 
@@ -55,8 +51,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
         public IEncargosRepository Encargos { get; }
 
         public IListaRepository Listas { get; }
-
-        public ISinonimosRepository Sinonimos { get; }
 
         public IRecepcionRespository Recepciones { get; set; }
     }
