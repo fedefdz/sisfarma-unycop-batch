@@ -76,7 +76,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\FarmaciaDbConetxtFactory.cs" />
     <Compile Include="Factories\FarmaciaFactory.cs" />
     <Compile Include="Factories\SisfarmaFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

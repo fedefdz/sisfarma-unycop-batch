@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
-    public class ProgramacionExternalService : FisiotesExternalService, IProgramacionRepository
+    public class ProgramacionExternalService : SisfarmaExternalService, IProgramacionRepository
     {
         public ProgramacionExternalService(IRestClient restClient, FisiotesConfig config) 
             : base(restClient, config)

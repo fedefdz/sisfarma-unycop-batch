@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
-    public class ConfiguracionesExternalService : FisiotesExternalService, IConfiguracionRepository
+    public class ConfiguracionesExternalService : SisfarmaExternalService, IConfiguracionRepository
     {
         public ConfiguracionesExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)

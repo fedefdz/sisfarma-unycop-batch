@@ -38,7 +38,7 @@
 
         public ProgramacionResource Programacion { get; set; }
 
-        public static FisiotesConfig TestConfig(string remoteServer, string token)
+        public static FisiotesConfig Intsance(string remoteServer, string token)
         {
             return new FisiotesConfig
             {
@@ -78,7 +78,7 @@
                     GetPuntosByDni = "api/puntos/index/dni/{dni}",
                     GetPuntosCanjeadosByDni = "api/puntos/canjeados/dni/{dni}",
                     ExistsByFechaGreatThanOrEqual = "api/puntos/exists_greater_equal/ejercicio/{year}/fechaVenta/{fecha}",
-                    Update = "api/puntos/update",                    
+                    Update = "api/puntos/update",
                     Insert = "api/puntos/createUpdate",
                     InsertActualizarVenta = "api/puntos/createUpdate/actualizarVenta/1"
                 },
@@ -209,6 +209,7 @@ public class ClienteResource
     public string Update { get; set; }
 
     public string InsertHueco { get; internal set; }
+
     public string InsertBulk { get; set; }
 }
 
@@ -232,7 +233,7 @@ public class PuntoResource
     public string GetSinRedencion { get; set; }
 
     public string Update { get; set; }
-        
+
     public string GetLastOfYear { get; set; }
 
     public string GetByItemVenta { get; set; }

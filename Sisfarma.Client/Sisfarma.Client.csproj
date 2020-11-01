@@ -41,24 +41,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fisiotes\Categoria.cs" />
-    <Compile Include="Fisiotes\Cliente.cs" />
-    <Compile Include="Fisiotes\Configuracion.cs" />
-    <Compile Include="Fisiotes\Encargo.cs" />
-    <Compile Include="Fisiotes\Falta.cs" />
-    <Compile Include="Fisiotes\Familia.cs" />
-    <Compile Include="Fisiotes\LineaPedido.cs" />
-    <Compile Include="Fisiotes\Lista.cs" />
-    <Compile Include="Fisiotes\ListaArticulo.cs" />
-    <Compile Include="Fisiotes\Medicamento.cs" />
-    <Compile Include="Fisiotes\Pedido.cs" />
-    <Compile Include="Fisiotes\Programacion.cs" />
-    <Compile Include="Fisiotes\Proveedor.cs" />
-    <Compile Include="Fisiotes\PuntosPendientes.cs" />
-    <Compile Include="Fisiotes\Sinonimo.cs" />
+    <Compile Include="Model\Categoria.cs" />
+    <Compile Include="Model\Cliente.cs" />
+    <Compile Include="Model\Configuracion.cs" />
+    <Compile Include="Model\Encargo.cs" />
+    <Compile Include="Model\Falta.cs" />
+    <Compile Include="Model\Familia.cs" />
+    <Compile Include="Model\LineaPedido.cs" />
+    <Compile Include="Model\Lista.cs" />
+    <Compile Include="Model\ListaArticulo.cs" />
+    <Compile Include="Model\Medicamento.cs" />
+    <Compile Include="Model\Pedido.cs" />
+    <Compile Include="Model\Programacion.cs" />
+    <Compile Include="Model\Proveedor.cs" />
+    <Compile Include="Model\PuntosPendientes.cs" />
+    <Compile Include="Model\Sinonimo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sisfarma\FisiotesConfig.cs" />
-    <Compile Include="Sisfarma\FisiotesExternalService.cs" />
+    <Compile Include="Config\FisiotesConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sisfarma.RestClient\Sisfarma.RestClient.csproj">

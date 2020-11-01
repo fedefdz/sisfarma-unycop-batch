@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
-    public class ListasExternalService : FisiotesExternalService, IListaRepository
+    public class ListasExternalService : SisfarmaExternalService, IListaRepository
     {
         public IListaArticuloRepository DeArticulos { get; set; }
 

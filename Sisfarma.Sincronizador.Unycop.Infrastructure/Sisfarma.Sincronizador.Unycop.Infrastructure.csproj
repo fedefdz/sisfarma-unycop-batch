@@ -88,6 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExternalServices\Sisfarma\_SisfarmaExternalService.cs" />
     <Compile Include="ExternalServices\Sisfarma\PedidosExternalService.cs" />
     <Compile Include="ExternalServices\Sisfarma\CategoriasExternalService.cs" />
     <Compile Include="ExternalServices\Sisfarma\ConfiguracionesExternalService.cs" />

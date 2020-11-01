@@ -28,72 +28,12 @@ namespace Sisfarma.Client.Unycop
 
     public class UnycopClient
     {
-        private static object _testLock = new object();
         private static object _ventasLock = new object();
         private static object _comprasLock = new object();
         private static object _bolsasLock = new object();
         private static object _pedidosLock = new object();
         private static object _encargosLock = new object();
         private static object _clientesLock = new object();
-
-        public void ExtractArticulos()
-        {
-            //var path = @"C:\Unycopwin\Datos\Ficheros";
-
-            for (int i = 3; i < 4; i++)
-            {
-                lock (_testLock)
-                {
-                    var llamada = $"{i}".PadLeft(2, '0');
-                    string filtros = null;
-                    //if (i == 3)
-                    filtros = "(Fecha_Baja,>,01/01/01 12:00:00)";
-                    var entrada = new { IdProducto = "43", IdLlamada = RequestCodes.Stock, Filtros = filtros };
-                    var client = new UnycopDataExtractor.UDataExtractor();
-                    var json = JsonConvert.SerializeObject(entrada);
-                    string response;
-                    try
-                    {
-                        Console.WriteLine("Extract data from unycop");
-                        response = client.ExtractData(json);
-                        Console.WriteLine("File created");
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
-
-                    var unycopResponse = JsonConvert.DeserializeObject<UnycopResponse>(response);
-
-                    var zipFileInfo = unycopResponse.Ficheros[0];
-                    var pathFile = Path.Combine(zipFileInfo.RutaZip);
-
-                    using (var zip = ZipFile.Read(pathFile))
-                    {
-                        zip.Password = unycopResponse.Clave;
-                        var jsonFile = zip.Entries.Single(f => f.FileName == zipFileInfo.Nombre);
-                        jsonFile.Extract(ExtractExistingFileAction.OverwriteSilently);
-                    }
-                }
-            }
-        }
-
-        public void ExtractArticulos(params int[] codigo)
-        {
-            var client = new UnycopDataExtractor.UDataExtractor();
-            var entrada = new { IdProducto = "43", IdLlamada = "07", Filtros = "(IdCliente,<=,10)" };
-            var json = JsonConvert.SerializeObject(entrada);
-            var response = client.ExtractData(json);
-            var unycopResponse = JsonConvert.DeserializeObject<UnycopResponse>(response);
-            var zipFileInfo = unycopResponse.Ficheros[0];
-            var pathFile = Path.Combine(zipFileInfo.RutaZip);
-            using (var zip = ZipFile.Read(pathFile))
-            {
-                zip.Password = unycopResponse.Clave;
-                var jsonFile = zip.Entries.Single(f => f.FileName == zipFileInfo.Nombre);
-                jsonFile.Extract(ExtractExistingFileAction.OverwriteSilently);
-            }
-        }
 
         public IEnumerable<T> Send<T>(UnycopRequest request)
         {

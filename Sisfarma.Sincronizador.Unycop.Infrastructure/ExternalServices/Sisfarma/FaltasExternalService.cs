@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class FaltasExternalService : FisiotesExternalService, IFaltaRepository
+    public class FaltasExternalService : SisfarmaExternalService, IFaltaRepository
     {
         public FaltasExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)

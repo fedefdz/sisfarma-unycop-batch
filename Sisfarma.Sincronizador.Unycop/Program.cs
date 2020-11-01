@@ -130,9 +130,6 @@ namespace Sisfarma.Sincronizador.Unycop
 
         private static void Initialize()
         {
-            //new UnycopClient().ExtractArticulos();
-            //Task.Factory.StartNew(() => new UnycopClient().ExtractArticulos());
-            //Task.Factory.StartNew(() => new UnycopClient().ExtractArticulos());
             try
             {
                 var dir = ConfigurationManager.AppSettings["Directory.Setup"];

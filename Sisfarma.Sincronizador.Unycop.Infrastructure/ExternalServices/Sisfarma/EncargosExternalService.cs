@@ -8,7 +8,7 @@ using Sisfarma.Sincronizador.Infrastructure.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
-    public class EncargosExternalService : FisiotesExternalService, IEncargoRepository
+    public class EncargosExternalService : SisfarmaExternalService, IEncargoRepository
     {
         public EncargosExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)

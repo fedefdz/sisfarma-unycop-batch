@@ -6,7 +6,7 @@ using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
-    public class ProveedoresExternalService : FisiotesExternalService, IProveedorRepository
+    public class ProveedoresExternalService : SisfarmaExternalService, IProveedorRepository
     {
         public ProveedoresExternalService(IRestClient restClient, FisiotesConfig config)
             : base(restClient, config)

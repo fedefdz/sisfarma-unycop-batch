@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
 {
-    public class SinonimosExternalService : FisiotesExternalService, ISinonimoRepository
+    public class SinonimosExternalService : SisfarmaExternalService, ISinonimoRepository
     {
         public SinonimosExternalService(IRestClient restClient, FisiotesConfig config) :
             base(restClient, config)
