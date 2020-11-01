@@ -61,10 +61,10 @@ namespace Sisfarma.Sincronizador.Unycop
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayControlStock)
-                .AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
-                        farmacia: FarmaciaFactory.Create(),
-                        fisiotes: SisfarmaFactory.Create()),
-                        delay: SincronizadorTaskManager.DelayProductosCriticos)
+                //.AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
+                //        farmacia: FarmaciaFactory.Create(),
+                //        fisiotes: SisfarmaFactory.Create()),
+                //        delay: SincronizadorTaskManager.DelayProductosCriticos)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.EncargoSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
@@ -86,10 +86,10 @@ namespace Sisfarma.Sincronizador.Unycop
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayPedidos)
-                //.AddSincronizador(new Domain.Core.Sincronizadores.ProveedorSincronizador(
-                //        farmacia: FarmaciaFactory.Create(),
-                //        fisiotes: SisfarmaFactory.Create()),
-                //        delay: SincronizadorTaskManager.DelayProveedores)
+                .AddSincronizador(new Domain.Core.Sincronizadores.ProveedorSincronizador(
+                        farmacia: FarmaciaFactory.Create(),
+                        fisiotes: SisfarmaFactory.Create()),
+                        delay: SincronizadorTaskManager.DelayProveedores)
                 ;
 
             //Task.Factory.StartNew(() => new Domain.Core.Sincronizadores.SinonimoSincronizador(FarmaciaFactory.Create(), SisfarmaFactory.Create())

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Sisfarma.RestClient;
-using Sisfarma.RestClient.Exceptions;
-using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
 
@@ -15,17 +12,10 @@ namespace Sisfarma.Sincronizador.Infrastructure.Fisiotes
             : base(restClient, config)
         { }
 
-        public void Sincronizar(IEnumerable<Proveedor> pps)
+        public void Sincronizar(IEnumerable<Proveedor> proveedores)
         {
-            var proveedores = pps.Select(pp => new
-            {
-                idProveedor = pp.idProveedor,
-                nombre = pp.nombre.Strip()
-            }).ToArray();
-
-            _restClient
-                .Resource(_config.Proveedores.Insert)
-                .SendPost(new { bulk = proveedores });
+            _restClient.Resource(_config.Proveedores.Insert)
+                .SendPost(new { bulk = proveedores.ToArray() });
         }
     }
 }

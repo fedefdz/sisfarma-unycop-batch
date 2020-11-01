@@ -28,11 +28,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             {
                 var items = proveedores.Skip(index).Take(batchSize).ToArray();
                 sw.Restart();
-                var pps = items.Select(p => new Proveedor { idProveedor = p.Id.ToString(), nombre = p.Nombre }).ToArray();
+                var batch = items.Select(p => new Proveedor(idProveedor: p.Id.ToString(), nombre: p.Nombre)).ToArray();
                 Console.WriteLine($"Proveedores listos para sync en {sw.ElapsedMilliseconds}ms");
 
                 sw.Restart();
-                _sisfarma.Proveedores.Sincronizar(pps);
+                _sisfarma.Proveedores.Sincronizar(batch);
                 Console.WriteLine($"Proveedores sync en {sw.ElapsedMilliseconds}ms");
             }
         }
