@@ -15,9 +15,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             : base(farmacia, fisiotes)
         { }
 
-        public override void PreSincronizacion()
+        public override void LoadConfiguration()
         {
-            base.PreSincronizacion();
+            base.LoadConfiguration();
             var valorConfiguracion = _sisfarma.Configuraciones.GetByCampo(Configuracion.FIELD_POR_DONDE_VOY_BORRAR);
 
             var codArticulo = !string.IsNullOrEmpty(valorConfiguracion)
@@ -29,9 +29,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var medicamentos = _sisfarma.Medicamentos
-                .GetGreaterOrEqualCodigosNacionales(_ultimoMedicamentoSincronizado);
-
+            var medicamentos = _sisfarma.Medicamentos.GetGreaterOrEqualCodigosNacionales(_ultimoMedicamentoSincronizado);
             if (!medicamentos.Any())
             {
                 _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_BORRAR, "0");

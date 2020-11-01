@@ -170,5 +170,48 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 idProveedor: albaran.CodProveedor.ToString(),
                 proveedor: albaran.NombreProveedor ?? string.Empty);
         }
+
+        public static Falta CreateFalta(UNYCOP.Pedido pedido, UNYCOP.Pedido.Lineasitem lineaPedido, int currentLinea, UNYCOP.Articulo farmaco, bool isClasificacionCategoria)
+        {
+            var culture = UnycopFormat.GetCultureTwoDigitYear();
+            var familia = farmaco.NombreFamilia ?? Falta.FamiliaDefault;
+
+            var fechaPedido = pedido.FechaPedido.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase, culture);
+            var fechaActual = DateTime.Now;
+
+            var tipoFalta = Falta.TipoNormal;
+            if (farmaco.Stock <= farmaco.Stock && farmaco.Stock > 0)
+                tipoFalta = Falta.TipoStockMinimo;
+
+            return new Falta(
+
+                idPedido: lineaPedido.IdPedido,
+                idLinea: currentLinea,
+                cod_nacional: farmaco.CNArticulo,
+                descripcion: farmaco.Denominacion,
+                familia: isClasificacionCategoria
+                        ? farmaco.NombreSubCategoria ?? Falta.FamiliaDefault
+                        : familia,
+                superFamilia: isClasificacionCategoria
+                        ? farmaco.NombreCategoria ?? Falta.FamiliaDefault
+                        : string.Empty,
+                categoria: farmaco.NombreCategoria ?? string.Empty,
+                subcategoria: farmaco.NombreSubCategoria ?? string.Empty,
+                superFamiliaAux: string.Empty,
+                familiaAux: isClasificacionCategoria ? familia : string.Empty,
+                cambioClasificacion: isClasificacionCategoria,
+
+                cantidadPedida: lineaPedido.Pedidas,
+                fechaFalta: fechaActual,
+                cod_laboratorio: farmaco.CodLaboratorio ?? string.Empty,
+                laboratorio: farmaco.NombreLaboratorio ?? Falta.LaboratorioDefault,
+                proveedor: farmaco.NombreProveedor ?? string.Empty,
+                fechaPedido: fechaPedido,
+                pvp: farmaco.PVP,
+                puc: farmaco.PC ?? 0m,
+                tipoFalta: tipoFalta,
+                sistema: "unycop"
+            );
+        }
     }
 }

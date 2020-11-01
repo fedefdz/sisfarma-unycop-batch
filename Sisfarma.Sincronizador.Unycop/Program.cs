@@ -61,10 +61,10 @@ namespace Sisfarma.Sincronizador.Unycop
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayControlStock)
-                //.AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
-                //        farmacia: FarmaciaFactory.Create(),
-                //        fisiotes: SisfarmaFactory.Create()),
-                //        delay: SincronizadorTaskManager.DelayProductosCriticos)
+                .AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
+                        farmacia: FarmaciaFactory.Create(),
+                        fisiotes: SisfarmaFactory.Create()),
+                        delay: SincronizadorTaskManager.DelayProductosCriticos)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.EncargoSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
@@ -82,10 +82,10 @@ namespace Sisfarma.Sincronizador.Unycop
                 //            fisiotes: SisfarmaFactory.Create())
                 //        .SetHorarioVaciamientos("1000", "1230", "1730", "1930"),
                 //    delay: SincronizadorTaskManager.DelaySinomimos)
-                .AddSincronizador(new Domain.Core.Sincronizadores.PedidoSincronizador(
-                        farmacia: FarmaciaFactory.Create(),
-                        fisiotes: SisfarmaFactory.Create()),
-                        delay: SincronizadorTaskManager.DelayPedidos)
+                //.AddSincronizador(new Domain.Core.Sincronizadores.PedidoSincronizador(
+                //        farmacia: FarmaciaFactory.Create(),
+                //        fisiotes: SisfarmaFactory.Create()),
+                //        delay: SincronizadorTaskManager.DelayPedidos)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.ProveedorSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),

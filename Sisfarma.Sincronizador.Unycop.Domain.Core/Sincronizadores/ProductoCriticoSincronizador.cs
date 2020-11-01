@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
 using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
@@ -15,15 +17,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
     {
         protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
         protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
-        protected const string SISTEMA_UNYCOP = "unycop";
 
         private string _clasificacion;
-
-        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
-        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
         protected const int STOCK_CRITICO = 0;
 
-        protected Falta _falta;
+        protected int _falta;
 
         public ProductoCriticoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes) :
             base(farmacia, fisiotes)
@@ -35,22 +33,19 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             _clasificacion = !string.IsNullOrWhiteSpace(ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION])
                 ? ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION]
                 : TIPO_CLASIFICACION_DEFAULT;
-        }
 
-        public override void PreSincronizacion()
-        {
-            base.PreSincronizacion();
-            _falta = _sisfarma.Faltas.LastOrDefault();
+            _falta = _sisfarma.Faltas.LastOrDefault()?.idPedido ?? -1;
         }
 
         public override void Process()
         {
-            // _falta se carga en PreSincronizacion
+            var isClasificacionCategoria = _clasificacion == TIPO_CLASIFICACION_CATEGORIA;
+
             var sw = new Stopwatch();
             sw.Start();
-            var pedidos = (_falta == null)
+            var pedidos = (_falta == -1)
                 ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date.AddYears(-2)).ToList()
-                : _farmacia.Pedidos.GetAllByIdGreaterOrEqual(_falta.idPedido);
+                : _farmacia.Pedidos.GetAllByIdGreaterOrEqual(_falta);
             Console.WriteLine($"pedidos recuperados en {sw.ElapsedMilliseconds}ms");
             if (!pedidos.Any())
                 return;
@@ -66,6 +61,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             for (int index = 0; index < pedidos.Count(); index += batchSize)
             {
                 var pedidosBatch = pedidos.Skip(index).Take(batchSize).ToList();
+                var faltaBatch = new List<Falta>();
                 foreach (var pedido in pedidosBatch)
                 {
                     Task.Delay(5).Wait();
@@ -82,58 +78,19 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                         if (farmaco == null)
                             continue;
 
-                        var tipoFalta = "Normal";
-                        if (farmaco.Stock <= farmaco.Stock && farmaco.Stock > 0)
-                            tipoFalta = "StockMinimo";
-
                         if (!_sisfarma.Faltas.ExistsLineaDePedido(linea.IdPedido, currentLinea))
-                            _sisfarma.Faltas.Sincronizar(GenerarFaltante(pedido, linea, currentLinea, farmaco), tipoFalta);
+                            faltaBatch.Add(SisfarmaFactory.CreateFalta(pedido, linea, currentLinea, farmaco, isClasificacionCategoria));
                     }
 
-                    if (_falta == null)
-                        _falta = new Falta();
+                    if (faltaBatch.Any())
+                    {
+                        _sisfarma.Faltas.Sincronizar(faltaBatch);
+                        faltaBatch.Clear();
+                    }
 
-                    _falta.idPedido = pedido.IdPedido;
+                    _falta = pedido.IdPedido;
                 }
             }
-        }
-
-        private Falta GenerarFaltante(UNYCOP.Pedido pedido, UNYCOP.Pedido.Lineasitem lineaPedido, int currentLinea, UNYCOP.Articulo farmaco)
-        {
-            var culture = UnycopFormat.GetCultureTwoDigitYear();
-            var familia = farmaco.NombreFamilia ?? FAMILIA_DEFAULT;
-
-            var fechaPedido = pedido.FechaPedido.ToDateTimeOrDefault(UnycopFormat.FechaCompletaDataBase, culture);
-            var fechaActual = DateTime.Now;
-
-            return new Falta
-            {
-                idPedido = lineaPedido.IdPedido,
-                idLinea = currentLinea,
-                cod_nacional = farmaco.CNArticulo,
-                descripcion = farmaco.Denominacion,
-                familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? farmaco.NombreSubCategoria ?? FAMILIA_DEFAULT
-                        : familia,
-                superFamilia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? farmaco.NombreCategoria ?? FAMILIA_DEFAULT
-                        : string.Empty,
-                categoria = farmaco.NombreCategoria ?? string.Empty,
-                subcategoria = farmaco.NombreSubCategoria ?? string.Empty,
-                superFamiliaAux = string.Empty,
-                familiaAux = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? familia : string.Empty,
-                cambioClasificacion = _clasificacion == TIPO_CLASIFICACION_CATEGORIA,
-
-                cantidadPedida = lineaPedido.Pedidas,
-                fechaFalta = fechaActual,
-                cod_laboratorio = farmaco.CodLaboratorio ?? string.Empty,
-                laboratorio = farmaco.NombreLaboratorio ?? LABORATORIO_DEFAULT,
-                proveedor = farmaco.NombreProveedor ?? string.Empty,
-                fechaPedido = fechaPedido,
-                pvp = (float)farmaco.PVP,
-                puc = (float)(farmaco.PC ?? 0m),
-                sistema = SISTEMA_UNYCOP
-            };
         }
     }
 }

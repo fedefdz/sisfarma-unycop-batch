@@ -76,16 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Farmacia\Familia.cs" />
-    <Compile Include="Farmacia\Farmaco.cs" />
-    <Compile Include="Farmacia\Laboratorio.cs" />
-    <Compile Include="Farmacia\Cliente.cs" />
-    <Compile Include="Farmacia\Encargo.cs" />
-    <Compile Include="Farmacia\Categoria.cs" />
-    <Compile Include="Farmacia\Recepcion.cs" />
     <Compile Include="Farmacia\Sinonimos.cs" />
-    <Compile Include="Farmacia\Subcategoria.cs" />
-    <Compile Include="Farmacia\Vendedor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Farmacia\Proveedor.cs" />
   </ItemGroup>

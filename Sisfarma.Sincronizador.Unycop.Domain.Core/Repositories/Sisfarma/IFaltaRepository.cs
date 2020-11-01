@@ -1,4 +1,5 @@
 ﻿using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
+using System.Collections.Generic;
 
 namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
 {
@@ -10,6 +11,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.ExternalServices.Fisiotes
 
         Falta LastOrDefault();
 
-        void Sincronizar(Falta falta, string tipoFalta);
+        void Sincronizar(IEnumerable<Falta> faltas);
     }
 }

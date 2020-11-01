@@ -1,7 +1,5 @@
 ﻿using Sisfarma.Client.Unycop;
-using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia;
-using Sisfarma.Sincronizador.Domain.Entities.Farmacia;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,38 +30,6 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 Thread.Sleep(TimeSpan.FromSeconds(60));
                 return GetGreatThanIdAsDTO(id);
             }
-        }
-
-        public Cliente GenerateCliente(UNYCOP.Cliente clienteUnycop)
-        {
-            var culture = UnycopFormat.GetCultureTwoDigitYear();
-
-            var fechaBaja = string.IsNullOrWhiteSpace(clienteUnycop.FBaja) ? 0 : clienteUnycop.FBaja.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
-            var fechaAlta = string.IsNullOrWhiteSpace(clienteUnycop.FAlta) ? 0 : clienteUnycop.FAlta.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
-            var fechaNacimiento = string.IsNullOrWhiteSpace(clienteUnycop.FNacimiento) ? 0 : clienteUnycop.FNacimiento.ToDateTimeOrDefault("dd/MM/yy", culture).ToDateInteger();
-            var sexo = clienteUnycop.Genero.ToUpper();
-            var cliente = new Cliente
-            {
-                Id = clienteUnycop.IdCliente,
-                Celular = clienteUnycop.Movil,
-                Email = clienteUnycop.Email,
-                Tarjeta = clienteUnycop.Clave,
-                EstadoCivil = clienteUnycop.EstadoCivil,
-                FechaNacimiento = fechaNacimiento > 0 ? (DateTime?)$"{fechaNacimiento}".ToDateTimeOrDefault("yyyyMMdd") : null,
-                Telefono = clienteUnycop.Telefono,
-                Puntos = (long)Convert.ToDouble(clienteUnycop.PuntosFidelidad),
-                NumeroIdentificacion = clienteUnycop.DNI,
-                LOPD = clienteUnycop.LOPD.Equals("Firmado", StringComparison.InvariantCultureIgnoreCase),
-                Sexo = sexo == "H" ? "HOMBRE" : sexo.ToUpper() == "M" ? "MUJER" : sexo,
-                Baja = fechaBaja != 0,
-                FechaAlta = $"{fechaAlta}".ToDateTimeOrDefault("yyyyMMdd"),
-                Direccion = clienteUnycop.Direccion,
-                Localidad = clienteUnycop.Localidad,
-                CodigoPostal = clienteUnycop.CP,
-                NombreCompleto = clienteUnycop.Nombre,
-            };
-
-            return cliente;
         }
 
         // TODO chango for array input

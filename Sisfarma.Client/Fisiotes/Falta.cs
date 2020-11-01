@@ -1,10 +1,41 @@
 namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 {
+    using Sisfarma.Sincronizador.Core.Extensions;
     using System;
 
-    public partial class Falta
+    public class Falta
     {
-        public long idPedido { get; set; }
+        public const string FamiliaDefault = "<Sin Clasificar>";
+        public const string LaboratorioDefault = "<Sin Laboratorio>";
+        public const string TipoNormal = "Normal";
+        public const string TipoStockMinimo = "StockMinimo";
+
+        public Falta(int idPedido, long? idLinea, string cod_nacional, string descripcion, string familia, string superFamilia, int? cantidadPedida, DateTime? fechaFalta, string cod_laboratorio, string laboratorio, string proveedor, DateTime? fechaPedido, decimal pvp, decimal puc, string sistema, string categoria, string subcategoria, string superFamiliaAux, string familiaAux, bool? cambioClasificacion, string tipoFalta)
+        {
+            this.idPedido = idPedido;
+            this.idLinea = idLinea;
+            this.cod_nacional = cod_nacional;
+            this.descripcion = descripcion.Strip();
+            this.familia = familia.Strip();
+            this.superFamilia = superFamilia.Strip();
+            this.cantidadPedida = cantidadPedida;
+            this.fechaFalta = fechaFalta.ToIsoString();
+            this.cod_laboratorio = cod_laboratorio.Strip();
+            this.laboratorio = laboratorio.Strip();
+            this.proveedor = proveedor.Strip();
+            this.fechaPedido = fechaPedido.ToIsoString();
+            this.pvp = pvp;
+            this.puc = puc;
+            this.sistema = sistema;
+            this.categoria = categoria.Strip();
+            this.subcategoria = subcategoria.Strip();
+            this.superFamiliaAux = superFamiliaAux.Strip();
+            this.familiaAux = familiaAux.Strip();
+            this.cambioClasificacion = cambioClasificacion.ToInteger();
+            this.tipoFalta = tipoFalta;
+        }
+
+        public int idPedido { get; set; }
 
         public long? idLinea { get; set; }
 
@@ -18,7 +49,7 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 
         public int? cantidadPedida { get; set; }
 
-        public DateTime? fechaFalta { get; set; }
+        public string fechaFalta { get; set; }
 
         public string cod_laboratorio { get; set; }
 
@@ -26,11 +57,11 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 
         public string proveedor { get; set; }
 
-        public DateTime? fechaPedido { get; set; }
+        public string fechaPedido { get; set; }
 
-        public float? pvp { get; set; }
+        public decimal pvp { get; set; }
 
-        public float? puc { get; set; }
+        public decimal puc { get; set; }
 
         public string sistema { get; set; }
 
@@ -42,6 +73,8 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 
         public string familiaAux { get; set; }
 
-        public bool? cambioClasificacion { get; set; }
+        public int cambioClasificacion { get; set; }
+
+        public string tipoFalta { get; set; }
     }
 }
