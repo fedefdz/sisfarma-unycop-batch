@@ -98,7 +98,6 @@
     <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IProveedorRepository.cs" />
     <Compile Include="Repositories\Farmacia\ISinonimosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IVentasRepository.cs" />
     <Compile Include="UnitOfWorks\FarmaciaService.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,20 +21,37 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             _cancellationToken.ThrowIfCancellationRequested();
             var sw = new Stopwatch();
             sw.Start();
-            var proveedores = _farmacia.Proveedores.GetAll().ToList();
+            var articulos = _farmacia.Farmacos.GetAllWithProveedores().ToList();
             Console.WriteLine($"Proveedores recuperados en {sw.ElapsedMilliseconds}ms");
+
+            sw.Restart();
+            var proveedores = articulos.Select(x => new Proveedor(idProveedor: x.CodProveedor.ToString(), nombre: x.NombreProveedor)).Distinct(new ProveedorComparer());
+            Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
 
             var batchSize = 1000;
             for (int index = 0; index < proveedores.Count(); index += batchSize)
             {
                 var items = proveedores.Skip(index).Take(batchSize).ToArray();
                 sw.Restart();
-                var batch = items.Select(p => new Proveedor(idProveedor: p.Id.ToString(), nombre: p.Nombre)).ToArray();
-                Console.WriteLine($"Proveedores listos para sync en {sw.ElapsedMilliseconds}ms");
-
-                sw.Restart();
-                _sisfarma.Proveedores.Sincronizar(batch);
+                _sisfarma.Proveedores.Sincronizar(items);
                 Console.WriteLine($"Proveedores sync en {sw.ElapsedMilliseconds}ms");
+            }
+        }
+
+        private class ProveedorComparer : EqualityComparer<Proveedor>
+        {
+            public override bool Equals(Proveedor x, Proveedor y) => x.idProveedor == y.idProveedor && x.nombre == y.nombre;
+
+            public override int GetHashCode(Proveedor obj)
+            {
+                unchecked
+                {
+                    int hash = 13;
+                    if (obj.idProveedor != null) hash = (hash * 7) + obj.idProveedor.GetHashCode();
+                    if (obj.nombre != null) hash = (hash * 7) + obj.nombre.GetHashCode();
+
+                    return hash;
+                }
             }
         }
     }

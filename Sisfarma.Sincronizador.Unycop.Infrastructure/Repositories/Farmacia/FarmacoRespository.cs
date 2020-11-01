@@ -53,6 +53,24 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
+        public IEnumerable<UNYCOP.Articulo> GetAllWithProveedores()
+        {
+            try
+            {
+                var filtro = $"(IdProveedor,>,0)";
+                var sw = new Stopwatch();
+                sw.Start();
+                var articulos = _unycopClient.Send<UNYCOP.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
+                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                return articulos;
+            }
+            catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(60));
+                return GetAllWithProveedores();
+            }
+        }
+
         public UNYCOP.Articulo GetOneOrDefaultById(long id)
         {
             try

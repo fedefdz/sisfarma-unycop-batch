@@ -78,7 +78,6 @@
   <ItemGroup>
     <Compile Include="Farmacia\Sinonimos.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Farmacia\Proveedor.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

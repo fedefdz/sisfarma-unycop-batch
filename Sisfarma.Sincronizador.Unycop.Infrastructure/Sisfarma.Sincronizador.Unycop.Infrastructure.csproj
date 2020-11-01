@@ -108,7 +108,6 @@
     <Compile Include="Repositories\Farmacia\FarmacoRespository.cs" />
     <Compile Include="Repositories\Farmacia\ListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\PedidosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\ProveedoresRepository.cs" />
     <Compile Include="Repositories\Farmacia\RecepcionRespository.cs" />
     <Compile Include="Repositories\Farmacia\SinonimosRepository.cs" />
     <Compile Include="Repositories\Farmacia\VentasRepository.cs" />
