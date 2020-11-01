@@ -2,6 +2,8 @@
 {
     public class Articulo
     {
+        public const string BolsaPlastico = "Bolsa de plástico";
+
         public int IdArticulo { get; set; }
 
         public string CNArticulo { get; set; }

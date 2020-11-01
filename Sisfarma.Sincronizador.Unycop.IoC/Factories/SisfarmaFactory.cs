@@ -5,7 +5,7 @@ using Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma;
 
 using INF = Sisfarma.Sincronizador.Infrastructure.Fisiotes;
 
-namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
+namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
 {
     public static class SisfarmaFactory
     {

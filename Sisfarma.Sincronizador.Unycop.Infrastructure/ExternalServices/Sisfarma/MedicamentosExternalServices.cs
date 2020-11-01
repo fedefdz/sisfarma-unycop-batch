@@ -48,41 +48,8 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 
         public void Sincronizar(IEnumerable<Medicamento> mms, bool controlado = false)
         {
-            var bulk = mms.Select(mm => new
-            {
-                actualizadoPS = 1,
-                cod_barras = mm.cod_barras.Strip(),
-                cod_nacional = mm.cod_nacional,
-                nombre = mm.nombre.Strip(),
-                familia = mm.familia.Strip(),
-                familiaAux = mm.familiaAux.Strip(),
-                precio = mm.precio,
-                descripcion = mm.descripcion.Strip(),
-                laboratorio = mm.laboratorio.Strip(),
-                nombre_laboratorio = mm.nombre_laboratorio.Strip(),
-                proveedor = mm.proveedor.Strip(),
-                pvpSinIva = mm.pvpSinIva,
-                iva = mm.iva,
-                stock = mm.stock,
-                puc = mm.puc,
-                stockMinimo = mm.stockMinimo,
-                stockMaximo = mm.stockMaximo,
-                categoria = mm.categoria.Strip(),
-                subcategoria = mm.subcategoria.Strip(),
-                web = mm.web.ToInteger(),
-                ubicacion = mm.ubicacion.Strip(),
-                presentacion = mm.presentacion,
-                descripcionTienda = mm.descripcionTienda,
-                activoPrestashop = mm.activoPrestashop.ToInteger(),
-                fechaCaducidad = mm.fechaCaducidad?.ToDateInteger("yyyyMM") ?? 0,
-                fechaUltimaCompra = mm.fechaUltimaCompra.ToIsoString(),
-                fechaUltimaVenta = mm.fechaUltimaVenta.ToIsoString(),
-                baja = mm.baja.ToInteger()
-            }).ToArray();
-
-            _restClient.
-                Resource(_config.Medicamentos.Insert)
-                .SendPost(new { bulk = bulk, controlado = controlado });
+            _restClient.Resource(_config.Medicamentos.Insert)
+                .SendPost(new { bulk = mms.ToArray(), controlado = controlado });
         }
     }
 }

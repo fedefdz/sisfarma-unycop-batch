@@ -77,6 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\SisfarmaFactory.cs" />
     <Compile Include="Repositories\Sisfarma\ICategoriaRepository.cs" />
     <Compile Include="Repositories\Sisfarma\IClienteRepository.cs" />
     <Compile Include="Repositories\Sisfarma\IConfiguracionRepository.cs" />

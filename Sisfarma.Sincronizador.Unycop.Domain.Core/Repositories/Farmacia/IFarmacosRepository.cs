@@ -18,8 +18,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
 
         IEnumerable<UNYCOP.Articulo> GetWithStockByIdGreaterOrEqualAsDTO(string codigo);
 
-        Farmaco GenerarFarmaco(UNYCOP.Articulo farmaco);
-
         bool AnyGraterThatDoesnHaveStock(string codigo);
 
         bool AnyGreaterThatHasStock(string codigo);
