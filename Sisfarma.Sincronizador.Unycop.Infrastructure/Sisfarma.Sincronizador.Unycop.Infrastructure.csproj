@@ -106,7 +106,6 @@
     <Compile Include="Repositories\Farmacia\ClientesRepository.cs" />
     <Compile Include="Repositories\Farmacia\EncargosRepository.cs" />
     <Compile Include="Repositories\Farmacia\FamiliaRepository.cs" />
-    <Compile Include="Repositories\Farmacia\FarmaciaRepository.cs" />
     <Compile Include="Repositories\Farmacia\FarmacoRespository.cs" />
     <Compile Include="Repositories\Farmacia\ListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\PedidosRepository.cs" />

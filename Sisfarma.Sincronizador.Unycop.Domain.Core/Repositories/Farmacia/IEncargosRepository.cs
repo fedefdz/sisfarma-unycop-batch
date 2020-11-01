@@ -6,7 +6,7 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
 {
     public interface IEncargosRepository
     {
-        IEnumerable<Entities.Farmacia.Encargo> GetAllByIdGreaterOrEqual(int anio, long encargo);
+        IEnumerable<Encargo> GetAllByIdGreaterOrEqual(int anio, long encargo);
     }
 
     public interface IRecepcionRespository

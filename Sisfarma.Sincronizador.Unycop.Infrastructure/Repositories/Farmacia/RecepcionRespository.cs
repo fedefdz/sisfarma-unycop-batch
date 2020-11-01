@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
-    public class RecepcionRespository : FarmaciaRepository, IRecepcionRespository
+    public class RecepcionRespository : IRecepcionRespository
     {
         private readonly UnycopClient _unycopClient;
 

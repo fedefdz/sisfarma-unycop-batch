@@ -8,7 +8,7 @@ using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
-    public class VentasRepository : FarmaciaRepository, IVentasRepository
+    public class VentasRepository : IVentasRepository
     {
         private readonly UnycopClient _unycopClient;
 

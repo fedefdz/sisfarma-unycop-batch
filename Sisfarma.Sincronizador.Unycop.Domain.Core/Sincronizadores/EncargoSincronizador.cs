@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,23 +7,20 @@ using Sisfarma.Sincronizador.Core.Extensions;
 using Sisfarma.Sincronizador.Domain.Core.Services;
 using Sisfarma.Sincronizador.Domain.Core.Sincronizadores.SuperTypes;
 using Sisfarma.Sincronizador.Domain.Entities.Fisiotes;
-using FAR = Sisfarma.Sincronizador.Domain.Entities.Farmacia;
+using Sisfarma.Sincronizador.Unycop.Domain.Core.Factories;
 
 namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 {
     public class EncargoSincronizador : TaskSincronizador
     {
-        protected const string TIPO_CLASIFICACION_DEFAULT = "Familia";
-        protected const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
+        private const string TIPO_CLASIFICACION_DEFAULT = "Familia";
+        private const string TIPO_CLASIFICACION_CATEGORIA = "Categoria";
         private readonly int _batchSize = 1000;
 
         private string _clasificacion;
 
-        protected const string LABORATORIO_DEFAULT = "<Sin Laboratorio>";
-        protected const string FAMILIA_DEFAULT = "<Sin Clasificar>";
-
-        protected int _anioInicio;
-        protected Encargo _ultimo;
+        private int _anioInicio;
+        private int _ultimo;
 
         public EncargoSincronizador(IFarmaciaService farmacia, ISisfarmaService fisiotes)
             : base(farmacia, fisiotes)
@@ -36,21 +34,19 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             _clasificacion = !string.IsNullOrWhiteSpace(ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION])
                 ? ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION]
                 : TIPO_CLASIFICACION_DEFAULT;
-        }
 
-        public override void PreSincronizacion()
-        {
-            base.PreSincronizacion();
-            _ultimo = _sisfarma.Encargos.LastOrDefault();
+            _ultimo = _sisfarma.Encargos.LastOrDefault()?.idEncargo ?? 1;
         }
 
         public override void Process()
         {
-            //_ultimo se carga en PreSincronizacion()
-            var idEncargo = _ultimo?.idEncargo ?? 1;
             var sw = new Stopwatch();
             sw.Start();
-            var encargos = _farmacia.Encargos.GetAllByIdGreaterOrEqual(_anioInicio, idEncargo).ToArray();
+            var encargos = _farmacia.Encargos.GetAllByIdGreaterOrEqual(_anioInicio, _ultimo).ToArray();
+
+            var set = encargos.Select(x => x.CNArticulo.ToIntegerOrDefault()).Distinct();
+            var famacosSource = _farmacia.Farmacos.GetBySetId(set).ToArray();
+            var isClasificacionCategoria = _clasificacion == TIPO_CLASIFICACION_CATEGORIA;
 
             Console.WriteLine($"Encargos recuperados en {sw.ElapsedMilliseconds}ms");
             sw.Restart();
@@ -60,56 +56,28 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 _cancellationToken.ThrowIfCancellationRequested();
 
                 sw.Restart();
-                var items = encargos.Skip(i).Take(_batchSize)
-                        .Select(encargo => GenerarEncargo(encargo)).ToList();
+
+                var items = new List<Encargo>();
+                var batch = encargos.Skip(i).Take(_batchSize);
+                foreach (var item in batch)
+                {
+                    var farmaco = famacosSource.FirstOrDefault(x => x.CNArticulo == item.CNArticulo);
+                    if (farmaco == null)
+                        continue;
+
+                    items.Add(SisfarmaFactory.CreateEncargo(item, farmaco, isClasificacionCategoria));
+                };
 
                 Console.WriteLine($"Encargos lote {i + 1} preparado en {sw.ElapsedMilliseconds}ms");
-
                 sw.Restart();
                 _sisfarma.Encargos.Sincronizar(items);
 
                 Console.WriteLine($"Lote {i + 1} sincronizado en {sw.ElapsedMilliseconds}ms");
-                if (_ultimo == null)
-                    _ultimo = new Encargo();
 
                 if (items.Any())
-                    _ultimo.idEncargo = (long)items.Last().idEncargo;
+                    _ultimo = items.Last().idEncargo;
             }
             Console.WriteLine($"Encargos sincronizados en ms {sw.ElapsedMilliseconds}");
-        }
-
-        private Encargo GenerarEncargo(FAR.Encargo encargo)
-        {
-            var familia = encargo.Farmaco.Familia?.Nombre ?? FAMILIA_DEFAULT;
-
-            return new Encargo
-            {
-                idEncargo = encargo.Id,
-                cod_nacional = encargo.Farmaco.Codigo,
-                nombre = encargo.Farmaco.Denominacion,
-                familia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? encargo.Farmaco.Subcategoria?.Nombre ?? FAMILIA_DEFAULT
-                        : familia,
-                superFamilia = _clasificacion == TIPO_CLASIFICACION_CATEGORIA
-                        ? encargo.Farmaco.Categoria?.Nombre ?? FAMILIA_DEFAULT
-                        : string.Empty,
-                superFamiliaAux = string.Empty,
-                familiaAux = _clasificacion == TIPO_CLASIFICACION_CATEGORIA ? familia : string.Empty,
-                cambioClasificacion = _clasificacion == TIPO_CLASIFICACION_CATEGORIA,
-                cod_laboratorio = encargo.Farmaco.Laboratorio?.Codigo ?? string.Empty,
-                laboratorio = encargo.Farmaco.Laboratorio?.Nombre ?? LABORATORIO_DEFAULT,
-                proveedor = encargo.Farmaco.Proveedor?.Nombre ?? string.Empty,
-                pvp = (float)encargo.Farmaco.Precio,
-                puc = (float)encargo.Farmaco.PrecioCoste,
-                dni = encargo.Cliente?.Id.ToString() ?? "0",
-                fecha = encargo.Fecha,
-                fechaEntrega = encargo.FechaEntrega,
-                trabajador = encargo.Vendedor?.Nombre ?? string.Empty,
-                unidades = encargo.Cantidad,
-                observaciones = encargo.Observaciones,
-                categoria = encargo.Farmaco.Categoria?.Nombre ?? string.Empty,
-                subcategoria = encargo.Farmaco.Subcategoria?.Nombre ?? string.Empty
-            };
         }
     }
 }

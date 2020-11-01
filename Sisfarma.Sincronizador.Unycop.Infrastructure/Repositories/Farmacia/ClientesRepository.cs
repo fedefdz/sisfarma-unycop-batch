@@ -11,7 +11,7 @@ using UNYCOP = Sisfarma.Client.Unycop.Model;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
-    public class ClientesRepository : FarmaciaRepository, IClientesRepository
+    public class ClientesRepository : IClientesRepository
     {
         private readonly UnycopClient _unycopClient;
 

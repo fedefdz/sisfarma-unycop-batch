@@ -5,7 +5,7 @@ namespace Sisfarma.Sincronizador.Domain.Entities.Fisiotes
 {
     public class Medicamento
     {
-        public const string FamiliaDfault = "<Sin Clasificar>";
+        public const string FamiliaDefault = "<Sin Clasificar>";
         public const string LaboratorioDefault = "<Sin Laboratorio>";
 
         public Medicamento(string cod_barras, string cod_nacional, string nombre, string descripcion, string laboratorio, string nombre_laboratorio, string proveedor, decimal? puc, decimal precio, decimal? pvpSinIva, int? iva, int? stock, int? stockMinimo, int? stockMaximo, string familia, string categoria, string subcategoria, string familiaAux, int web, string ubicacion, string presentacion, string descripcionTienda, int fechaCaducidad, string fechaUltimaCompra, string fechaUltimaVenta, int activoPrestashop, int baja)

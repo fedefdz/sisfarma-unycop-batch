@@ -18,9 +18,7 @@ namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
 
                 pedidos: new PedidosRepository(),
 
-                encargos: new EncargosRepository(
-                        clientesRepository: new ClientesRepository(),
-                        farmacoRepository: new FarmacoRespository()),
+                encargos: new EncargosRepository(),
 
                 listas: new ListaRepository(),
 

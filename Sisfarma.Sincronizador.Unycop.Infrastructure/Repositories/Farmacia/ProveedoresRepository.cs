@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
 {
-    public class ProveedoresRepository : FarmaciaRepository, IProveedorRepository
+    public class ProveedoresRepository : IProveedorRepository
     {
         private readonly UnycopClient _unycopClient;
 

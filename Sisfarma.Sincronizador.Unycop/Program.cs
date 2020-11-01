@@ -57,18 +57,18 @@ namespace Sisfarma.Sincronizador.Unycop
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayControlStock)
-                .AddSincronizador(new Domain.Core.Sincronizadores.ControlSinStockSincronizador(
-                        farmacia: FarmaciaFactory.Create(),
-                        fisiotes: SisfarmaFactory.Create()),
-                        delay: SincronizadorTaskManager.DelayControlStock)
+                //.AddSincronizador(new Domain.Core.Sincronizadores.ControlSinStockSincronizador(
+                //        farmacia: FarmaciaFactory.Create(),
+                //        fisiotes: SisfarmaFactory.Create()),
+                //        delay: SincronizadorTaskManager.DelayControlStock)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
                 //        delay: SincronizadorTaskManager.DelayProductosCriticos)
-                //.AddSincronizador(new Domain.Core.Sincronizadores.EncargoSincronizador(
-                //        farmacia: FarmaciaFactory.Create(),
-                //        fisiotes: SisfarmaFactory.Create()),
-                //        delay: SincronizadorTaskManager.DelayEncargos)
+                .AddSincronizador(new Domain.Core.Sincronizadores.EncargoSincronizador(
+                        farmacia: FarmaciaFactory.Create(),
+                        fisiotes: SisfarmaFactory.Create()),
+                        delay: SincronizadorTaskManager.DelayEncargos)
                 //.AddSincronizador(new Domain.Core.Sincronizadores.FamiliaSincronizador(
                 //        farmacia: FarmaciaFactory.Create(),
                 //        fisiotes: SisfarmaFactory.Create()),
