@@ -5,8 +5,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
 {
     public interface IFarmaciaService
     {
-        IFamiliaRepository Familias { get; }
-
         IVentasRepository Ventas { get; }
 
         IClientesRepository Clientes { get; }
@@ -29,7 +27,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
     public class FarmaciaService : IFarmaciaService
     {
         public FarmaciaService(
-            IFamiliaRepository familias,
             IVentasRepository ventas,
             IClientesRepository clientes,
             IFarmacosRepository farmacos,
@@ -40,7 +37,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
             IProveedorRepository proveedores,
             IRecepcionRespository recepciones)
         {
-            Familias = familias ?? throw new ArgumentNullException(nameof(familias));
             Ventas = ventas ?? throw new ArgumentNullException(nameof(ventas));
             Clientes = clientes ?? throw new ArgumentNullException(nameof(clientes));
             Farmacos = farmacos ?? throw new ArgumentNullException(nameof(farmacos));
@@ -51,8 +47,6 @@ namespace Sisfarma.Sincronizador.Domain.Core.Services
             Proveedores = proveedores ?? throw new ArgumentNullException(nameof(proveedores));
             Recepciones = recepciones ?? throw new ArgumentNullException(nameof(recepciones));
         }
-
-        public IFamiliaRepository Familias { get; }
 
         public IVentasRepository Ventas { get; }
 

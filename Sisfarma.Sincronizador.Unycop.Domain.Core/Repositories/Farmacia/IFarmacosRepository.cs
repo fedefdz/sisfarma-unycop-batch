@@ -8,9 +8,9 @@ namespace Sisfarma.Sincronizador.Domain.Core.Repositories.Farmacia
     {
         IEnumerable<UNYCOP.Articulo> GetByFamlias(IEnumerable<string> notEqual, IEnumerable<string> notContains);
 
-        IEnumerable<UNYCOP.Articulo> GetBySetId(IEnumerable<int> set);
+        IEnumerable<UNYCOP.Articulo> GetAllWithFamilias();
 
-        IEnumerable<UNYCOP.Articulo> GetAll();
+        IEnumerable<UNYCOP.Articulo> GetBySetId(IEnumerable<int> set);
 
         UNYCOP.Articulo GetOneOrDefaultById(long id);
 

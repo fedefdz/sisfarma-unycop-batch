@@ -19,41 +19,24 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
         public override void Process()
         {
-            var batchFamillias = new List<Familia>();
-            var familias = _farmacia.Familias.GetAll().ToList();
+            var batchFamilias = new List<Familia>();
+            var farmacos = _farmacia.Farmacos.GetAllWithFamilias();
+            var familias = farmacos.Where(x => !string.IsNullOrEmpty(x.NombreFamilia)).Select(x => x.NombreFamilia).Distinct().ToArray();
+            var categorias = farmacos.Where(x => !string.IsNullOrEmpty(x.NombreCategoria)).Select(x => x.NombreCategoria).Distinct().ToArray();
+            var subcategorias = farmacos.Where(x => !string.IsNullOrEmpty(x.NombreSubCategoria)).Select(x => x.NombreSubCategoria).Distinct().ToArray();
 
-            for (int i = 0; i < familias.Count(); i += _batchSize)
+            batchFamilias.AddRange(familias.Select(x => new Familia(x, Familia.TipoFamilia)));
+            batchFamilias.AddRange(categorias.Select(x => new Familia(x, Familia.TipoCategoria)));
+            batchFamilias.AddRange(subcategorias.Select(x => new Familia(x, Familia.TipoCategoria)));
+
+            for (int i = 0; i < batchFamilias.Count(); i += _batchSize)
             {
-                var items = familias.Skip(i).Take(_batchSize).ToArray();
-                foreach (var item in items)
-                {
-                    batchFamillias.Add(GenerarFamilia(item.Nombre, "Familia"));
+                Task.Delay(5);
+                _cancellationToken.ThrowIfCancellationRequested();
 
-                    foreach (var categoria in item.Categorias)
-                    {
-                        Task.Delay(5);
-                        _cancellationToken.ThrowIfCancellationRequested();
-
-                        batchFamillias.Add(GenerarFamilia(categoria.Nombre, "Categoria"));
-
-                        foreach (var subcategoria in categoria.Subcategorias)
-                        {
-                            Task.Delay(5);
-                            _cancellationToken.ThrowIfCancellationRequested();
-
-                            batchFamillias.Add(GenerarFamilia(subcategoria, "Categoria"));
-                        }
-                    }
-                }
-                _sisfarma.Familias.Sincronizar(batchFamillias);
-                batchFamillias.Clear();
+                var items = batchFamilias.Skip(i).Take(_batchSize).ToArray();
+                _sisfarma.Familias.Sincronizar(items);
             }
         }
-
-        private Familia GenerarFamilia(string nombre, string tipo) => new Familia
-        {
-            familia = nombre,
-            tipo = tipo
-        };
     }
 }

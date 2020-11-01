@@ -8,8 +8,6 @@ namespace Sisfarma.Sincronizador.Unycop.IoC.Factories
         public static FarmaciaService Create()
         {
             return new FarmaciaService(
-                familias: new FamiliaRepository(),
-
                 ventas: new VentasRepository(),
 
                 clientes: new ClientesRepository(),

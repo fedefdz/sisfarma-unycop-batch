@@ -38,20 +38,18 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
             }
         }
 
-        public IEnumerable<UNYCOP.Articulo> GetAll()
+        public IEnumerable<UNYCOP.Articulo> GetAllWithFamilias()
         {
             try
             {
-                var articulos = _unycopClient.Send<UNYCOP.Articulo>(new UnycopRequest(RequestCodes.Stock, null));
+                var filtro = $"(IdFamilia,>,0)";
+                var articulos = _unycopClient.Send<UNYCOP.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
                 return articulos;
-                //var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
-
-                //return farmacos;
             }
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(60));
-                return GetAll();
+                return GetAllWithFamilias();
             }
         }
 

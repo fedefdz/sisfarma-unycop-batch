@@ -95,7 +95,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Farmacia\IClientesRepository.cs" />
     <Compile Include="Repositories\Farmacia\IEncargosRepository.cs" />
-    <Compile Include="Repositories\Farmacia\IFamiliaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IFarmacosRepository.cs" />
     <Compile Include="Repositories\Farmacia\IListaRepository.cs" />
     <Compile Include="Repositories\Farmacia\IPedidosRepository.cs" />
