@@ -35,7 +35,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
                 ? ConfiguracionPredefinida[Configuracion.FIELD_TIPO_CLASIFICACION]
                 : TIPO_CLASIFICACION_DEFAULT;
 
-            _ultimo = _sisfarma.Encargos.LastOrDefault()?.idEncargo ?? 1;
+            _ultimo = _sisfarma.Encargos.LastOrDefault()?.idEncargo ?? 0;
         }
 
         public override void Process()

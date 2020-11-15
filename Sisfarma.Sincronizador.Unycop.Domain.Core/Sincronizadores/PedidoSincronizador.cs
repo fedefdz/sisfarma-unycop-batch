@@ -51,8 +51,11 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             Console.WriteLine($"alabaranes recuperados en {sw.ElapsedMilliseconds}ms");
             if (!albaranes.Any())
             {
-                _anioInicio++;
-                _lastPedido = null;
+                if (_anioInicio != DateTime.Now.Year)
+                {
+                    _anioInicio++;
+                    _lastPedido = null;
+                }
                 return;
             }
 
