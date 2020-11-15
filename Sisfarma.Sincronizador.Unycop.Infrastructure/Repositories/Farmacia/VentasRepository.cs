@@ -27,7 +27,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
                 var incioAnio = new DateTime(year, 1, 1).ToString(UnycopFormat.FechaCompleta, culture);
                 var finAnio = new DateTime(year, 12, 31, 23, 59, 59).ToString(UnycopFormat.FechaCompleta, culture);
 
-                var filtro = $"(FechaVenta,>=,{incioAnio})&(FechaVenta,<=,{finAnio})&(IdVenta,>=,{value})";
+                var filtro = $"(FechaVenta,>=,{incioAnio})&(FechaVenta,<=,{finAnio})&(IdVenta,>=,{value})&(NumeroTiquet,<>,'-')";
 
                 var ventas = _unycopClient.Send<UNYCOP.Venta>(new UnycopRequest(RequestCodes.Ventas, filtro));
                 return ventas.ToList();
