@@ -90,7 +90,11 @@ namespace Sisfarma.Sincronizador.Unycop
                         farmacia: FarmaciaFactory.Create(),
                         fisiotes: SisfarmaFactory.Create()),
                         delay: SincronizadorTaskManager.DelayProveedores)
-                ;
+                .AddSincronizador(new Domain.Core.Sincronizadores.VentaMensualActualizacionSincronizador(
+                    farmacia: FarmaciaFactory.Create(),
+                    fisiotes: SisfarmaFactory.Create()),
+                    delay: SincronizadorTaskManager.DelayVentaMensual);
+            ;
 
             Task.Factory.StartNew(() => new PowerSwitchProgramado(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));
             Task.Factory.StartNew(() => new PowerSwitchManual(SisfarmaFactory.Create()).SincronizarAsync(Updater.GetCancellationToken(), delayLoop: 60000));

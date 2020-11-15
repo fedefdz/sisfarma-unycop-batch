@@ -21,8 +21,9 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             _batchSize = 1000;
         }
 
-        public override void PreSincronizacion()
+        public override void LoadConfiguration()
         {
+            base.LoadConfiguration();
             _isEmpty = _sisfarma.Sinonimos.IsEmpty();
         }
 

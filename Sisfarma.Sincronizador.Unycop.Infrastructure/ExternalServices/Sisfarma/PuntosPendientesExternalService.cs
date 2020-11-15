@@ -5,6 +5,8 @@ using System.Linq;
 using Sisfarma.Client.Config;
 using Sisfarma.Client.Model;
 using Sisfarma.Sincronizador.Unycop.Domain.Core.Repositories.Sisfarma;
+using System;
+using Sisfarma.Sincronizador.Core.Extensions;
 
 namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
 {
@@ -26,6 +28,25 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.ExternalServices.Sisfarma
             catch (RestClientNotFoundException)
             {
                 return 1L;
+            }
+        }
+
+        public bool ExistsGreatThanOrEqual(DateTime fecha)
+        {
+            var year = fecha.Year;
+            var fechaVenta = fecha.Date.ToIsoString();
+
+            try
+            {
+                return _restClient
+                    .Resource(_config.Puntos.ExistsByFechaGreatThanOrEqual
+                        .Replace("{year}", $"{year}")
+                        .Replace("{fecha}", $"{fechaVenta})"))
+                    .SendGet<bool>();
+            }
+            catch (RestClientNotFoundException)
+            {
+                return false;
             }
         }
 
