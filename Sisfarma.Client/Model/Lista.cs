@@ -1,3 +1,5 @@
+using Sisfarma.Sincronizador.Core.Extensions;
+
 namespace Sisfarma.Client.Model
 {
     public class Lista
@@ -5,7 +7,7 @@ namespace Sisfarma.Client.Model
         public Lista(int cod, string lista)
         {
             this.cod = cod;
-            this.lista = lista;
+            this.lista = lista.Strip();
             this.porDondeVoy = 1;
         }
 

@@ -42,7 +42,7 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                var filtro = $"(IdFamilia,>,0)";
+                var filtro = $"(NombreFamilia,<>,'')";
                 var articulos = _unycopClient.Send<UNYCOP.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
                 return articulos;
             }
