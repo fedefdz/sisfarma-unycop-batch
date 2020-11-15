@@ -55,12 +55,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
 
                 _sisfarma.Medicamentos.Sincronizar(medicamentos);
                 _ultimoMedicamentoSincronizado = medicamentos.Last().cod_nacional;
+            }
 
-                if (!_farmacia.Farmacos.AnyGraterThatDoesnHaveStock(_ultimoMedicamentoSincronizado))
-                {
-                    _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
-                    _ultimoMedicamentoSincronizado = "0";
-                }
+            if (!_farmacia.Farmacos.AnyGraterThatDoesnHaveStock(_ultimoMedicamentoSincronizado))
+            {
+                _sisfarma.Configuraciones.Update(Configuracion.FIELD_POR_DONDE_VOY_SIN_STOCK, "0");
+                _ultimoMedicamentoSincronizado = "0";
             }
         }
     }

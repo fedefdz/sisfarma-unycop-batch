@@ -42,7 +42,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var sw = new Stopwatch();
             sw.Start();
             var pedidos = (_falta == -1)
-                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date.AddYears(-2)).ToList()
+                ? _farmacia.Pedidos.GetAllByFechaGreaterOrEqual(DateTime.Now.Date).ToList()
                 : _farmacia.Pedidos.GetAllByIdGreaterOrEqual(_falta);
             Console.WriteLine($"pedidos recuperados en {sw.ElapsedMilliseconds}ms");
             if (!pedidos.Any())
@@ -53,7 +53,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             sw.Restart();
             var sourceFarmacos = _farmacia.Farmacos.GetBySetId(set).ToList();
             Console.WriteLine($"articulos recuperados en {sw.ElapsedMilliseconds}ms");
-            var farmacosCriticos = sourceFarmacos.Where(x => x.Stock == STOCK_CRITICO || x.Stock <= x.Stock).ToArray();
+            var farmacosCriticos = sourceFarmacos.Where(x => x.Stock == STOCK_CRITICO || x.Stock <= (x.Minimo ?? 0)).ToArray();
 
             var batchSize = 1000;
             for (int index = 0; index < pedidos.Count(); index += batchSize)
