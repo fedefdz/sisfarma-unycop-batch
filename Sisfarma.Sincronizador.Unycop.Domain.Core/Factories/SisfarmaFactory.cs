@@ -243,7 +243,7 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Factories
                 familiaAux: isClasificacionCategoria ? farmaco.NombreFamilia : string.Empty,
                 cambioClasificacion: isClasificacionCategoria.ToInteger(),
                 cantidad: item.UnidadesVendidas,
-                precio: item.PvpArticulo ?? -1,
+                precio: item.ImporteBruto ?? -1,
                 pago: currentLinea == 1 ? venta.Pago : 0,
                 tipoPago: item.CodigoOperacion,
                 fecha: fechaVenta.Date.ToDateInteger(),
