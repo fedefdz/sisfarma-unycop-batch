@@ -109,16 +109,20 @@ namespace Sisfarma.Sincronizador.Unycop.Infrastructure.Repositories.Farmacia
         {
             try
             {
-                var filtro = $"(IdArticulo,>=,{codigo})&(Stock,<=,0)";
+                var articulos = new List<UNYCOP.Articulo>();
+                var filtros = new[]  {
+                    $"(IdArticulo,>=,{codigo})&(Stock,nulo)",
+                    $"(IdArticulo,>=,{codigo})&(Stock,<=,0)"
+                };
                 var sw = new Stopwatch();
-                sw.Start();
-                var articulos = _unycopClient.Send<Client.Unycop.Model.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro));
-                Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                foreach (var filtro in filtros)
+                {
+                    sw.Start();
+                    articulos.AddRange(_unycopClient.Send<UNYCOP.Articulo>(new UnycopRequest(RequestCodes.Stock, filtro)));
+                    Console.WriteLine($"unycop responde en {sw.ElapsedMilliseconds}ms");
+                    sw.Reset();
+                }
                 return articulos;
-                //sw.Restart();
-                //var farmacos = articulos.Select(x => DTO.Farmaco.CreateFrom(x));
-                //Console.WriteLine($"mapping en en {sw.ElapsedMilliseconds}ms");
-                //return farmacos;
             }
             catch (UnycopFailResponseException unycopEx) when (unycopEx.Codigo == ResponseCodes.IntervaloTemporalSinCompletar)
             {
