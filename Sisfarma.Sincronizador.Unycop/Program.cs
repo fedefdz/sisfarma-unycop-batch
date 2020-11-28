@@ -36,10 +36,10 @@ namespace Sisfarma.Sincronizador.Unycop
             SisfarmaFactory.Create().Configuraciones.Update("versionSincronizador", "4.0");
 
             SincronizadorTaskManager.TaskSincronizadores
-            //.AddSincronizador(new Domain.Core.Sincronizadores.PuntoPendienteSincronizador(
-            //    farmacia: FarmaciaFactory.Create(),
-            //    fisiotes: SisfarmaFactory.Create()),
-            //    delay: SincronizadorTaskManager.DelayPuntosPendiente)
+            .AddSincronizador(new Domain.Core.Sincronizadores.PuntoPendienteSincronizador(
+                farmacia: FarmaciaFactory.Create(),
+                fisiotes: SisfarmaFactory.Create()),
+                delay: SincronizadorTaskManager.DelayPuntosPendiente)
             //.AddSincronizador(new Domain.Core.Sincronizadores.ClienteSincronizador(
             //        farmacia: FarmaciaFactory.Create(),
             //        fisiotes: SisfarmaFactory.Create())
@@ -57,10 +57,10 @@ namespace Sisfarma.Sincronizador.Unycop
             //        farmacia: FarmaciaFactory.Create(),
             //        fisiotes: SisfarmaFactory.Create()),
             //        delay: SincronizadorTaskManager.DelayControlStock)
-            .AddSincronizador(new Domain.Core.Sincronizadores.ControlSinStockSincronizador(
-                    farmacia: FarmaciaFactory.Create(),
-                    fisiotes: SisfarmaFactory.Create()),
-                    delay: SincronizadorTaskManager.DelayControlStock)
+            //.AddSincronizador(new Domain.Core.Sincronizadores.ControlSinStockSincronizador(
+            //        farmacia: FarmaciaFactory.Create(),
+            //        fisiotes: SisfarmaFactory.Create()),
+            //        delay: SincronizadorTaskManager.DelayControlStock)
             //.AddSincronizador(new Domain.Core.Sincronizadores.ProductoCriticoSincronizador(
             //        farmacia: FarmaciaFactory.Create(),
             //        fisiotes: SisfarmaFactory.Create()),
