@@ -46,19 +46,12 @@ namespace Sisfarma.Sincronizador.Unycop.Domain.Core.Sincronizadores
             var sw = new Stopwatch();
             sw.Start();
             var albaranes = (_lastPedido == null)
-                ? _farmacia.Recepciones.GetAllByYear(_anioInicio).ToList()
+                ? _farmacia.Recepciones.GetAllByDate(new DateTime(_anioInicio, 1, 1)).ToList()
                 : _farmacia.Recepciones.GetAllByDate(DateTime.Parse(_lastPedido.fechaPedido)).ToList();
 
             Console.WriteLine($"alabaranes recuperados en {sw.ElapsedMilliseconds}ms");
             if (!albaranes.Any())
-            {
-                if (_anioInicio != DateTime.Now.Year)
-                {
-                    _anioInicio++;
-                    _lastPedido = null;
-                }
                 return;
-            }
 
             var set = albaranes.SelectMany(x => x.lineasItem).Select(x => int.Parse(x.CNArticulo)).Distinct();
             Console.WriteLine($"cant articulos {set.Count()}");
